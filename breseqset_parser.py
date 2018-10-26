@@ -1,9 +1,8 @@
 from pathlib import Path
-from typing import List, Optional
-
+from typing import List, Dict
 import pandas
 
-from isolate_parser import parse_breseq_isolate
+from breseqparsers.isolate_parser import parse_breseq_isolate
 
 
 def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
@@ -23,18 +22,44 @@ def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
 	return breseq_folders
 
 
-def _get_index_file_path(breseq_folder: Path) -> Optional[Path]:
-	index_file = breseq_folder / "data" / "output" / "index.html"
+def save_isolate_table(tables:Dict[str,pandas.DataFrame], filename: Path) -> Path:
+		"""
+			Saves the parsed table as an Excel spreadsheet.
+		Parameters
+		----------
+		tables: Dict[str,pandas.DataFrame]
+			A mapping of sheet names to dataframes.
+		filename: str, pathlib.Path
+			The output file.
 
-	if not index_file.exists():
-		candidates = list(breseq_folder.glob("**/index.html"))
-		if len(candidates) != 1:
-			message = "Cannot find the index file for folder {}".format(breseq_folder)
-			print(message)
-			return None
-		index_file = candidates[0]
-	return index_file
+		Returns
+		-------
 
+		"""
+		writer = pandas.ExcelWriter(filename)
+		include_index = False
+		for sheet_label, df in tables.items():
+			df.to_excel(writer, sheet_label, index = include_index)
+		"""
+		writer.close()
+
+		wb = load_workbook(filename)
+		ws = wb['junctions']
+
+		merge_columns = [
+			c
+			for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+			if ws[c + '1'].value in ['Sample', 0, '0', 'freq', 'product', 'score']
+		]
+
+		for x in range(0, len(self.junction_table), 2):
+			for column in merge_columns:
+				cells_to_merge = '{0}{1}:{0}{2}'.format(column, x + 2, x + 3)
+				ws.merge_cells(cells_to_merge)
+
+		wb.save(filename)
+		"""
+		return filename
 
 def parse_breseqset(folder: Path):
 	""" Expects a folder of breseq runs for a set ofisolates."""
@@ -43,20 +68,25 @@ def parse_breseqset(folder: Path):
 	coverage_dfs = list()
 	junction_dfs = list()
 	for index, breseq_folder in enumerate(breseq_folders):
-		index_filename = _get_index_file_path(breseq_folder)
-		if index_filename is None:
+		try:
+			snp_df, coverage_df, junction_df = parse_breseq_isolate(breseq_folder)
+		except FileNotFoundError:
 			continue
-		snp_df, coverage_df, junction_df = parse_breseq_isolate(index_filename)
 		snp_dfs.append(snp_df)
 		coverage_dfs.append(coverage_df)
 		junction_dfs.append(junction_df)
+
 
 	snp_dataframe_full = pandas.concat(snp_dfs)
 	coverage_dataframe_full = pandas.concat(coverage_dfs)
 	junction_dataframe_full = pandas.concat(junction_dfs)
 
-	snp_dataframe_full.to_excel(folder / "breseq_table.xlsx")
-
+	tables = {
+		'snp': snp_dataframe_full,
+		'coverage': coverage_dataframe_full,
+		'junction': junction_dataframe_full
+	}
+	save_isolate_table(tables, folder / "breseq_table.xlsx")
 
 	# snp_dataframe_full.to_csv(folder / "breseq_table.tsv", sep = "\t")
 

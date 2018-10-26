@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from pathlib import Path
 from typing import List, Tuple, Any, Dict, Union
-
+from pprint import pprint
 from bs4 import BeautifulSoup
 from unidecode import unidecode
 import pandas
@@ -175,6 +175,19 @@ def _parse_junctions(sample_name: str, junctions: BeautifulSoup) -> TableType:
 		junction_table.append(b_row)
 	return junction_table
 
+def get_index_filename(path:Path)->Path:
+	path = Path(path)
+	if path.name == 'index.html':
+		return path
+	index_file = path / "data" / "output" / "index.html"
+
+	if not index_file.exists():
+		candidates = list(path.glob("**/index.html"))
+		if len(candidates) != 1:
+			message = f"Cannot find the index file for folder {path}"
+			raise FileNotFoundError(message)
+		index_file = candidates[0]
+	return index_file
 
 def parse_index_file(sample_name: str, filename: Union[str,Path])->Tuple[DFType,DFType,DFType]:
 	"""
@@ -188,6 +201,7 @@ def parse_index_file(sample_name: str, filename: Union[str,Path])->Tuple[DFType,
 	-------
 
 	"""
+	filename = get_index_filename(filename)
 	file_contents = _load_index_file(filename)
 
 	snp_table_headers, snp_soup, coverage_soup, junction_soup = _extract_index_tables(file_contents)

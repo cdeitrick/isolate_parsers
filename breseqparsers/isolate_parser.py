@@ -35,27 +35,14 @@
 
 """
 
-from pathlib import Path
-from index_file_parser import parse_index_file
-from typing import Optional
 import re
-from pprint import pprint
-def _get_index_file_path(path:Path)->Path:
-	if path.name == 'index.html':
-		return path
-	index_file = path / "data" / "output" / "index.html"
+from pathlib import Path
+from typing import Optional
 
-	if not index_file.exists():
-		candidates = list(path.glob("**/index.html"))
-		if len(candidates) != 1:
-			message = f"Cannot find the index file for folder {path}"
-			pprint(candidates)
-			raise FileNotFoundError(message)
-		index_file = candidates[0]
-	return index_file
+from breseqparsers.file_parsers import vcf_file_parser, index_file_parser
 
 
-def _get_sample_name(folder:Path)->Optional[str]:
+def _get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
 	pattern = "[A-Z]+[\d]+"
 	for part in folder.parts[::-1]:
@@ -67,15 +54,19 @@ def _get_sample_name(folder:Path)->Optional[str]:
 		name = None
 
 	return name
-def parse_breseq_isolate(breseq_folder:Path):
+
+
+def parse_breseq_isolate(breseq_folder: Path):
 	""" parses all available data from a single breseq run."""
 	isolate_name = _get_sample_name(breseq_folder)
-	index_file = _get_index_file_path(breseq_folder)
+	index_file = index_file_parser.get_index_filename(breseq_folder)
+	vcf_file = vcf_file_parser.get_vcf_filename(breseq_folder)
 
-	snp_df, coverage_df, junction_df = parse_index_file(isolate_name, index_file)
+	snp_df, coverage_df, junction_df = index_file_parser.parse_index_file(isolate_name, index_file)
+	vcf_df = vcf_file_parser.parse_vcf(vcf_file, isolate_name)
 
 	snp_df['sampleName'] = coverage_df['sampleName'] = junction_df['sampleName'] = isolate_name
-	return snp_df, coverage_df, junction_df
+	snp_df = snp_df.set_index(keys = ['sampleName', 'seq id', 'position'])
 
-
-
+	variant_df = snp_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
+	return variant_df, coverage_df, junction_df
