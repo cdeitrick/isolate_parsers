@@ -39,7 +39,7 @@ import re
 from pathlib import Path
 from typing import Optional
 
-from breseqparsers.file_parsers import vcf_file_parser, index_file_parser
+from breseqparser.file_parsers import vcf_file_parser, index_file_parser
 
 
 def _get_sample_name(folder: Path) -> Optional[str]:

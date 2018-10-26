@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List, Dict
 import pandas
 
-from breseqparsers.isolate_parser import parse_breseq_isolate
+from breseqparser.isolate_parser import parse_breseq_isolate
 
 
 def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:

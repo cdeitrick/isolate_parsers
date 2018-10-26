@@ -183,8 +183,11 @@ def get_index_filename(path:Path)->Path:
 
 	if not index_file.exists():
 		candidates = list(path.glob("**/index.html"))
-		if len(candidates) != 1:
+		if not candidates:
 			message = f"Cannot find the index file for folder {path}"
+			raise FileNotFoundError(message)
+		elif len(candidates) != 1:
+			message = f"Found multiple index files for folder {path}"
 			raise FileNotFoundError(message)
 		index_file = candidates[0]
 	return index_file
