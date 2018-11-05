@@ -86,6 +86,7 @@ def parse_breseqset(folder: Path):
 		'coverage': coverage_dataframe_full,
 		'junction': junction_dataframe_full
 	}
+	snp_dataframe_full.to_excel('breseq_output.xlsx')
 	save_isolate_table(tables, folder / "breseq_table.xlsx")
 	return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full
 

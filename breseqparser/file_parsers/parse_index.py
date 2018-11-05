@@ -227,6 +227,6 @@ if __name__ == "__main__":
 	path ="../data/index.html"
 
 	_snp, _cov, _jun = parse_index_file("AU0074", path)
-	pandas.to_excel('breseq_output.xlsx')
-	print(_snp.to_string())
+	_snp.to_excel('breseq_output.xlsx')
+
 
