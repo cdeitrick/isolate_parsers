@@ -216,7 +216,7 @@ def parse_index_file(sample_name: str, filename: Union[str,Path])->Tuple[DFType,
 	try:
 		junction_table = _parse_junctions(sample_name, junction_soup)
 	except:
-		coverage_table = []
+		junction_table = []
 	snp_df = convert_to_dataframe(snp_table)
 	coverage_df = convert_to_dataframe(coverage_table)
 	junction_df = convert_to_dataframe(junction_table)
