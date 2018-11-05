@@ -179,7 +179,7 @@ def get_index_filename(path:Path)->Path:
 	path = Path(path)
 	if path.name == 'index.html':
 		return path
-	index_file = path / "data" / "output" / "index.html"
+	index_file = path / "output" / "index.html"
 
 	if not index_file.exists():
 		candidates = list(path.glob("**/index.html"))
@@ -210,9 +210,13 @@ def parse_index_file(sample_name: str, filename: Union[str,Path])->Tuple[DFType,
 	snp_table_headers, snp_soup, coverage_soup, junction_soup = _extract_index_tables(file_contents)
 
 	snp_table = _parse_snp_table(sample_name, snp_table_headers, snp_soup)
-	coverage_table = _parse_coverage(sample_name, coverage_soup)
-	junction_table = _parse_junctions(sample_name, junction_soup)
-
+	try:
+		coverage_table = _parse_coverage(sample_name, coverage_soup)
+	except: coverage_table = []
+	try:
+		junction_table = _parse_junctions(sample_name, junction_soup)
+	except:
+		coverage_table = []
 	snp_df = convert_to_dataframe(snp_table)
 	coverage_df = convert_to_dataframe(coverage_table)
 	junction_df = convert_to_dataframe(junction_table)
@@ -223,5 +227,6 @@ if __name__ == "__main__":
 	path ="../data/index.html"
 
 	_snp, _cov, _jun = parse_index_file("AU0074", path)
+	pandas.to_excel('breseq_output.xlsx')
 	print(_snp.to_string())
 

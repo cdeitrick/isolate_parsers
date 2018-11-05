@@ -37,7 +37,7 @@ def save_isolate_table(tables:Dict[str,pandas.DataFrame], filename: Path) -> Pat
 
 		"""
 		writer = pandas.ExcelWriter(filename)
-		include_index = False
+		include_index = True
 		for sheet_label, df in tables.items():
 			df.to_excel(writer, sheet_label, index = include_index)
 		"""
@@ -77,9 +77,9 @@ def parse_breseqset(folder: Path):
 		junction_dfs.append(junction_df)
 
 
-	snp_dataframe_full = pandas.concat(snp_dfs)
-	coverage_dataframe_full = pandas.concat(coverage_dfs)
-	junction_dataframe_full = pandas.concat(junction_dfs)
+	snp_dataframe_full = pandas.concat(snp_dfs, sort = True)
+	coverage_dataframe_full = pandas.concat(coverage_dfs, sort = True)
+	junction_dataframe_full = pandas.concat(junction_dfs, sort = True)
 
 	tables = {
 		'snp': snp_dataframe_full,
@@ -87,8 +87,7 @@ def parse_breseqset(folder: Path):
 		'junction': junction_dataframe_full
 	}
 	save_isolate_table(tables, folder / "breseq_table.xlsx")
-
-	# snp_dataframe_full.to_csv(folder / "breseq_table.tsv", sep = "\t")
+	return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full
 
 if __name__ == "__main__":
 	_folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output/")

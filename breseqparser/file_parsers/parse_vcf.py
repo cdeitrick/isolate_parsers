@@ -38,8 +38,8 @@ def parse_vcf(path: Path, name: Optional[str] = None):
 		vcf_reader = vcf.Reader(file1)
 
 		for record in vcf_reader:
-			alt = "".join(record.ALT)
-			ref = "".join(record.REF)
+			alt = "".join(str(i) for i in record.ALT)
+			ref = "".join(str(i) for i in record.REF)
 			qual = record.QUAL
 			depth = record.INFO.get('DP')
 			row = {
@@ -48,18 +48,28 @@ def parse_vcf(path: Path, name: Optional[str] = None):
 				'alt':        alt,
 				'ref':        ref,
 				'quality':    qual,
-				'readDepth':  depth
+				'readDepth':  depth,
+				'variantType': record.var_type
 			}
 			table.append(row)
 	df = pandas.DataFrame(table)
 
 	df['sampleName'] = name
+	df = filter_df(df)
 	df = df.set_index(keys = ['sampleName', 'seq id', 'position'])
+
 	return df
+
+def filter_df(df:pandas.DataFrame)->pandas.DataFrame:
+	forward = df['position'].diff().abs()
+	reverse = df['position'][::-1].diff()[::-1].abs()
+
+	fdf = df[(forward>1000) | (reverse>1000)]
+	return fdf
 
 
 if __name__ == "__main__":
-	data_folder = Path(__file__).with_name('data')
+	data_folder = Path(__file__).parent.parent / "tests" / "breseq_run"/"AU0074" / "breseq_output"/ "data" / "output.vcf"
 
 	d = parse_vcf(data_folder)
-	print(d)
+	#print(d)

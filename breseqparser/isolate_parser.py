@@ -39,7 +39,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
-from breseqparser.file_parsers import vcf_file_parser, index_file_parser
+from breseqparser.file_parsers import parse_vcf, parse_index
+from breseqparser.file_parsers import parse_gd
 
 
 def _get_sample_name(folder: Path) -> Optional[str]:
@@ -56,17 +57,26 @@ def _get_sample_name(folder: Path) -> Optional[str]:
 	return name
 
 
-def parse_breseq_isolate(breseq_folder: Path):
+def parse_breseq_isolate(breseq_folder: Path, isolate_name:str = None):
 	""" parses all available data from a single breseq run."""
-	isolate_name = _get_sample_name(breseq_folder)
-	index_file = index_file_parser.get_index_filename(breseq_folder)
-	vcf_file = vcf_file_parser.get_vcf_filename(breseq_folder)
-
-	snp_df, coverage_df, junction_df = index_file_parser.parse_index_file(isolate_name, index_file)
-	vcf_df = vcf_file_parser.parse_vcf(vcf_file, isolate_name)
-
+	if not isolate_name:
+		isolate_name = _get_sample_name(breseq_folder)
+	index_file = parse_index.get_index_filename(breseq_folder)
+	vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
+	gd_file = parse_gd.get_gd_filename(breseq_folder)
+	snp_df, coverage_df, junction_df = parse_index.parse_index_file(isolate_name, index_file)
+	vcf_df = parse_vcf.parse_vcf(vcf_file, isolate_name)
+	gd_df = parse_gd.parse_gd(gd_file, isolate_name)
+	gd_subset = gd_df[['aminoAlt', 'aminoRef', 'locusTag', 'mutationCategory', 'position', 'seq id', 'sampleName']]
+	gd_subset = gd_subset.set_index(keys = ['sampleName', 'seq id', 'position'])
 	snp_df['sampleName'] = coverage_df['sampleName'] = junction_df['sampleName'] = isolate_name
 	snp_df = snp_df.set_index(keys = ['sampleName', 'seq id', 'position'])
 
 	variant_df = snp_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
+	variant_df = variant_df.merge(gd_subset, how = 'left', left_index = True, right_index = True)
 	return variant_df, coverage_df, junction_df
+
+if __name__ == "__main__":
+	path = Path(__file__).parent.parent / 'data' / "breseq_run" / "AU0074"
+	v, *_ = parse_breseq_isolate(path, 'AU0074')
+	print(v.to_string())
