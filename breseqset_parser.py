@@ -90,6 +90,6 @@ def parse_breseqset(folder: Path):
 	return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full
 
 if __name__ == "__main__":
-	_folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output/")
+	_folder = Path("/home/djs150/TravisanoBreseq")
 
 	parse_breseqset(_folder)
