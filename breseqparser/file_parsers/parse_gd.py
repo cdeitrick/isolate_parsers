@@ -1,8 +1,10 @@
-from pathlib import Path
-from typing import List, Dict, Union, Tuple
 import csv
-from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Dict, List, Tuple, Union
+
 import pandas
+from dataclasses import dataclass, field
+
 MUTATION_KEYS = {
 	'snp': {
 		'position': ['seqId', 'position', 'new_seq'],
@@ -220,7 +222,7 @@ class GenomeDiffParser:
 				ls.append(i)
 		return ls
 
-	def generate_mutation_table(self)->pandas.DataFrame:
+	def generate_mutation_table(self) -> pandas.DataFrame:
 		table = list()
 		for mutation in self.mutations():
 			description = mutation.get('gene_product')
@@ -230,28 +232,29 @@ class GenomeDiffParser:
 			codon_ref = mutation.get('codon_ref_seq')
 			codon_position = mutation.get('codon_position')
 			try:
-				reference_base = codon_ref[int(codon_position)-1]
+				reference_base = codon_ref[int(codon_position) - 1]
 			except (ValueError, TypeError):
 				reference_base = ""
 
 			row = {
-				'sampleName': self.sample_id,
-				'description': description,
-				'gene': gene_name,
-				'mutation': '',
-				'position': position,
-				'seq id': mutation.seqId,
-				'baseAlt': mutation.get('new_seq'),
-				'baseRef': reference_base,
-				'aminoAlt': mutation.get('aa_new_seq'),
-				'aminoRef': mutation.get('aa_ref_seq'),
-				'locusTag': mutation.get('locus_tag'),
+				'sampleName':       self.sample_id,
+				'description':      description,
+				'gene':             gene_name,
+				'mutation':         '',
+				'position':         position,
+				'seq id':           mutation.seqId,
+				'baseAlt':          mutation.get('new_seq'),
+				'baseRef':          reference_base,
+				'aminoAlt':         mutation.get('aa_new_seq'),
+				'aminoRef':         mutation.get('aa_ref_seq'),
+				'locusTag':         mutation.get('locus_tag'),
 				'mutationCategory': mutation.get('mutation_category')
 			}
 			table.append(row)
 
 		df = pandas.DataFrame(table)
 		return df
+
 
 def get_gd_filename(path: Path) -> Path:
 	if path.is_dir():
@@ -269,14 +272,16 @@ def get_gd_filename(path: Path) -> Path:
 		raise ValueError(message)
 	return result
 
-def parse_gd(path:Path, sample_id:str)->pandas.DataFrame:
+
+def parse_gd(path: Path, sample_id: str) -> pandas.DataFrame:
 	filename = get_gd_filename(path)
 	gd_data = GenomeDiffParser(filename, sample_id)
 	return gd_data.generate_mutation_table()
+
 
 if __name__ == "__main__":
 	gd_file = Path(__file__).parent.parent.parent / "data" / "breseq_run" / "AU0074" / "breseq_output" / "output" / "evidence" / "annotated.gd"
 
 	gd_table = parse_gd(gd_file.absolute(), 'AU0074')
 
-	#print(gd_table.to_string())
+# print(gd_table.to_string())

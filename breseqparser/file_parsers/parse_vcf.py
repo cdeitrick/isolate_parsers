@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Optional
+
 import pandas
 import vcf
 
@@ -43,12 +44,12 @@ def parse_vcf(path: Path, name: Optional[str] = None):
 			qual = record.QUAL
 			depth = record.INFO.get('DP')
 			row = {
-				'seq id': record.CHROM,
-				'position':   record.POS,
-				'alt':        alt,
-				'ref':        ref,
-				'quality':    qual,
-				'readDepth':  depth,
+				'seq id':      record.CHROM,
+				'position':    record.POS,
+				'alt':         alt,
+				'ref':         ref,
+				'quality':     qual,
+				'readDepth':   depth,
 				'variantType': record.var_type
 			}
 			table.append(row)
@@ -60,16 +61,17 @@ def parse_vcf(path: Path, name: Optional[str] = None):
 
 	return df
 
-def filter_df(df:pandas.DataFrame)->pandas.DataFrame:
+
+def filter_df(df: pandas.DataFrame) -> pandas.DataFrame:
 	forward = df['position'].diff().abs()
 	reverse = df['position'][::-1].diff()[::-1].abs()
 
-	fdf = df[(forward>1000) | (reverse>1000)]
+	fdf = df[(forward > 1000) | (reverse > 1000)]
 	return fdf
 
 
 if __name__ == "__main__":
-	data_folder = Path(__file__).parent.parent / "tests" / "breseq_run"/"AU0074" / "breseq_output"/ "data" / "output.vcf"
+	data_folder = Path(__file__).parent.parent / "tests" / "breseq_run" / "AU0074" / "breseq_output" / "data" / "output.vcf"
 
 	d = parse_vcf(data_folder)
-	#print(d)
+# print(d)

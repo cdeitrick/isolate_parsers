@@ -1,8 +1,9 @@
-from pathlib import Path
 import pandas
-from typing import TypeVar, List, Tuple, Any, Dict
-from breseqset_parser import parse_breseqset
-def generate_comparison_table(variant_df:pandas.DataFrame)->pandas.DataFrame:
+
+from breseqset_parser import parse_breseqset, save_isolate_table
+
+
+def generate_comparison_table(variant_df: pandas.DataFrame) -> pandas.DataFrame:
 	"""
 
 	Parameters
@@ -16,14 +17,15 @@ def generate_comparison_table(variant_df:pandas.DataFrame)->pandas.DataFrame:
 	variant_df = variant_df.set_index(['position'])
 	variant_df.pop('quality')
 	variant_df.pop('readDepth')
-	#print(variant_df.to_string())
+	# print(variant_df.to_string())
 
 	groups = variant_df.groupby(by = 'Sample')
 	sample_df = variant_df.pivot(columns = 'Sample', values = 'alt')
 	print(sample_df.to_string())
-	#merged_df = variant_df.merge(sample_df, left_index = True, right_index = True, how = 'left')
+	# merged_df = variant_df.merge(sample_df, left_index = True, right_index = True, how = 'left')
 	merged_df = variant_df.join(sample_df)
 	print(merged_df.to_string())
+
 
 from pathlib import Path
 import pandas
@@ -91,12 +93,24 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame) -> pandas.Data
 		comparison_table.append(mutation_group)
 
 	df = pandas.DataFrame(comparison_table)
+
+	# Add a filter for variants that appear in all samples.
+	total_samples = breseq_table['Sample'].nunique()
+	df['presentInAllSamples'] = df['isolates'] == total_samples
 	return df
 
 
 if __name__ == "__main__":
-	#breseq_run_folder = Path(__file__).parent.parent /"data"/ "breseq_run"
-	breseq_run_folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output/")
-	variant_df, *_ = parse_breseqset(breseq_run_folder)
-	df = generate_snp_comparison_table(variant_df)
-	df.to_excel(str(Path(__file__).with_name("pipeline_output.xlsx")))
+	# breseq_run_folder = Path(__file__).parent.parent /"data"/ "breseq_run"
+	breseq_run_folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/TravisanoBreseq/")
+	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder)
+	comparison_df = generate_snp_comparison_table(variant_df)
+	# df.to_excel(breseq_run_folder / "comparison_table.xlsx")
+	tables = {
+		'comparison': comparison_df,
+		'variant':    variant_df.reset_index(),
+		'coverage':   coverage_df.reset_index(),
+		'junction':   junction_df.reset_index()
+	}
+
+	save_isolate_table(tables, breseq_run_folder / "breseq_table.xlsx")

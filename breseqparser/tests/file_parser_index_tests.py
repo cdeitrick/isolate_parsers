@@ -7,11 +7,11 @@ from breseqparser.file_parsers import parse_index
 
 
 class TestSetup(unittest.TestCase):
-		breseq_run_folder = Path(__file__).with_name("breseq_run")
-		breseq_sample_folder = breseq_run_folder / "AU0074"
-		filename = breseq_sample_folder / "breseq_output" / "output" / "index.html"
+	breseq_run_folder = Path(__file__).with_name("breseq_run")
+	breseq_sample_folder = breseq_run_folder / "AU0074"
+	filename = breseq_sample_folder / "breseq_output" / "output" / "index.html"
 
-		snp, coverage, junction = parse_index.parse_index_file('AU0074', filename)
+	snp, coverage, junction = parse_index.parse_index_file('AU0074', filename)
 
 
 class TestGetFilename(unittest.TestCase):

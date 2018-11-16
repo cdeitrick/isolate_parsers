@@ -39,25 +39,27 @@ import re
 from pathlib import Path
 from typing import Optional
 
-from breseqparser.file_parsers import parse_vcf, parse_index
-from breseqparser.file_parsers import parse_gd
+from breseqparser.file_parsers import parse_gd, parse_index, parse_vcf
 
 
 def _get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
-	pattern = "[A-Z]+[\d]+"
-	for part in folder.parts[::-1]:
-		match = re.search(pattern, part)
-		if match:
-			name = part
-			break
+	use_pattern = False
+	if use_pattern:
+		pattern = "[A-Z]+[\d]+|WSPlus|WC"
+		for part in folder.parts[::-1]:
+			match = re.search(pattern, part)
+			if match:
+				name = part
+				break
+		else:
+			name = None
 	else:
-		name = None
-
+		return [i for i in folder.parts if 'breseq' not in i][-1]
 	return name
 
 
-def parse_breseq_isolate(breseq_folder: Path, isolate_name:str = None):
+def parse_breseq_isolate(breseq_folder: Path, isolate_name: str = None):
 	""" parses all available data from a single breseq run."""
 	if not isolate_name:
 		isolate_name = _get_sample_name(breseq_folder)
@@ -75,6 +77,7 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_name:str = None):
 	variant_df = snp_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
 	variant_df = variant_df.merge(gd_subset, how = 'left', left_index = True, right_index = True)
 	return variant_df, coverage_df, junction_df
+
 
 if __name__ == "__main__":
 	path = Path(__file__).parent.parent / 'data' / "breseq_run" / "AU0074"

@@ -1,12 +1,15 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Tuple, Any, Dict, Union
-from pprint import pprint
+from typing import Any, Dict, List, Tuple, Union
+
+import pandas
 from bs4 import BeautifulSoup
 from unidecode import unidecode
-import pandas
-TableType = List[Dict[str,Any]]
+
+TableType = List[Dict[str, Any]]
 DFType = pandas.DataFrame
+
+
 def to_number(string: str) -> int:
 	""" Converts a string to a number"""
 	try:
@@ -175,7 +178,8 @@ def _parse_junctions(sample_name: str, junctions: BeautifulSoup) -> TableType:
 		junction_table.append(b_row)
 	return junction_table
 
-def get_index_filename(path:Path)->Path:
+
+def get_index_filename(path: Path) -> Path:
 	path = Path(path)
 	if path.name == 'index.html':
 		return path
@@ -192,7 +196,8 @@ def get_index_filename(path:Path)->Path:
 		index_file = candidates[0]
 	return index_file
 
-def parse_index_file(sample_name: str, filename: Union[str,Path])->Tuple[DFType,DFType,DFType]:
+
+def parse_index_file(sample_name: str, filename: Union[str, Path]) -> Tuple[DFType, DFType, DFType]:
 	"""
 		Extracts information on each of the tables from the index file.
 	Parameters
@@ -223,10 +228,9 @@ def parse_index_file(sample_name: str, filename: Union[str,Path])->Tuple[DFType,
 
 	return snp_df, coverage_df, junction_df
 
+
 if __name__ == "__main__":
-	path ="../data/index.html"
+	path = "../data/index.html"
 
 	_snp, _cov, _jun = parse_index_file("AU0074", path)
 	_snp.to_excel('breseq_output.xlsx')
-
-

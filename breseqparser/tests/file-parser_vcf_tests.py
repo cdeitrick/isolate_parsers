@@ -1,8 +1,9 @@
+import itertools
 import unittest
 from pathlib import Path
 
 import pandas
-import itertools
+
 from breseqparser.file_parsers import parse_vcf
 
 
@@ -61,14 +62,14 @@ class TestVCFTableColumnValues(TestSetup):
 		series = self.output['ref']
 		self.assertIsInstance(series.iloc[0], str)
 		unique = set(itertools.chain.from_iterable(series.unique().tolist()))
-		self.assertSetEqual(set(), unique-{'A', 'C', 'G', 'T', 'N', 'U', '.'})
+		self.assertSetEqual(set(), unique - {'A', 'C', 'G', 'T', 'N', 'U', '.'})
 
 	def test_alt_column(self):
 		self.assertIn('alt', self.output.columns)
 		series = self.output['alt']
 		self.assertIsInstance(series.iloc[0], str)
 		unique = set(itertools.chain.from_iterable(series.unique().tolist()))
-		self.assertSetEqual(set(), unique-{'A', 'C', 'G', 'T', 'N', 'U', '.'})
+		self.assertSetEqual(set(), unique - {'A', 'C', 'G', 'T', 'N', 'U', '.'})
 
 	def test_quality_column(self):
 		self.assertIn('quality', self.output.columns)
