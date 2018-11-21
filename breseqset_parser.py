@@ -1,7 +1,7 @@
 """ Combines all subfolders generated from a set of breseq runs into a single spreadsheet."""
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Container
 
 import pandas
 
@@ -66,17 +66,34 @@ def save_isolate_table(tables: Dict[str, pandas.DataFrame], filename: Path) -> P
 	return filename
 
 
-def parse_breseqset(folder: Path):
-	""" Expects a folder of breseq runs for a set ofisolates."""
+def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None):
+	""" Expects a folder of breseq runs for a set ofisolates.
+		Parameters
+		----------
+		folder:Path
+			The folder of breseq output folders.
+		blacklist: List[str]
+			A list of sample ids to ignore when generating the table.
+		whitelist: List[str]
+			Sample Ids not in `whitelist` will be excluded.
+	"""
+	if not blacklist: blacklist = []
 	breseq_folders = _get_breseq_folder_paths(folder)
 	snp_dfs = list()
 	coverage_dfs = list()
 	junction_dfs = list()
 	for index, breseq_folder in enumerate(breseq_folders):
+
 		try:
 			snp_df, coverage_df, junction_df = parse_breseq_isolate(breseq_folder)
 		except FileNotFoundError:
 			continue
+
+		isolate_name = snp_df['Sample'].iloc[0]
+		in_whitelist = whitelist is None or isolate_name in whitelist
+		in_blacklist = isolate_name in blacklist
+
+		if in_blacklist and not in_whitelist: continue
 		snp_dfs.append(snp_df)
 		coverage_dfs.append(coverage_df)
 		junction_dfs.append(junction_df)
