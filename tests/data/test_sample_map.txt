@@ -1,0 +1,4 @@
+sample1	sampleA
+sample2	sampleB
+sample3	sampleC
+sample4	123

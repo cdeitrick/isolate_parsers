@@ -1,0 +1,40 @@
+Sample	evidence	position	mutation	annotation	gene	description
+Clonal_Output	JC JC	16972	IS150 (–) +3 bp	intergenic (‑14/‑514)	mokC ← / → nhaA	regulatory protein for HokC, overlaps CDS of hokC/pH‑dependent sodium/proton antiporter
+Clonal_Output	RA	161041	T→G	N302H (AAC→CAC) 	pcnB ←	poly(A) polymerase I
+Clonal_Output	RA	380188	A→C	F239L (TTT→TTG) 	araJ ←	predicted transporter
+Clonal_Output	RA	430835	C→T	intergenic (‑48/‑108)	insL‑2 ← / → lon	putative transposase insL for insertion sequence IS186/DNA‑binding ATP‑dependent protease La
+Clonal_Output	RA	475288	+G	coding (18/1677 nt)	ybaL ←	predicted transporter with NAD(P)‑binding Rossmann‑fold domain
+Clonal_Output	RA	649391	T→A	I471F (ATC→TTC) 	mrdA ←	transpeptidase involved in peptidoglycan synthesis (penicillin‑binding protein 2)
+Clonal_Output	RA	668787	A→C	Y65D (TAC→GAC) 	gltI ←	glutamate and aspartate transporter subunit
+Clonal_Output	RA	683496	A→C	V65G (GTT→GGT) 	nagC ←	DNA‑binding transcriptional dual regulator, repressor of N‑acetylglucosamine
+Clonal_Output	RA	910316	T→C	intergenic (+176/‑175)	ybjN → / → potF	predicted oxidoreductase/putrescine transporter subunit: periplasmic‑binding component of ABC superfamily
+Clonal_Output	RA	1004251	T→C	intergenic (‑177/+425)	ompF ← / ← asnS	outer membrane porin 1a (Ia;b;F)/asparaginyl‑tRNA synthetase
+Clonal_Output	RA	1248380	A→C	D295E (GAT→GAG) 	dhaM ←	fused predicted dihydroxyacetone‑specific PTS enzymes: HPr component/EI component
+Clonal_Output	RA	1286699	C→A	intergenic (+23/‑160)	narI → / → ECB_01206	nitrate reductase 1, gamma (cytochrome b(NR)) subunit/hypothetical protein
+Clonal_Output	RA	1329516	C→T	H33Y (CAC→TAC) 	topA →	DNA topoisomerase I
+Clonal_Output	JC JC	1733647	IS150 (–) +3 bp	coding (683‑685/1413 nt)	pykF →	pyruvate kinase
+Clonal_Output	JC JC	1821525	IS150 (–) +3 bp	coding (573‑575/1041 nt)	ynjI ←	predicted inner membrane protein
+Clonal_Output	RA	1976879	T→G	intergenic (‑57/‑76)	yedW ← / → yedX	predicted DNA‑binding response regulator in two‑component system with YedV/hypothetical protein
+Clonal_Output	RA	2082685	G→A	A494V (GCT→GTT) 	yegI ←	hypothetical protein
+Clonal_Output	RA	2732014	C→A	R91L (CGC→CTC) 	hypF ←	carbamoyl phosphate phosphatase and maturation protein for [NiFe] hydrogenases
+Clonal_Output	JC JC	3015771	IS150 (–) +4 bp	coding (1192‑1195/1677 nt)	ECB_02816 →	KpsD protein
+Clonal_Output	RA	3045069	G→T	T312N (ACC→AAC) 	yghJ ←	predicted inner membrane lipoprotein
+Clonal_Output	RA	3155168	G→A	G296S (GGC→AGC) 	ebgR →	DNA‑binding transcriptional repressor
+Clonal_Output	RA	3200643	C→A	intergenic (+11/‑245)	tdcR → / → yhaB	DNA‑binding transcriptional activator/hypothetical protein
+Clonal_Output	RA	3248957	A→T	D764E (GAT→GAA) 	infB ←	translation initiation factor IF‑2
+Clonal_Output	RA	3288092	G→A	R57C (CGT→TGT) 	arcB ←	hybrid sensory histidine kinase in two‑component regulatory system with ArcA
+Clonal_Output	MC JC	3289962	Δ16 bp	coding (96‑111/4554 nt)	gltB →	glutamate synthase, large subunit
+Clonal_Output	RA	3339158	A→C	intergenic (+22/‑4)	yhdG → / → fis	tRNA‑dihydrouridine synthase B/DNA‑binding protein Fis
+Clonal_Output	RA	3369432	T→C	D50G (GAC→GGC) 	rpsD ←	30S ribosomal protein S4
+Clonal_Output	RA	3370027	T→A	K117M (AAG→ATG) 	rpsM ←	30S ribosomal protein S13
+Clonal_Output	RA	3483047	C→A	R455S (CGC→AGC) 	malT →	transcriptional regulator MalT
+Clonal_Output	RA	3490112	C→T	A105T (GCG→ACG) 	glpE ←	thiosulfate sulfurtransferase
+Clonal_Output	RA	3762741	A→T	K662I (AAA→ATA) 	spoT →	bifunctional (p)ppGpp synthetase II/ guanosine‑3',5'‑bis pyrophosphate 3'‑pyrophosphohydrolase
+Clonal_Output	RA	3875625	+T	intergenic (‑59/+294)	glmU ← / ← atpC	bifunctional N‑acetylglucosamine‑1‑phosphate uridyltransferase/glucosamine‑1‑phosphate acetyltransferase/F0F1 ATP synthase subunit epsilon
+Clonal_Output	RA	3893550	+G	intergenic (+5/‑51)	kup → / → insJ‑5	potassium transporter/IS150 hypothetical protein
+Clonal_Output	MC JC	3894997	Δ6,934 bp	IS150‑mediated	rbsD–[yieO]	rbsD, rbsA, rbsC, rbsB, rbsK, rbsR, [yieO]
+Clonal_Output	RA	4100655	C→T	M192I (ATG→ATA) 	hslU ←	ATP‑dependent protease ATP‑binding subunit
+Clonal_Output	RA	4126699	Δ1 bp	coding (335/879 nt)	pflC →	pyruvate formate lyase II activase
+Clonal_Output	RA	4201911	C→T	A217T (GCG→ACG) 	iclR ←	DNA‑binding transcriptional repressor
+Clonal_Output	JC JC	4524522	IS186 (+) +6 bp	coding (494‑499/549 nt)	fimA →	major type 1 subunit fimbrin (pilin)
+Clonal_Output	RA	4616396	G→A	G290S (GGC→AGC) 	nadR →	nicotinamide‑nucleotide adenylyltransferase

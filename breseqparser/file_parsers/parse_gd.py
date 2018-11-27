@@ -1,11 +1,28 @@
 import csv
+
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, NamedTuple
 
 import pandas
 from dataclasses import dataclass, field
 
-MUTATION_KEYS = {
+
+class _GDColumns(NamedTuple):
+	description: str = 'description'
+	gene: str = 'gene'
+	mutation: str = 'mutation'
+	position: str = 'position'
+	sequence_id: str = 'seq id'
+	alternate_base: str = 'baseAlt'
+	reference_base: str = 'baseRef'
+	alternate_amino: str = 'aminoAlt'
+	reference_amino: str = 'aminoRef'
+	locus_tag: str = 'locusTag'
+	mutation_category: str = 'mutationCategory'
+
+GDColumns = _GDColumns()
+
+MUTATION_KEYS: Dict[str, Dict[str, List[str]]] = {
 	'snp': {
 		'position': ['seqId', 'position', 'new_seq'],
 		'keyword':  []
@@ -40,7 +57,7 @@ MUTATION_KEYS = {
 		'keyword':  []
 	}
 }
-EVIDENCE_KEYS = {
+EVIDENCE_KEYS: Dict[str, Dict[str, List[str]]] = {
 	'ra': {
 		'position': ['seq_id', 'position', 'insert_position', 'ref_base', 'new_base'],
 		'keyword':  []
@@ -237,22 +254,23 @@ class GenomeDiffParser:
 				reference_base = ""
 
 			row = {
-				'sampleName':       self.sample_id,
-				'description':      description,
-				'gene':             gene_name,
-				'mutation':         '',
-				'position':         position,
-				'seq id':           mutation.seqId,
-				'baseAlt':          mutation.get('new_seq'),
-				'baseRef':          reference_base,
-				'aminoAlt':         mutation.get('aa_new_seq'),
-				'aminoRef':         mutation.get('aa_ref_seq'),
-				'locusTag':         mutation.get('locus_tag'),
-				'mutationCategory': mutation.get('mutation_category')
+				GDColumns.description:       description,
+				GDColumns.gene:              gene_name,
+				GDColumns.mutation:          '',
+				GDColumns.position:          position,
+				GDColumns.sequence_id:       mutation.seqId,
+				GDColumns.alternate_base:    mutation.get('new_seq'),
+				GDColumns.reference_base:    reference_base,
+				GDColumns.alternate_amino:   mutation.get('aa_new_seq'),
+				GDColumns.reference_amino:   mutation.get('aa_ref_seq'),
+				GDColumns.locus_tag:         mutation.get('locus_tag'),
+				GDColumns.mutation_category: mutation.get('mutation_category')
 			}
 			table.append(row)
 
 		df = pandas.DataFrame(table)
+		df = df[list(GDColumns)]
+		#df.columns = GDColumns
 		return df
 
 
@@ -273,15 +291,18 @@ def get_gd_filename(path: Path) -> Path:
 	return result
 
 
-def parse_gd(path: Path, sample_id: str) -> pandas.DataFrame:
+def parse_gd_file(path: Path, set_index:bool = True) -> pandas.DataFrame:
 	filename = get_gd_filename(path)
-	gd_data = GenomeDiffParser(filename, sample_id)
-	return gd_data.generate_mutation_table()
+	gd_data = GenomeDiffParser(filename)
+	gd_df = gd_data.generate_mutation_table()
+	if set_index:
+		gd_df.set_index(keys = [GDColumns.sequence_id, GDColumns.position], inplace = True)
+	return gd_df
 
 
 if __name__ == "__main__":
 	gd_file = Path(__file__).parent.parent.parent / "data" / "breseq_run" / "AU0074" / "breseq_output" / "output" / "evidence" / "annotated.gd"
 
-	gd_table = parse_gd(gd_file.absolute(), 'AU0074')
+	gd_table = parse_gd_file(gd_file.absolute(), 'AU0074')
 
-# print(gd_table.to_string())
+	print(gd_table.to_string())

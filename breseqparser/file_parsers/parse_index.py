@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, NamedTuple
 
 import pandas
 from bs4 import BeautifulSoup
@@ -9,6 +9,16 @@ from unidecode import unidecode
 TableType = List[Dict[str, Any]]
 DFType = pandas.DataFrame
 
+class _VariantTableColumns(NamedTuple):
+	sample_name: str = 'Sample'
+	annotation: str = 'annotation'
+	description: str = 'description'
+	evidence: str = 'evidence'
+	gene: str = 'gene'
+	mutation: str = 'mutation'
+	position: str = 'position'
+	sequence_id: str = 'seq id'
+VariantTableColumns = _VariantTableColumns()
 
 def to_number(string: str) -> int:
 	""" Converts a string to a number"""
@@ -95,6 +105,7 @@ def _extract_index_tables(soup: BeautifulSoup) -> Tuple[
 	return snp_header_soup, snp_table, coverage_soup, junction_soup
 
 
+
 def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) -> TableType:
 	"""
 		Parses the SNP table.
@@ -123,6 +134,7 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 			except KeyError:
 				row['Sample'] = "noname"
 			try:
+				#
 				row['position'] = to_number(row['position'])
 			except KeyError:
 				row['position'] = None
@@ -131,6 +143,7 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 				row.pop('freq')
 			except KeyError:
 				pass
+			# `description` is the column name in the index file.
 			if 'javascript' in row['description'] or 'Javascript' in row['description']:
 				row['description'] = 'large deletion'
 			converted_table.append(row)
@@ -197,7 +210,7 @@ def get_index_filename(path: Path) -> Path:
 	return index_file
 
 
-def parse_index_file(sample_name: str, filename: Union[str, Path]) -> Tuple[DFType, DFType, DFType]:
+def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:bool = True) -> Tuple[DFType, DFType, DFType]:
 	"""
 		Extracts information on each of the tables from the index file.
 	Parameters
@@ -207,7 +220,9 @@ def parse_index_file(sample_name: str, filename: Union[str, Path]) -> Tuple[DFTy
 
 	Returns
 	-------
-
+	pandas.DataFrame
+	- Index -> ()
+	- Values-> ()
 	"""
 	filename = get_index_filename(filename)
 	file_contents = _load_index_file(filename)
@@ -215,22 +230,28 @@ def parse_index_file(sample_name: str, filename: Union[str, Path]) -> Tuple[DFTy
 	snp_table_headers, snp_soup, coverage_soup, junction_soup = _extract_index_tables(file_contents)
 
 	snp_table = _parse_snp_table(sample_name, snp_table_headers, snp_soup)
+
 	try:
 		coverage_table = _parse_coverage(sample_name, coverage_soup)
 	except: coverage_table = []
+
 	try:
 		junction_table = _parse_junctions(sample_name, junction_soup)
 	except:
 		junction_table = []
+
 	snp_df = convert_to_dataframe(snp_table)
 	coverage_df = convert_to_dataframe(coverage_table)
 	junction_df = convert_to_dataframe(junction_table)
 
+	snp_df.columns = VariantTableColumns
+	if set_index:
+		snp_df.set_index(keys = [VariantTableColumns.sequence_id, VariantTableColumns.position], inplace = True)
 	return snp_df, coverage_df, junction_df
 
 
 if __name__ == "__main__":
-	path = "../data/index.html"
+	path = Path.cwd().parent.parent / "data" / "breseq_run" / "AU0074" /"breseq_output"/ "output" / "index.html"
 
 	_snp, _cov, _jun = parse_index_file("AU0074", path)
-	_snp.to_excel('breseq_output.xlsx')
+	print(_snp.to_string())

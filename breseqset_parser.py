@@ -1,11 +1,12 @@
 """ Combines all subfolders generated from a set of breseq runs into a single spreadsheet."""
 
 from pathlib import Path
-from typing import Dict, List, Container
+from typing import Container, List, Dict
 
 import pandas
 
-from breseqparser.isolate_parser import parse_breseq_isolate
+from breseqparser.isolate_parser import parse_breseq_isolate, get_sample_name
+from file_generators import save_isolate_table
 
 
 def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
@@ -25,48 +26,7 @@ def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
 	return breseq_folders
 
 
-def save_isolate_table(tables: Dict[str, pandas.DataFrame], filename: Path) -> Path:
-	"""
-		Saves the parsed table as an Excel spreadsheet.
-	Parameters
-	----------
-	tables: Dict[str,pandas.DataFrame]
-		A mapping of sheet names to dataframes.
-	filename: str, pathlib.Path
-		The output file.
-
-	Returns
-	-------
-
-	"""
-	writer = pandas.ExcelWriter(filename)
-	include_index = False
-	# python 3.5 or 3.6 made all dicts ordered by default, so the sheets will be ordered in the same order they were defined in `tables`
-	for sheet_label, df in tables.items():
-		df.to_excel(writer, sheet_label, index = include_index)
-	"""
-	writer.close()
-
-	wb = load_workbook(filename)
-	ws = wb['junctions']
-
-	merge_columns = [
-		c
-		for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-		if ws[c + '1'].value in ['Sample', 0, '0', 'freq', 'product', 'score']
-	]
-
-	for x in range(0, len(self.junction_table), 2):
-		for column in merge_columns:
-			cells_to_merge = '{0}{1}:{0}{2}'.format(column, x + 2, x + 3)
-			ws.merge_cells(cells_to_merge)
-
-	wb.save(filename)
-	"""
-	return filename
-
-
-def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None):
+def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None, sample_map:Dict[str,str] = None):
 	""" Expects a folder of breseq runs for a set ofisolates.
 		Parameters
 		----------
@@ -76,24 +36,32 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 			A list of sample ids to ignore when generating the table.
 		whitelist: List[str]
 			Sample Ids not in `whitelist` will be excluded.
+		sample_map: Dict[str,str]
 	"""
+
 	if not blacklist: blacklist = []
+	if not whitelist: whitelist = []
+	if not sample_map: sample_map = {}
+
 	breseq_folders = _get_breseq_folder_paths(folder)
 	snp_dfs = list()
 	coverage_dfs = list()
 	junction_dfs = list()
 	for index, breseq_folder in enumerate(breseq_folders):
+		isolate_id = get_sample_name(breseq_folder)
+		isolate_name = sample_map.get(isolate_id, isolate_id)
 
 		try:
-			snp_df, coverage_df, junction_df = parse_breseq_isolate(breseq_folder)
+			snp_df, coverage_df, junction_df = parse_breseq_isolate(breseq_folder, isolate_id = isolate_id, isolate_name = isolate_name)
 		except FileNotFoundError:
 			continue
 
-		isolate_name = snp_df['Sample'].iloc[0]
-		in_whitelist = whitelist is None or isolate_name in whitelist
-		in_blacklist = isolate_name in blacklist
+		in_whitelist = not whitelist or isolate_name in whitelist or isolate_id in whitelist
+		in_blacklist = bool(blacklist) and (isolate_name in blacklist or isolate_id in blacklist)
 
-		if in_blacklist and not in_whitelist: continue
+		if in_blacklist: continue
+		elif not in_whitelist: continue
+
 		snp_dfs.append(snp_df)
 		coverage_dfs.append(coverage_df)
 		junction_dfs.append(junction_df)
@@ -105,7 +73,7 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 	for (chrom, position), group in chromosomes:
 		mutation_counts[chrom, position] = len(group)
 	snp_dataframe_full['presentInNSamples'] = [
-		mutation_counts[j, k] for i, j, k in snp_dataframe_full.index
+		mutation_counts[j, k] for j, k in snp_dataframe_full.index
 	]
 
 	coverage_dataframe_full = pandas.concat(coverage_dfs, sort = True)
