@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas
 
-from breseqparser.file_parsers import parse_vcf_file
+from breseqparser.file_parsers import parse_vcf
 
 
 class TestSetup(unittest.TestCase):
@@ -12,20 +12,20 @@ class TestSetup(unittest.TestCase):
 		self.breseq_run_folder = Path(__file__).with_name("breseq_run")
 		self.breseq_sample_folder = self.breseq_run_folder / "AU0074"
 		self.filename = self.breseq_sample_folder / "breseq_output" / "data" / "output.vcf"
-		self.output = parse_vcf_file.parse_vcf(self.filename)
+		self.output = parse_vcf.parse_vcf_file(self.filename)
 		self.output.reset_index(inplace = True)
 
 
 class TestGetVCFFilename(TestSetup):
 	def test_breseq_run_folder(self):
-		self.assertRaises(FileNotFoundError, parse_vcf_file.get_vcf_filename, self.breseq_run_folder)
+		self.assertRaises(FileNotFoundError, parse_vcf.get_vcf_filename, self.breseq_run_folder)
 
 	def test_sample_run_folder(self):
-		testpath = parse_vcf_file.get_vcf_filename(self.breseq_sample_folder)
+		testpath = parse_vcf.get_vcf_filename(self.breseq_sample_folder)
 		self.assertEqual(self.filename, testpath)
 
 	def test_index_filename(self):
-		testpath = parse_vcf_file.get_vcf_filename(self.filename)
+		testpath = parse_vcf.get_vcf_filename(self.filename)
 		self.assertEqual(self.filename, testpath)
 
 

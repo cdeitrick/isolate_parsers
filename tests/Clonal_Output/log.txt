@@ -1,4 +1,0 @@
-Sun Sep  1 22:43:45 2013
-
-breseq -j 2 -o Clonal_Output -r REL606.gbk SRR030257_1.fastq SRR030257_2.fastq
-

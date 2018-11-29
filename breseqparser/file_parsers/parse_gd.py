@@ -1,7 +1,5 @@
-import csv
-
 from pathlib import Path
-from typing import Dict, List, Tuple, Union, NamedTuple
+from typing import Dict, List, NamedTuple, Tuple, Union
 
 import pandas
 from dataclasses import dataclass, field
@@ -14,11 +12,14 @@ class _GDColumns(NamedTuple):
 	position: str = 'position'
 	sequence_id: str = 'seq id'
 	alternate_base: str = 'baseAlt'
-	reference_base: str = 'baseRef'
+	#reference_base: str = 'baseRef'
 	alternate_amino: str = 'aminoAlt'
 	reference_amino: str = 'aminoRef'
+	alternate_codon: str = 'codonAlt'
+	reference_codon: str = 'codonRef'
 	locus_tag: str = 'locusTag'
 	mutation_category: str = 'mutationCategory'
+
 
 GDColumns = _GDColumns()
 
@@ -118,160 +119,129 @@ class Evidence:
 		return self.seqId, self.position
 
 
-class GenomeDiffParser:
+def _sort_gd_file_rows(io: Union[str, Path]) -> Tuple[List[List[str]], List[List[str]]]:
+	""" Reads a gd file and separates it into mutation and evidence tables.
+		Parameters
+		----------
+		io: Union[str, Path]
+			Either the text of a gd file or a path to a gd file.
+
+		Returns
+		-------
+		mutations, evidence
 	"""
-		Combines information from each data source describing the variants found in the isolate.
+	if isinstance(io, str):
+		reader = io.split('\n')
+	else:
+		reader = io.read_text().split("\n")
+	lines = [line.split('\t') for line in reader]
+	mutation = filter(lambda s: s[0].lower() in MUTATION_KEYS, lines)
+	evidence = filter(lambda s: s[0].lower() in EVIDENCE_KEYS, lines)
+	return list(mutation), list(evidence)
+
+
+def _get_row_position_and_sequence(row_type: str, other: List[str]) -> Dict[str, str]:
+	"""
+		Retrieves the `seqId` and `position` values from a gd file row, as well as basic information
+		about the mutational change. For snps, this will just be the new base character, for
+		a substitution, this will be the length and replacement sequence, etc.
 	Parameters
 	----------
-	path: Path
-		path to the breseq output folder.
+	row_type: str
+	other: List[str]
+		The remainder of the gd file row after dropping the mutation type, id, and parent id.
 
+	Returns
+	-------
+	Dict[str,str]
+		A dictionary mapping the position and new sequence information to keys.
 	"""
+	if row_type in MUTATION_KEYS:
+		mutation_config = MUTATION_KEYS[row_type]
+	else:
+		mutation_config = EVIDENCE_KEYS[row_type]
 
-	def __init__(self, path: Union[str, Path], sample_id: str = None):
-		if sample_id:
-			self.sample_id = sample_id
-		else:
-			self.sample_id = [i for i in path.parts if i not in {'output', 'annotated', 'evidence'} and not i.endswith('.gd')][-1]
-		path = Path(path)
-		self.mutation_keys = MUTATION_KEYS
-		self.evidence_keys = EVIDENCE_KEYS
+	position_keys = mutation_config['position']
+	position_values = other[:len(position_keys)]
+	position_map = dict(zip(position_keys, position_values))
+	return position_map
 
-		# The annotated gd_file contains essentially the same information as the index.html file.
-		if path.is_dir():
-			gd_file = self._search_for_annotated_gd_file(path)
-		else:
-			gd_file = path
 
-		self.gd_data = self.parse_annotated_gd(gd_file)
+def parse_annotated_gd_file_row(row: List[str]) -> Union[Mutation, Evidence]:
+	""" Converts arow from a gd file into a `Mutation` or `Evidence` object."""
+	row_type, row_id, parent_ids, *other = row
+	row_type = row_type.lower()
 
-	@staticmethod
-	def _search_for_annotated_gd_file(path: Path) -> Path:
-		basic = path / "output" / "evidence" / "annotated.gd"
-		if not basic.exists():
-			candidates = list(path.glob("**/annotated.gd"))
-			if len(candidates) > 0:
-				basic = candidates[0]
-			else:
-				message = "Cannot find the annotated gd file in the folder {}".format(path)
-				raise FileNotFoundError(message)
+	position_map = _get_row_position_and_sequence(row_type, other)
+	keyword_values = dict([i.split('=') for i in other if '=' in i])
 
-		return basic
+	if row_type in MUTATION_KEYS:
+		r = Mutation(
+			row_type, row_id, parent_ids,
+			position_map['seqId'], int(position_map['position']),  # seq_id and position
+			{**position_map, **keyword_values}
+		)
+	else:
+		r = Evidence(
+			type = row_type,
+			id = row_id,
+			parentId = parent_ids,
+			details = {**position_map, **keyword_values}
+		)
+	return r
 
-	@staticmethod
-	def save(table: List[Dict], path: Path) -> None:
-		import itertools
-		fieldnames = itertools.chain.from_iterable([i.keys() for i in table])
-		fieldnames = set(fieldnames)
-		with path.open('w') as file1:
-			writer = csv.DictWriter(file1, fieldnames = fieldnames, delimiter = "\t")
-			writer.writeheader()
-			for row in table:
-				writer.writerow(row)
 
-	def parse_annotated_gd(self, path: Path) -> List[Union[Mutation, Evidence]]:
-		""" Extracts information from the annotated gd file."""
+def parse_annotated_gd_file(path: Path) -> List[Union[Mutation, Evidence]]:
+	""" Extracts information from the annotated gd file."""
+	gd_table_mutations, gd_table_evidence = _sort_gd_file_rows(path)
+	gd_table = gd_table_mutations + gd_table_evidence
+	gd_data = map(parse_annotated_gd_file_row, gd_table)
+	return list(gd_data)
 
-		gd_table_mutations, gd_table_evidence = self._separated_gd_rows(path)
-		gd_table = gd_table_mutations + gd_table_evidence
-		gd_data = list()
-		for row in gd_table:
-			row_type, row_id, parent_ids, *other = row
-			row_type = row_type.lower()
 
-			if row_type in self.mutation_keys:
-				mutation_config = self.mutation_keys[row_type]
-			else:
-				mutation_config = self.evidence_keys[row_type]
+def _extract_reference_base_from_codon(codon: str, position: str) -> str:
+	try:
+		reference_base = codon[int(position) - 1]
+	except (ValueError, TypeError):
+		reference_base = ""
+	return reference_base
 
-			position_keys = mutation_config['position']
 
-			position_values = other[:len(position_keys)]
-			position_map = dict(zip(position_keys, position_values))
-			keyword_values = dict([i.split('=') for i in other if '=' in i])
+def generate_mutation_table(mutations: List[Mutation]) -> pandas.DataFrame:
+	table = list()
+	for mutation in mutations:
+		position = int(mutation.get("position"))
 
-			if row_type in self.mutation_keys:
-				r = Mutation(
-					row_type, row_id, parent_ids,
-					position_values[0], int(position_values[1]),  # seq_id and position
-					{**position_map, **keyword_values}
-				)
-			else:
-				r = Evidence(
-					type = row_type,
-					id = row_id,
-					parentId = parent_ids,
-					details = {**position_map, **keyword_values}
-				)
-			gd_data.append(r)
-		return gd_data
+		codon_ref = mutation.get('codon_ref_seq')
+		codon_position = mutation.get('codon_position')
+		# The reference base should be located from the vcf file since the gd file only has the reference codon.
+		#reference_base = _extract_reference_base_from_codon(codon_ref, codon_position)
 
-	def _separated_gd_rows(self, filename: Path) -> Tuple[List[List[str]], List[List[str]]]:
-		""" Separates a gd file into mutation and evidence tables."""
-		mutations = list()
-		evidence = list()
-		with filename.open() as gd_file:
-			reader = gd_file.read().split("\n")
-			for line in reader:
-				row = line.split("\t")
-				first_element = row[0].lower()
-				if first_element in self.mutation_keys.keys():
-					mutations.append(row)
-				elif first_element in self.evidence_keys.keys():
-					evidence.append(row)
-				elif first_element in {}:
-					pass
-				else:
-					pass
-		return mutations, evidence
+		row = {
+			GDColumns.description:       mutation.get('gene_product'),
+			GDColumns.gene:              mutation.get("gene_name"),
+			GDColumns.mutation:          '',
+			GDColumns.position:          position,
+			GDColumns.sequence_id:       mutation.seqId,
+			GDColumns.alternate_base:    mutation.get('new_seq'),
+			#GDColumns.reference_base:    reference_base,
+			GDColumns.alternate_amino:   mutation.get('aa_new_seq'),
+			GDColumns.reference_amino:   mutation.get('aa_ref_seq'),
+			GDColumns.locus_tag:         mutation.get('locus_tag'),
+			GDColumns.mutation_category: mutation.get('mutation_category'),
+			GDColumns.alternate_codon:   mutation.get('codon_new_seq'),
+			GDColumns.reference_codon:   codon_ref
+		}
+		table.append(row)
 
-	def mutations(self, kind = 'all') -> List[Mutation]:
-		ls = list()
-		for i in self.gd_data:
-			if isinstance(i, Mutation) and (kind == 'all' or i.type == kind):
-				ls.append(i)
-		return ls
+	df = pandas.DataFrame(table)
+	df = df[list(GDColumns)]
+	# df.columns = GDColumns
+	return df
 
-	def evidence(self, kind = 'all') -> List[Evidence]:
-		ls = list()
-		for i in self.gd_data:
-			if isinstance(i, Evidence) and (kind == 'all' or i.type == kind):
-				ls.append(i)
-		return ls
 
-	def generate_mutation_table(self) -> pandas.DataFrame:
-		table = list()
-		for mutation in self.mutations():
-			description = mutation.get('gene_product')
-			gene_name = mutation.get("gene_name")
-			position = int(mutation.get("position"))
-
-			codon_ref = mutation.get('codon_ref_seq')
-			codon_position = mutation.get('codon_position')
-			try:
-				reference_base = codon_ref[int(codon_position) - 1]
-			except (ValueError, TypeError):
-				reference_base = ""
-
-			row = {
-				GDColumns.description:       description,
-				GDColumns.gene:              gene_name,
-				GDColumns.mutation:          '',
-				GDColumns.position:          position,
-				GDColumns.sequence_id:       mutation.seqId,
-				GDColumns.alternate_base:    mutation.get('new_seq'),
-				GDColumns.reference_base:    reference_base,
-				GDColumns.alternate_amino:   mutation.get('aa_new_seq'),
-				GDColumns.reference_amino:   mutation.get('aa_ref_seq'),
-				GDColumns.locus_tag:         mutation.get('locus_tag'),
-				GDColumns.mutation_category: mutation.get('mutation_category')
-			}
-			table.append(row)
-
-		df = pandas.DataFrame(table)
-		df = df[list(GDColumns)]
-		#df.columns = GDColumns
-		return df
+def _extract_mutations(data: List[Union[Evidence, Mutation]]) -> List[Mutation]:
+	return [i for i in data if isinstance(i, Mutation)]
 
 
 def get_gd_filename(path: Path) -> Path:
@@ -291,18 +261,19 @@ def get_gd_filename(path: Path) -> Path:
 	return result
 
 
-def parse_gd_file(path: Path, set_index:bool = True) -> pandas.DataFrame:
+def parse_gd_file(path: Path, set_index: bool = True) -> pandas.DataFrame:
 	filename = get_gd_filename(path)
-	gd_data = GenomeDiffParser(filename)
-	gd_df = gd_data.generate_mutation_table()
+	gd_data = parse_annotated_gd_file(filename)
+	mutations = _extract_mutations(gd_data)
+	gd_df = generate_mutation_table(mutations)
 	if set_index:
 		gd_df.set_index(keys = [GDColumns.sequence_id, GDColumns.position], inplace = True)
 	return gd_df
 
 
 if __name__ == "__main__":
-	gd_file = Path(__file__).parent.parent.parent / "data" / "breseq_run" / "AU0074" / "breseq_output" / "output" / "evidence" / "annotated.gd"
+	_gd_file = Path(__file__).parent.parent.parent / "data" / "breseq_run" / "AU0074" / "breseq_output" / "output" / "evidence" / "annotated.gd"
 
-	gd_table = parse_gd_file(gd_file.absolute(), 'AU0074')
+	_gd_table = parse_gd_file(_gd_file.absolute())
 
-	print(gd_table.to_string())
+	print(_gd_table.to_string())

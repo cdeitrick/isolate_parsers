@@ -215,8 +215,10 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:boo
 		Extracts information on each of the tables from the index file.
 	Parameters
 	----------
-	sample_name
+	sample_name:
 	filename
+	set_index:bool; default True
+		Whether to set the index of the dataframe.
 
 	Returns
 	-------
@@ -233,17 +235,24 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:boo
 
 	try:
 		coverage_table = _parse_coverage(sample_name, coverage_soup)
-	except: coverage_table = []
+		# If the snp_table does not include a sequence id column, get it from the coverage table.
+	except (ValueError, TypeError): coverage_table = []
 
 	try:
 		junction_table = _parse_junctions(sample_name, junction_soup)
-	except:
+	except (ValueError, TypeError):
 		junction_table = []
 
 	snp_df = convert_to_dataframe(snp_table)
 	coverage_df = convert_to_dataframe(coverage_table)
 	junction_df = convert_to_dataframe(junction_table)
 
+	if VariantTableColumns.sequence_id not in snp_df.columns:
+		try:
+			_sequence_id_from_coverage_table = coverage_df.iloc[0]['seq id']
+		except (IndexError, KeyError):
+			_sequence_id_from_coverage_table = 'unavailable'
+		snp_df[VariantTableColumns.sequence_id] = _sequence_id_from_coverage_table
 	snp_df.columns = VariantTableColumns
 	if set_index:
 		snp_df.set_index(keys = [VariantTableColumns.sequence_id, VariantTableColumns.position], inplace = True)
@@ -251,7 +260,8 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:boo
 
 
 if __name__ == "__main__":
-	path = Path.cwd().parent.parent / "data" / "breseq_run" / "AU0074" /"breseq_output"/ "output" / "index.html"
+	_path = Path(__file__).parent.parent.parent
+	_path = _path / "tests" / "data" / "Clonal_Output" /"breseq_output"/ "output" / "index.html"
 
-	_snp, _cov, _jun = parse_index_file("AU0074", path)
-	print(_snp.to_string())
+	_snp, _cov, _jun = parse_index_file("testIsolate", _path)
+	_snp.to_pickle(_path.with_name('snp_table.pkl'))

@@ -15,7 +15,7 @@ def save_isolate_table(tables: Dict[str, pandas.DataFrame], filename: Path) -> P
 	-------
 
 	"""
-	writer = pandas.ExcelWriter(filename)
+	writer = pandas.ExcelWriter(str(filename))
 	include_index = False
 	# python 3.5 or 3.6 made all dicts ordered by default, so the sheets will be ordered in the same order they were defined in `tables`
 	for sheet_label, df in tables.items():

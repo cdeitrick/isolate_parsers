@@ -53,12 +53,13 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 
 		try:
 			snp_df, coverage_df, junction_df = parse_breseq_isolate(breseq_folder, isolate_id = isolate_id, isolate_name = isolate_name)
-		except FileNotFoundError:
+		except FileNotFoundError as _missing_file_error:
+			print(f"Exception: {_missing_file_error}")
 			continue
 
 		in_whitelist = not whitelist or isolate_name in whitelist or isolate_id in whitelist
 		in_blacklist = bool(blacklist) and (isolate_name in blacklist or isolate_id in blacklist)
-
+		print(whitelist, in_whitelist, in_blacklist)
 		if in_blacklist: continue
 		elif not in_whitelist: continue
 
@@ -72,9 +73,7 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 	mutation_counts = dict()
 	for (chrom, position), group in chromosomes:
 		mutation_counts[chrom, position] = len(group)
-	snp_dataframe_full['presentInNSamples'] = [
-		mutation_counts[j, k] for j, k in snp_dataframe_full.index
-	]
+	#snp_dataframe_full['presentInNSamples'] = [	mutation_counts[j, k] for j, k in snp_dataframe_full.index]
 
 	coverage_dataframe_full = pandas.concat(coverage_dfs, sort = True)
 	junction_dataframe_full = pandas.concat(junction_dfs, sort = True)

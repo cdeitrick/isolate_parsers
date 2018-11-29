@@ -59,6 +59,7 @@ def _parse_commandline_list(io: Optional[str]) -> List[str]:
 		# Assume it is a comma-separated list.
 		# An empty string will result in an empty list.
 		contents = io.split(',')
+	contents = [i for i in contents if i]
 	return contents
 
 
@@ -104,20 +105,20 @@ if __name__ == "__main__":
 	from pathlib import Path
 	from breseqset_parser import parse_breseqset
 	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
-	from breseqparser.file_parsers.parse_gd import GDColumns
 
 	program_options = parser.parse_args()
 	whitelist = _parse_commandline_list(program_options.whitelist)
 	blacklist = _parse_commandline_list(program_options.blacklist)
 	sample_map = _parse_sample_map(program_options.sample_map)
 
-	breseq_run_folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output")
+	breseq_run_folder = Path(program_options.folder)
 	breseq_table_filename = breseq_run_folder / "breseq_table.xlsx"
 	fasta_filename_base = breseq_run_folder / "breseq"
 
 	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder, blacklist, whitelist, sample_map)
+	assert 'ref' in variant_df
 	comparison_df = generate_snp_comparison_table(variant_df)
-
+	assert 'ref' in variant_df
 	tables = {
 		'comparison': comparison_df,
 		'variant':    variant_df.reset_index(),
@@ -128,6 +129,9 @@ if __name__ == "__main__":
 	save_isolate_table(tables, breseq_run_folder / "breseq_table.xlsx")
 
 	if program_options.generate_fasta:
-		for mutation_type in variant_df[GDColumns.mutation_category].unique():
-			fasta_filename = fasta_filename_base.with_suffix(f".{mutation_type}.fasta")
-			generate_fasta_file(variant_df, fasta_filename, mutation_type)
+		fasta_filename_snp = fasta_filename_base.with_suffix(f".snp.fasta")
+		fasta_filename_codon = fasta_filename_base.with_suffix(f".codon.fasta")
+		fasta_filename_amino = fasta_filename_base.with_suffix(f".amino.fasta")
+		generate_fasta_file(variant_df, fasta_filename_snp, by = 'base')
+		generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon')
+		generate_fasta_file(variant_df, fasta_filename_amino, by = 'amino')

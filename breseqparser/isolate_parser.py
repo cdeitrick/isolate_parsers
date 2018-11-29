@@ -37,11 +37,16 @@
 
 import re
 from pathlib import Path
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Tuple
 
 import pandas
 
 from breseqparser.file_parsers import parse_gd, parse_index, parse_vcf
+
+DF = pandas.DataFrame
+GDColumns = parse_gd.GDColumns
+VCFColumns = parse_vcf.VCFColumns
+IndexColumns = parse_index.VariantTableColumns
 
 
 class _IsolateTableColumns(NamedTuple):
@@ -55,15 +60,22 @@ class _IsolateTableColumns(NamedTuple):
 	evidence: str = 'evidence'
 	gene: str = 'gene'
 	mutation: str = 'mutation'
-	alt: str = 'alt'
-	quality: str = 'quality'
-	depth: str = 'readDepth'
+	alt: str = VCFColumns.alternate
+	ref: str = VCFColumns.reference
+	# alt:str = 'alt'
+	# ref:str = 'ref'
+	# quality: str = 'quality'
+	# depth: str = 'readDepth'
+	# variant_type: str = 'variantType'
+	alternate_amino: str = GDColumns.alternate_amino
+	reference_amino: str = GDColumns.reference_amino
+	alternate_codon: str = GDColumns.alternate_codon
+	reference_codon: str = GDColumns.reference_codon
+	locus_tag: str = 'locusTag'
+	mutation_category: str = 'mutationCategory'
 
 
 IsolateTableColumns = _IsolateTableColumns()
-GDColumns = parse_gd.GDColumns
-VCFColumns = parse_vcf.VCFColumns
-IndexColumns = parse_index.VariantTableColumns
 
 
 def get_sample_name(folder: Path) -> Optional[str]:
@@ -83,19 +95,34 @@ def get_sample_name(folder: Path) -> Optional[str]:
 	return name
 
 
-def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str = None):
-	""" parses all available data from a single breseq run."""
+def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str = None) -> Tuple[DF, DF, DF]:
+	"""
+		Combines all available information for a single breseq (single sample).
+	Parameters
+	----------
+	breseq_folder: Path
+		Location of the breseq output folder. Should contain an index.html file, gd files, and a vcf file.
+	isolate_id
+	isolate_name
+
+	Returns
+	-------
+
+	"""
 
 	if not isolate_name:
 		isolate_name = isolate_id
 
 	_gd_subset_columns = [
-		GDColumns.alternate_amino, GDColumns.reference_amino, GDColumns.locus_tag,
-		GDColumns.mutation_category  # , GDColumns.position, GDColumns.sequence_id These columns are in the index.
+		GDColumns.alternate_amino, GDColumns.reference_amino, GDColumns.alternate_codon,
+		GDColumns.reference_codon, GDColumns.locus_tag, GDColumns.mutation_category,
+		# GDColumns.alternate_base, GDColumns.reference_base
+		# , GDColumns.position, GDColumns.sequence_id These columns are in the index.
 	]
 
 	# Retrieve the filenames
 	index_file = parse_index.get_index_filename(breseq_folder)
+	# The VCF file provides the quality and read depth.
 	vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
 	gd_file = parse_gd.get_gd_filename(breseq_folder)
 
@@ -108,16 +135,21 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 
 	gd_subset = gd_df[_gd_subset_columns]
 
-	variant_df = index_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
-	variant_df = variant_df.merge(gd_subset, how = 'left', left_index = True, right_index = True)
+	variant_df: pandas.DataFrame = index_df.merge(gd_subset, how = 'left', left_index = True, right_index = True)
+	variant_df = variant_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
+
+	assert VCFColumns.alternate in variant_df.columns
+	variant_df.reset_index(inplace = True)
 
 	variant_df[IsolateTableColumns.sample_id] = isolate_id
 	variant_df[IsolateTableColumns.sample_name] = isolate_name
+	variant_df = variant_df[list(IsolateTableColumns)]
+	variant_df.set_index(keys = [IsolateTableColumns.sequence_id, IsolateTableColumns.position])
 
 	return variant_df, coverage_df, junction_df
 
 
 if __name__ == "__main__":
-	path = Path(__file__).parent.parent / 'data' / "breseq_run" / "AU0074"
-	v, *_ = parse_breseq_isolate(path, 'AU0074')
+	path = Path(__file__).parent.parent / 'tests' / 'data' / 'Clonal_Output' / 'breseq_output'
+	v, c, j = parse_breseq_isolate(path, 'testIsolate')
 	print(v.to_string())
