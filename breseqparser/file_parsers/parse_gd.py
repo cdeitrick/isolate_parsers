@@ -12,7 +12,7 @@ class _GDColumns(NamedTuple):
 	position: str = 'position'
 	sequence_id: str = 'seq id'
 	alternate_base: str = 'baseAlt'
-	#reference_base: str = 'baseRef'
+	# reference_base: str = 'baseRef'
 	alternate_amino: str = 'aminoAlt'
 	reference_amino: str = 'aminoRef'
 	alternate_codon: str = 'codonAlt'
@@ -134,7 +134,7 @@ def _sort_gd_file_rows(io: Union[str, Path]) -> Tuple[List[List[str]], List[List
 		reader = io.split('\n')
 	else:
 		reader = io.read_text().split("\n")
-	lines = [line.split('\t') for line in reader]
+	lines = [line.split('\t') for line in reader if line]  # ignore empty lines.
 	mutation = filter(lambda s: s[0].lower() in MUTATION_KEYS, lines)
 	evidence = filter(lambda s: s[0].lower() in EVIDENCE_KEYS, lines)
 	return list(mutation), list(evidence)
@@ -191,8 +191,8 @@ def parse_annotated_gd_file_row(row: List[str]) -> Union[Mutation, Evidence]:
 	return r
 
 
-def parse_annotated_gd_file(path: Path) -> List[Union[Mutation, Evidence]]:
-	""" Extracts information from the annotated gd file."""
+def parse_annotated_gd_file(path: Union[str, Path]) -> List[Union[Mutation, Evidence]]:
+	""" Extracts information from the annotated gd file or file contents."""
 	gd_table_mutations, gd_table_evidence = _sort_gd_file_rows(path)
 	gd_table = gd_table_mutations + gd_table_evidence
 	gd_data = map(parse_annotated_gd_file_row, gd_table)
@@ -207,33 +207,33 @@ def _extract_reference_base_from_codon(codon: str, position: str) -> str:
 	return reference_base
 
 
+def _convert_mutation_to_dictionary(mutation: Mutation) -> Dict[str, Union[str, float]]:
+	position = int(mutation.get("position"))
+
+	codon_ref = mutation.get('codon_ref_seq')
+	# The reference base should be located from the vcf file since the gd file only has the reference codon.
+	# reference_base = _extract_reference_base_from_codon(codon_ref, codon_position)
+
+	data = {
+		GDColumns.description:       mutation.get('gene_product'),
+		GDColumns.gene:              mutation.get("gene_name"),
+		GDColumns.mutation:          '',
+		GDColumns.position:          position,
+		GDColumns.sequence_id:       mutation.seqId,
+		GDColumns.alternate_base:    mutation.get('new_seq'),
+		# GDColumns.reference_base:    reference_base,
+		GDColumns.alternate_amino:   mutation.get('aa_new_seq'),
+		GDColumns.reference_amino:   mutation.get('aa_ref_seq'),
+		GDColumns.locus_tag:         mutation.get('locus_tag'),
+		GDColumns.mutation_category: mutation.get('mutation_category'),
+		GDColumns.alternate_codon:   mutation.get('codon_new_seq'),
+		GDColumns.reference_codon:   codon_ref
+	}
+	return data
+
+
 def generate_mutation_table(mutations: List[Mutation]) -> pandas.DataFrame:
-	table = list()
-	for mutation in mutations:
-		position = int(mutation.get("position"))
-
-		codon_ref = mutation.get('codon_ref_seq')
-		codon_position = mutation.get('codon_position')
-		# The reference base should be located from the vcf file since the gd file only has the reference codon.
-		#reference_base = _extract_reference_base_from_codon(codon_ref, codon_position)
-
-		row = {
-			GDColumns.description:       mutation.get('gene_product'),
-			GDColumns.gene:              mutation.get("gene_name"),
-			GDColumns.mutation:          '',
-			GDColumns.position:          position,
-			GDColumns.sequence_id:       mutation.seqId,
-			GDColumns.alternate_base:    mutation.get('new_seq'),
-			#GDColumns.reference_base:    reference_base,
-			GDColumns.alternate_amino:   mutation.get('aa_new_seq'),
-			GDColumns.reference_amino:   mutation.get('aa_ref_seq'),
-			GDColumns.locus_tag:         mutation.get('locus_tag'),
-			GDColumns.mutation_category: mutation.get('mutation_category'),
-			GDColumns.alternate_codon:   mutation.get('codon_new_seq'),
-			GDColumns.reference_codon:   codon_ref
-		}
-		table.append(row)
-
+	table = [_convert_mutation_to_dictionary(m) for m in mutations]
 	df = pandas.DataFrame(table)
 	df = df[list(GDColumns)]
 	# df.columns = GDColumns
@@ -245,6 +245,7 @@ def _extract_mutations(data: List[Union[Evidence, Mutation]]) -> List[Mutation]:
 
 
 def get_gd_filename(path: Path) -> Path:
+	path = Path(path)
 	if path.is_dir():
 		result = path / "output" / "evidence" / "annotated.vcf"
 		if not result.exists():
@@ -261,8 +262,11 @@ def get_gd_filename(path: Path) -> Path:
 	return result
 
 
-def parse_gd_file(path: Path, set_index: bool = True) -> pandas.DataFrame:
-	filename = get_gd_filename(path)
+def parse_gd_file(io: Union[str, Path], set_index: bool = True) -> pandas.DataFrame:
+	try:
+		filename = get_gd_filename(io)
+	except (TypeError, OSError):
+		filename = io
 	gd_data = parse_annotated_gd_file(filename)
 	mutations = _extract_mutations(gd_data)
 	gd_df = generate_mutation_table(mutations)
@@ -272,8 +276,4 @@ def parse_gd_file(path: Path, set_index: bool = True) -> pandas.DataFrame:
 
 
 if __name__ == "__main__":
-	_gd_file = Path(__file__).parent.parent.parent / "data" / "breseq_run" / "AU0074" / "breseq_output" / "output" / "evidence" / "annotated.gd"
-
-	_gd_table = parse_gd_file(_gd_file.absolute())
-
-	print(_gd_table.to_string())
+	pass

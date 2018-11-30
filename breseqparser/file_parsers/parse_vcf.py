@@ -113,20 +113,10 @@ def parse_vcf_file(path: Path, set_index: bool = True, no_filter: bool = False) 
 	else:
 		filtered_df = _filter_df(vcf_df)
 
-	#Order the columns correctly
+	# Order the columns correctly
 	filtered_df = filtered_df[list(VCFColumns)]
 
 	if set_index:
 		filtered_df.set_index(keys = [VCFColumns.sequence_id, VCFColumns.position], inplace = True)
 
 	return filtered_df
-
-
-if __name__ == "__main__":
-	from pprint import pprint
-	_path = Path(__file__).parent.parent.parent
-	_path = _path / "tests" / "data" / "Clonal_Output" / "breseq_output" / "data" / "output.vcf"
-	output = parse_vcf_file(_path, no_filter = True, set_index = False)
-	print(output.to_dict(orient = 'records'))
-
-

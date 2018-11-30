@@ -1,370 +1,580 @@
 <!DOCTYPE html
-PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <html>
 <head>
-<title>BRESEQ :: Mutation Predictions</title>
-<style type = "text/css">
-body {font-family: sans-serif; font-size: 11pt;}
-th {background-color: rgb(0,0,0); color: rgb(255,255,255);}
-table {background-color: rgb(1,0,0); color: rgb(0,0,0);}
-tr {background-color: rgb(255,255,255);}
-.mutation_in_codon {color:red; text-decoration : underline;}
-.snp_type_synonymous{color:green;}
-.snp_type_nonsynonymous{color:blue;}
-.snp_type_nonsense{color:red;}
-.mutation_header_row {background-color: rgb(0,130,0);}
-.read_alignment_header_row {background-color: rgb(255,0,0);}
-.missing_coverage_header_row {background-color: rgb(0,100,100);}
-.new_junction_header_row {background-color: rgb(0,0,155);}
-.copy_number_header_row {background-color: rgb(153,102,0);}
-.alternate_table_row_0 {background-color: rgb(255,255,255);}
-.alternate_table_row_1 {background-color: rgb(235,235,235);}
-.gray_table_row {background-color: rgb(230,230,245);}
-.polymorphism_table_row {background-color: rgb(160,255,160);}
-.highlight_table_row {background-color: rgb(192,255,255);}
-.reject_table_row {background-color: rgb(255,200,165);}
-.user_defined_table_row {background-color: rgb(255,255,0);}
-.information_table_row {background-color: rgb(200,255,255);}
-.junction_repeat {background-color: rgb(255,165,0)}
-.junction_gene {}
-.hidden { display: none; }
-.unhidden { display: block; }
+    <title>BRESEQ :: Mutation Predictions</title>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            font-size: 11pt;
+        }
 
-</style>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<script type="text/javascript">
-  function hideTog(divID) {
-    var item = document.getElementById(divID);
-    if (item) {
-      item.className=(item.className=='hidden')?'unhidden':'hidden';
-    }
-  }
-  function showTog(butID) {
-    var button = document.getElementById(butID);
-    if (button) {
-      button.value=(button.value=='Show')?'Hide':'Show';
-    }
-  }
-</script>
+        th {
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+        }
+
+        table {
+            background-color: rgb(1, 0, 0);
+            color: rgb(0, 0, 0);
+        }
+
+        tr {
+            background-color: rgb(255, 255, 255);
+        }
+
+        .mutation_in_codon {
+            color: red;
+            text-decoration: underline;
+        }
+
+        .snp_type_synonymous {
+            color: green;
+        }
+
+        .snp_type_nonsynonymous {
+            color: blue;
+        }
+
+        .snp_type_nonsense {
+            color: red;
+        }
+
+        .mutation_header_row {
+            background-color: rgb(0, 130, 0);
+        }
+
+        .read_alignment_header_row {
+            background-color: rgb(255, 0, 0);
+        }
+
+        .missing_coverage_header_row {
+            background-color: rgb(0, 100, 100);
+        }
+
+        .new_junction_header_row {
+            background-color: rgb(0, 0, 155);
+        }
+
+        .copy_number_header_row {
+            background-color: rgb(153, 102, 0);
+        }
+
+        .alternate_table_row_0 {
+            background-color: rgb(255, 255, 255);
+        }
+
+        .alternate_table_row_1 {
+            background-color: rgb(235, 235, 235);
+        }
+
+        .gray_table_row {
+            background-color: rgb(230, 230, 245);
+        }
+
+        .polymorphism_table_row {
+            background-color: rgb(160, 255, 160);
+        }
+
+        .highlight_table_row {
+            background-color: rgb(192, 255, 255);
+        }
+
+        .reject_table_row {
+            background-color: rgb(255, 200, 165);
+        }
+
+        .user_defined_table_row {
+            background-color: rgb(255, 255, 0);
+        }
+
+        .information_table_row {
+            background-color: rgb(200, 255, 255);
+        }
+
+        .junction_repeat {
+            background-color: rgb(255, 165, 0)
+        }
+
+        .junction_gene {
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .unhidden {
+            display: block;
+        }
+
+    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <script type="text/javascript">
+        function hideTog(divID) {
+            var item = document.getElementById(divID);
+            if (item) {
+                item.className = (item.className == 'hidden') ? 'unhidden' : 'hidden';
+            }
+        }
+
+        function showTog(butID) {
+            var button = document.getElementById(butID);
+            if (button) {
+                button.value = (button.value == 'Show') ? 'Hide' : 'Show';
+            }
+        }
+    </script>
 
 </head>
 <body>
 <table width="100%" border="0" cellspacing="0" cellpadding="3">
-<tr>
-<td><a href="http://barricklab.org/breseq"><img src="evidence/breseq_small.png" /></a></td>
-<td width="100%">
-<b><i>breseq</i></b>&nbsp;&nbsp;version 0.31.0&nbsp;&nbsp;
-<br><a href="index.html">mutation predictions</a> | 
-<a href="marginal.html">marginal predictions</a> | 
-<a href="summary.html">summary statistics</a> | 
-<a href="output.gd">genome diff</a> | 
-<a href="log.txt">command line log</a>
-</td></tr></table>
+    <tr>
+        <td><a href="http://barricklab.org/breseq"><img src="evidence/breseq_small.png"/></a></td>
+        <td width="100%">
+            <b><i>breseq</i></b>&nbsp;&nbsp;version 0.31.0&nbsp;&nbsp;
+            <br><a href="index.html">mutation predictions</a> |
+            <a href="marginal.html">marginal predictions</a> |
+            <a href="summary.html">summary statistics</a> |
+            <a href="output.gd">genome diff</a> |
+            <a href="log.txt">command line log</a>
+        </td>
+    </tr>
+</table>
 
 <p>
-<!--Mutation Predictions -->
+    <!--Mutation Predictions -->
 <p>
-<!--Output Html_Mutation_Table_String-->
+    <!--Output Html_Mutation_Table_String-->
 <table border="0" cellspacing="1" cellpadding="3">
-<tr><th colspan="7" align="left" class="mutation_header_row">Predicted mutations</th></tr><tr>
-<th>evidence</th>
-<th>seq&nbsp;id</th>
-<th>position</th>
-<th>mutation</th>
-<th>annotation</th>
-<th>gene</th>
-<th width="100%">description</th>
-</tr>
+    <tr>
+        <th colspan="7" align="left" class="mutation_header_row">Predicted mutations</th>
+    </tr>
+    <tr>
+        <th>evidence</th>
+        <th>seq&nbsp;id</th>
+        <th>position</th>
+        <th>mutation</th>
+        <th>annotation</th>
+        <th>gene</th>
+        <th width="100%">description</th>
+    </tr>
 
-<!-- Item Lines -->
+    <!-- Item Lines -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/MC_PLOT_23.html">MC</a></td><!-- Evidence -->
-<td align="center">NC_009444</td><!-- Seq_Id -->
-<td align="right">1</td><!-- Position -->
-<td align="center">&Delta;425,094&nbsp;bp</td><!-- Cell Mutation -->
-<td align="center"></td>
-<td align="center"><i>parA</i>&#8211;<i>pQBR0478</i></td>
-<td align="left"><i title="parA, parB, pQBR0003, pQBR0004, pQBR0005, pQBR0006, pQBR0007, pQBR0008, pQBR0009, pQBR0010, pQBR0011, pQBR0012, pQBR0013, pQBR0014, pQBR0015, pQBR0017, pQBR0018, pQBR0019, pQBR0020, pQBR0021, pQBR0022, pQBR0023, pQBR0024, pQBR0025, pQBR0026, pQBR0027, pQBR0028, pQBR0029, pQBR0030, pQBR0031, pQBR0032, pQBR0033, pQBR0034, pQBR0035, pQBR0036, pQBR0037, pQBR0038, pQBR0039, pQBR0040, pQBR0041, pQBR0042, pQBR0043, pQBR0044, pQBR0045, pQBR0046, pQBR0047, pQBR0048, pQBR0049, pQBR0050, pQBR0051, pilT, pQBR0053, pQBR0054, helA, pQBR0056, pQBR0057, pQBR0058, pQBR0059, pQBR0060, pQBR0061, pQBR0062, pQBR0063, pQBR0064, pQBR0065, pQBR0066, pQBR0067, pQBR0068, pQBR0069, pQBR0070, pQBR0071, pQBR0072, vfr, pQBR0074, pQBR0075, pQBR0076, pQBR0077, pQBR0078, pQBR0079, pQBR0080, pQBR0081, pQBR0082, pQBR0083, pQBR0084, pQBR0085, pQBR0086, pQBR0087, pQBR0088, pQBR0089, pQBR0090, pQBR0091, pQBR0092, pQBR0093, pQBR0094, pQBR0095, pQBR0096, pQBR0097, pQBR0098, pQBR0099, pQBR0100, pQBR0101, pQBR0102, pQBR0103, pilD, pQBR0105, pQBR0106, pQBR0107, pQBR0108, pQBR0109, pQBR0110, pQBR0111, pQBR0112, pQBR0113, pQBR0114, pQBR0115, pQBR0116, pQBR0117, pQBR0118, pQBR0119, pQBR0121, pQBR0122, pQBR0123, pQBR0124, pQBR0125, pQBR0126, pQBR0127, pQBR0128, pQBR0129, pQBR0130, pQBR0131, pQBR0132, pQBR0133, pQBR0134, pQBR0135, pQBR0136, pQBR0137, pQBR0138, pQBR0139, pQBR0140, pQBR0141, pQBR0142, pQBR0143, pQBR0144, pQBR0145, pQBR0146, pQBR0147, pQBR0148, pQBR0149, pQBR0150, ndpA, pQBR0152, pQBR0153, pQBR0154, pQBR0155, pQBR0156, ruvA, ruvB, pQBR0159, pQBR0160, pQBR0161, pQBR0162, pQBR0163, pQBR0164, pQBR0165, pQBR0166, pQBR0167, pQBR0168, pQBR0169, pQBR0170, rnhB, pQBR0172, pQBR0173, pQBR0174, pQBR0175, pQBR0176, pQBR0177, hbs, pQBR0179, pQBR0180, pQBR0181, pQBR0182, pQBR0183, pQBR0184, pQBR0185, pQBR0186, pQBR0187, pQBR0188, pQBR0189, pQBR0190, pQBR0191, pQBR0192, pQBR0193, pQBR0194, pQBR0195, pQBR0196, pQBR0197, pQBR0198, pQBR0199, pQBR0200, pQBR0201, pQBR0202, pQBR0203, pQBR0204, pQBR0205, pQBR0206, pQBR0207, pQBR0208, pQBR0209, pQBR0210, pQBR0211, pQBR0212, pQBR0213, pQBR0214, pQBR0215, pQBR0216, pQBR0217, pQBR0218, pQBR0219, pQBR0220, pQBR0221, pQBR0222, pQBR0223, pQBR0224, pQBR0225, pQBR0226, pQBR0227, pQBR0228, pQBR0229, pQBR0230, pQBR0231, pQBR0232, pQBR0233, pQBR0234, pQBR0235, pQBR0236, pQBR0237, pQBR0238, pQBR0239, pQBR0240, pQBR0241, pQBR0242, pQBR0243, pQBR0244, pQBR0245, pQBR0246, pQBR0247, pQBR0248, pQBR0249, pQBR0250, pQBR0251, pQBR0252, pQBR0253, pQBR0254, pQBR0255, pQBR0256, pQBR0257, pQBR0258, pQBR0259, pQBR0260, pQBR0261, pQBR0262, pQBR0263, pQBR0264, pQBR0265, pQBR0266, pQBR0267, pQBR0268, pQBR0269, pQBR0270, pQBR0271, pQBR0272, pQBR0273, pQBR0274, pQBR0275, pQBR0276, pQBR0277, pQBR0278, pQBR0279, pQBR0280, pQBR0281, pQBR0282, pQBR0283, pQBR0284, pQBR0285, pQBR0286, pQBR0287, pQBR0288, pQBR0289, pQBR0290, pQBR0291, pQBR0292, pQBR0293, pQBR0294, pQBR0295, pQBR0296, pQBR0297, pQBR0298, pQBR0299, pQBR0300, pQBR0301, pQBR0302, pQBR0303, pQBR0304, pQBR0305, pQBR0306, pQBR0307, pQBR0309, pQBR0310, pQBR0311, pQBR0312, pQBR0313, pQBR0314, pQBR0315, pQBR0316, pQBR0317, orn, pQBR0319, pQBR0320, pQBR0321, pQBR0322, pQBR0323, pQBR0324, pQBR0325, pQBR0326, pQBR0327, pQBR0328, pQBR0329, pQBR0330, pQBR0331, pQBR0332, pQBR0333, pQBR0334, pQBR0335, pQBR0336, pQBR0337, pQBR0338, pQBR0339, pQBR0340, pQBR0341, pQBR0342, pQBR0343, pQBR0344, pQBR0345, pQBR0346, pQBR0347, pQBR0348, pQBR0349, pQBR0350, pQBR0351, pQBR0352, pQBR0353, pQBR0354, pQBR0355, pQBR0356, pQBR0357, pQBR0358, pQBR0359, pQBR0360, pQBR0361, pQBR0362, pQBR0363, pQBR0364, pQBR0365, pQBR0366, pQBR0367, pQBR0368, pQBR0369, pQBR0370, pQBR0371, pQBR0372, pQBR0373, pQBR0374, pQBR0375, pQBR0376, pQBR0377, pQBR0378, pQBR0379, pQBR0380, pQBR0381, pQBR0382, pQBR0383, pQBR0384, pQBR0385, pQBR0386, pQBR0387, pQBR0388, pQBR0389, pQBR0390, pQBR0391, pQBR0392, pQBR0393, pQBR0394, pQBR0395, pQBR0396, pQBR0397, pQBR0398, pQBR0399, pQBR0400, pQBR0401, pQBR0402, pQBR0403, pQBR0404, pQBR0405, pQBR0406, pQBR0407, pQBR0408, pQBR0409, pQBR0410, pQBR0411, pQBR0412, pQBR0413, pQBR0414, pQBR0415, pQBR0416, pQBR0417, pQBR0418, pQBR0419, pQBR0420, pQBR0421, pQBR0422, pQBR0423, pQBR0424, pQBR0425, tnpA, tnpB, tnpC, merB, merA, merC, merP, merT, merR, pQBR0436, pQBR0437, rdgC, pQBR0439, pQBR0440, pQBR0441, pQBR0442, pQBR0443, pQBR0444, pQBR0445, pQBR0446, pQBR0447, pQBR0448, pQBR0449, pQBR0450, pQBR0451, pQBR0452, pQBR0453, pQBR0454, pQBR0455, pQBR0456, pQBR0457, pQBR0458, pQBR0459, pQBR0460, pQBR0461, pQBR0462, pQBR0463, dnaN, rpoD, pQBR0466, pQBR0467, pQBR0468, pQBR0469, pQBR0470, pQBR0471, pQBR0472, pQBR0473, pQBR0474, pQBR0475, pQBR0476, pQBR0477, pQBR0478"><b>474 genes</b> <noscript>Javascript Disabled: All genes shown.<br></noscript></i><noscript>parA, parB, pQBR0003, pQBR0004, pQBR0005, pQBR0006, pQBR0007, pQBR0008, pQBR0009, pQBR0010, pQBR0011, pQBR0012, pQBR0013, pQBR0014, pQBR0015, pQBR0017, pQBR0018, pQBR0019, pQBR0020, pQBR0021, pQBR0022, pQBR0023, pQBR0024, pQBR0025, pQBR0026, pQBR0027, pQBR0028, pQBR0029, pQBR0030, pQBR0031, pQBR0032, pQBR0033, pQBR0034, pQBR0035, pQBR0036, pQBR0037, pQBR0038, pQBR0039, pQBR0040, pQBR0041, pQBR0042, pQBR0043, pQBR0044, pQBR0045, pQBR0046, pQBR0047, pQBR0048, pQBR0049, pQBR0050, pQBR0051, pilT, pQBR0053, pQBR0054, helA, pQBR0056, pQBR0057, pQBR0058, pQBR0059, pQBR0060, pQBR0061, pQBR0062, pQBR0063, pQBR0064, pQBR0065, pQBR0066, pQBR0067, pQBR0068, pQBR0069, pQBR0070, pQBR0071, pQBR0072, vfr, pQBR0074, pQBR0075, pQBR0076, pQBR0077, pQBR0078, pQBR0079, pQBR0080, pQBR0081, pQBR0082, pQBR0083, pQBR0084, pQBR0085, pQBR0086, pQBR0087, pQBR0088, pQBR0089, pQBR0090, pQBR0091, pQBR0092, pQBR0093, pQBR0094, pQBR0095, pQBR0096, pQBR0097, pQBR0098, pQBR0099, pQBR0100, pQBR0101, pQBR0102, pQBR0103, pilD, pQBR0105, pQBR0106, pQBR0107, pQBR0108, pQBR0109, pQBR0110, pQBR0111, pQBR0112, pQBR0113, pQBR0114, pQBR0115, pQBR0116, pQBR0117, pQBR0118, pQBR0119, pQBR0121, pQBR0122, pQBR0123, pQBR0124, pQBR0125, pQBR0126, pQBR0127, pQBR0128, pQBR0129, pQBR0130, pQBR0131, pQBR0132, pQBR0133, pQBR0134, pQBR0135, pQBR0136, pQBR0137, pQBR0138, pQBR0139, pQBR0140, pQBR0141, pQBR0142, pQBR0143, pQBR0144, pQBR0145, pQBR0146, pQBR0147, pQBR0148, pQBR0149, pQBR0150, ndpA, pQBR0152, pQBR0153, pQBR0154, pQBR0155, pQBR0156, ruvA, ruvB, pQBR0159, pQBR0160, pQBR0161, pQBR0162, pQBR0163, pQBR0164, pQBR0165, pQBR0166, pQBR0167, pQBR0168, pQBR0169, pQBR0170, rnhB, pQBR0172, pQBR0173, pQBR0174, pQBR0175, pQBR0176, pQBR0177, hbs, pQBR0179, pQBR0180, pQBR0181, pQBR0182, pQBR0183, pQBR0184, pQBR0185, pQBR0186, pQBR0187, pQBR0188, pQBR0189, pQBR0190, pQBR0191, pQBR0192, pQBR0193, pQBR0194, pQBR0195, pQBR0196, pQBR0197, pQBR0198, pQBR0199, pQBR0200, pQBR0201, pQBR0202, pQBR0203, pQBR0204, pQBR0205, pQBR0206, pQBR0207, pQBR0208, pQBR0209, pQBR0210, pQBR0211, pQBR0212, pQBR0213, pQBR0214, pQBR0215, pQBR0216, pQBR0217, pQBR0218, pQBR0219, pQBR0220, pQBR0221, pQBR0222, pQBR0223, pQBR0224, pQBR0225, pQBR0226, pQBR0227, pQBR0228, pQBR0229, pQBR0230, pQBR0231, pQBR0232, pQBR0233, pQBR0234, pQBR0235, pQBR0236, pQBR0237, pQBR0238, pQBR0239, pQBR0240, pQBR0241, pQBR0242, pQBR0243, pQBR0244, pQBR0245, pQBR0246, pQBR0247, pQBR0248, pQBR0249, pQBR0250, pQBR0251, pQBR0252, pQBR0253, pQBR0254, pQBR0255, pQBR0256, pQBR0257, pQBR0258, pQBR0259, pQBR0260, pQBR0261, pQBR0262, pQBR0263, pQBR0264, pQBR0265, pQBR0266, pQBR0267, pQBR0268, pQBR0269, pQBR0270, pQBR0271, pQBR0272, pQBR0273, pQBR0274, pQBR0275, pQBR0276, pQBR0277, pQBR0278, pQBR0279, pQBR0280, pQBR0281, pQBR0282, pQBR0283, pQBR0284, pQBR0285, pQBR0286, pQBR0287, pQBR0288, pQBR0289, pQBR0290, pQBR0291, pQBR0292, pQBR0293, pQBR0294, pQBR0295, pQBR0296, pQBR0297, pQBR0298, pQBR0299, pQBR0300, pQBR0301, pQBR0302, pQBR0303, pQBR0304, pQBR0305, pQBR0306, pQBR0307, pQBR0309, pQBR0310, pQBR0311, pQBR0312, pQBR0313, pQBR0314, pQBR0315, pQBR0316, pQBR0317, orn, pQBR0319, pQBR0320, pQBR0321, pQBR0322, pQBR0323, pQBR0324, pQBR0325, pQBR0326, pQBR0327, pQBR0328, pQBR0329, pQBR0330, pQBR0331, pQBR0332, pQBR0333, pQBR0334, pQBR0335, pQBR0336, pQBR0337, pQBR0338, pQBR0339, pQBR0340, pQBR0341, pQBR0342, pQBR0343, pQBR0344, pQBR0345, pQBR0346, pQBR0347, pQBR0348, pQBR0349, pQBR0350, pQBR0351, pQBR0352, pQBR0353, pQBR0354, pQBR0355, pQBR0356, pQBR0357, pQBR0358, pQBR0359, pQBR0360, pQBR0361, pQBR0362, pQBR0363, pQBR0364, pQBR0365, pQBR0366, pQBR0367, pQBR0368, pQBR0369, pQBR0370, pQBR0371, pQBR0372, pQBR0373, pQBR0374, pQBR0375, pQBR0376, pQBR0377, pQBR0378, pQBR0379, pQBR0380, pQBR0381, pQBR0382, pQBR0383, pQBR0384, pQBR0385, pQBR0386, pQBR0387, pQBR0388, pQBR0389, pQBR0390, pQBR0391, pQBR0392, pQBR0393, pQBR0394, pQBR0395, pQBR0396, pQBR0397, pQBR0398, pQBR0399, pQBR0400, pQBR0401, pQBR0402, pQBR0403, pQBR0404, pQBR0405, pQBR0406, pQBR0407, pQBR0408, pQBR0409, pQBR0410, pQBR0411, pQBR0412, pQBR0413, pQBR0414, pQBR0415, pQBR0416, pQBR0417, pQBR0418, pQBR0419, pQBR0420, pQBR0421, pQBR0422, pQBR0423, pQBR0424, pQBR0425, tnpA, tnpB, tnpC, merB, merA, merC, merP, merT, merR, pQBR0436, pQBR0437, rdgC, pQBR0439, pQBR0440, pQBR0441, pQBR0442, pQBR0443, pQBR0444, pQBR0445, pQBR0446, pQBR0447, pQBR0448, pQBR0449, pQBR0450, pQBR0451, pQBR0452, pQBR0453, pQBR0454, pQBR0455, pQBR0456, pQBR0457, pQBR0458, pQBR0459, pQBR0460, pQBR0461, pQBR0462, pQBR0463, dnaN, rpoD, pQBR0466, pQBR0467, pQBR0468, pQBR0469, pQBR0470, pQBR0471, pQBR0472, pQBR0473, pQBR0474, pQBR0475, pQBR0476, pQBR0477, pQBR0478</noscript><div id="gene_hide_DEL_1" class="hidden">parA, parB, pQBR0003, pQBR0004, pQBR0005, pQBR0006, pQBR0007, pQBR0008, pQBR0009, pQBR0010, pQBR0011, pQBR0012, pQBR0013, pQBR0014, pQBR0015, pQBR0017, pQBR0018, pQBR0019, pQBR0020, pQBR0021, pQBR0022, pQBR0023, pQBR0024, pQBR0025, pQBR0026, pQBR0027, pQBR0028, pQBR0029, pQBR0030, pQBR0031, pQBR0032, pQBR0033, pQBR0034, pQBR0035, pQBR0036, pQBR0037, pQBR0038, pQBR0039, pQBR0040, pQBR0041, pQBR0042, pQBR0043, pQBR0044, pQBR0045, pQBR0046, pQBR0047, pQBR0048, pQBR0049, pQBR0050, pQBR0051, pilT, pQBR0053, pQBR0054, helA, pQBR0056, pQBR0057, pQBR0058, pQBR0059, pQBR0060, pQBR0061, pQBR0062, pQBR0063, pQBR0064, pQBR0065, pQBR0066, pQBR0067, pQBR0068, pQBR0069, pQBR0070, pQBR0071, pQBR0072, vfr, pQBR0074, pQBR0075, pQBR0076, pQBR0077, pQBR0078, pQBR0079, pQBR0080, pQBR0081, pQBR0082, pQBR0083, pQBR0084, pQBR0085, pQBR0086, pQBR0087, pQBR0088, pQBR0089, pQBR0090, pQBR0091, pQBR0092, pQBR0093, pQBR0094, pQBR0095, pQBR0096, pQBR0097, pQBR0098, pQBR0099, pQBR0100, pQBR0101, pQBR0102, pQBR0103, pilD, pQBR0105, pQBR0106, pQBR0107, pQBR0108, pQBR0109, pQBR0110, pQBR0111, pQBR0112, pQBR0113, pQBR0114, pQBR0115, pQBR0116, pQBR0117, pQBR0118, pQBR0119, pQBR0121, pQBR0122, pQBR0123, pQBR0124, pQBR0125, pQBR0126, pQBR0127, pQBR0128, pQBR0129, pQBR0130, pQBR0131, pQBR0132, pQBR0133, pQBR0134, pQBR0135, pQBR0136, pQBR0137, pQBR0138, pQBR0139, pQBR0140, pQBR0141, pQBR0142, pQBR0143, pQBR0144, pQBR0145, pQBR0146, pQBR0147, pQBR0148, pQBR0149, pQBR0150, ndpA, pQBR0152, pQBR0153, pQBR0154, pQBR0155, pQBR0156, ruvA, ruvB, pQBR0159, pQBR0160, pQBR0161, pQBR0162, pQBR0163, pQBR0164, pQBR0165, pQBR0166, pQBR0167, pQBR0168, pQBR0169, pQBR0170, rnhB, pQBR0172, pQBR0173, pQBR0174, pQBR0175, pQBR0176, pQBR0177, hbs, pQBR0179, pQBR0180, pQBR0181, pQBR0182, pQBR0183, pQBR0184, pQBR0185, pQBR0186, pQBR0187, pQBR0188, pQBR0189, pQBR0190, pQBR0191, pQBR0192, pQBR0193, pQBR0194, pQBR0195, pQBR0196, pQBR0197, pQBR0198, pQBR0199, pQBR0200, pQBR0201, pQBR0202, pQBR0203, pQBR0204, pQBR0205, pQBR0206, pQBR0207, pQBR0208, pQBR0209, pQBR0210, pQBR0211, pQBR0212, pQBR0213, pQBR0214, pQBR0215, pQBR0216, pQBR0217, pQBR0218, pQBR0219, pQBR0220, pQBR0221, pQBR0222, pQBR0223, pQBR0224, pQBR0225, pQBR0226, pQBR0227, pQBR0228, pQBR0229, pQBR0230, pQBR0231, pQBR0232, pQBR0233, pQBR0234, pQBR0235, pQBR0236, pQBR0237, pQBR0238, pQBR0239, pQBR0240, pQBR0241, pQBR0242, pQBR0243, pQBR0244, pQBR0245, pQBR0246, pQBR0247, pQBR0248, pQBR0249, pQBR0250, pQBR0251, pQBR0252, pQBR0253, pQBR0254, pQBR0255, pQBR0256, pQBR0257, pQBR0258, pQBR0259, pQBR0260, pQBR0261, pQBR0262, pQBR0263, pQBR0264, pQBR0265, pQBR0266, pQBR0267, pQBR0268, pQBR0269, pQBR0270, pQBR0271, pQBR0272, pQBR0273, pQBR0274, pQBR0275, pQBR0276, pQBR0277, pQBR0278, pQBR0279, pQBR0280, pQBR0281, pQBR0282, pQBR0283, pQBR0284, pQBR0285, pQBR0286, pQBR0287, pQBR0288, pQBR0289, pQBR0290, pQBR0291, pQBR0292, pQBR0293, pQBR0294, pQBR0295, pQBR0296, pQBR0297, pQBR0298, pQBR0299, pQBR0300, pQBR0301, pQBR0302, pQBR0303, pQBR0304, pQBR0305, pQBR0306, pQBR0307, pQBR0309, pQBR0310, pQBR0311, pQBR0312, pQBR0313, pQBR0314, pQBR0315, pQBR0316, pQBR0317, orn, pQBR0319, pQBR0320, pQBR0321, pQBR0322, pQBR0323, pQBR0324, pQBR0325, pQBR0326, pQBR0327, pQBR0328, pQBR0329, pQBR0330, pQBR0331, pQBR0332, pQBR0333, pQBR0334, pQBR0335, pQBR0336, pQBR0337, pQBR0338, pQBR0339, pQBR0340, pQBR0341, pQBR0342, pQBR0343, pQBR0344, pQBR0345, pQBR0346, pQBR0347, pQBR0348, pQBR0349, pQBR0350, pQBR0351, pQBR0352, pQBR0353, pQBR0354, pQBR0355, pQBR0356, pQBR0357, pQBR0358, pQBR0359, pQBR0360, pQBR0361, pQBR0362, pQBR0363, pQBR0364, pQBR0365, pQBR0366, pQBR0367, pQBR0368, pQBR0369, pQBR0370, pQBR0371, pQBR0372, pQBR0373, pQBR0374, pQBR0375, pQBR0376, pQBR0377, pQBR0378, pQBR0379, pQBR0380, pQBR0381, pQBR0382, pQBR0383, pQBR0384, pQBR0385, pQBR0386, pQBR0387, pQBR0388, pQBR0389, pQBR0390, pQBR0391, pQBR0392, pQBR0393, pQBR0394, pQBR0395, pQBR0396, pQBR0397, pQBR0398, pQBR0399, pQBR0400, pQBR0401, pQBR0402, pQBR0403, pQBR0404, pQBR0405, pQBR0406, pQBR0407, pQBR0408, pQBR0409, pQBR0410, pQBR0411, pQBR0412, pQBR0413, pQBR0414, pQBR0415, pQBR0416, pQBR0417, pQBR0418, pQBR0419, pQBR0420, pQBR0421, pQBR0422, pQBR0423, pQBR0424, pQBR0425, tnpA, tnpB, tnpC, merB, merA, merC, merP, merT, merR, pQBR0436, pQBR0437, rdgC, pQBR0439, pQBR0440, pQBR0441, pQBR0442, pQBR0443, pQBR0444, pQBR0445, pQBR0446, pQBR0447, pQBR0448, pQBR0449, pQBR0450, pQBR0451, pQBR0452, pQBR0453, pQBR0454, pQBR0455, pQBR0456, pQBR0457, pQBR0458, pQBR0459, pQBR0460, pQBR0461, pQBR0462, pQBR0463, dnaN, rpoD, pQBR0466, pQBR0467, pQBR0468, pQBR0469, pQBR0470, pQBR0471, pQBR0472, pQBR0473, pQBR0474, pQBR0475, pQBR0476, pQBR0477, pQBR0478</div><input id="gene_hide_DEL_1_button" type="button" onclick="hideTog('gene_hide_DEL_1');showTog('gene_hide_DEL_1_button')" value="Show" /></td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/MC_PLOT_23.html">MC</a></td><!-- Evidence -->
+        <td align="center">NC_009444</td><!-- Seq_Id -->
+        <td align="right">1</td><!-- Position -->
+        <td align="center">&Delta;425,094&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="center"></td>
+        <td align="center"><i>parA</i>&#8211;<i>pQBR0478</i></td>
+        <td align="left"><i
+                title="parA, parB, pQBR0003, pQBR0004, pQBR0005, pQBR0006, pQBR0007, pQBR0008, pQBR0009, pQBR0010, pQBR0011, pQBR0012, pQBR0013, pQBR0014, pQBR0015, pQBR0017, pQBR0018, pQBR0019, pQBR0020, pQBR0021, pQBR0022, pQBR0023, pQBR0024, pQBR0025, pQBR0026, pQBR0027, pQBR0028, pQBR0029, pQBR0030, pQBR0031, pQBR0032, pQBR0033, pQBR0034, pQBR0035, pQBR0036, pQBR0037, pQBR0038, pQBR0039, pQBR0040, pQBR0041, pQBR0042, pQBR0043, pQBR0044, pQBR0045, pQBR0046, pQBR0047, pQBR0048, pQBR0049, pQBR0050, pQBR0051, pilT, pQBR0053, pQBR0054, helA, pQBR0056, pQBR0057, pQBR0058, pQBR0059, pQBR0060, pQBR0061, pQBR0062, pQBR0063, pQBR0064, pQBR0065, pQBR0066, pQBR0067, pQBR0068, pQBR0069, pQBR0070, pQBR0071, pQBR0072, vfr, pQBR0074, pQBR0075, pQBR0076, pQBR0077, pQBR0078, pQBR0079, pQBR0080, pQBR0081, pQBR0082, pQBR0083, pQBR0084, pQBR0085, pQBR0086, pQBR0087, pQBR0088, pQBR0089, pQBR0090, pQBR0091, pQBR0092, pQBR0093, pQBR0094, pQBR0095, pQBR0096, pQBR0097, pQBR0098, pQBR0099, pQBR0100, pQBR0101, pQBR0102, pQBR0103, pilD, pQBR0105, pQBR0106, pQBR0107, pQBR0108, pQBR0109, pQBR0110, pQBR0111, pQBR0112, pQBR0113, pQBR0114, pQBR0115, pQBR0116, pQBR0117, pQBR0118, pQBR0119, pQBR0121, pQBR0122, pQBR0123, pQBR0124, pQBR0125, pQBR0126, pQBR0127, pQBR0128, pQBR0129, pQBR0130, pQBR0131, pQBR0132, pQBR0133, pQBR0134, pQBR0135, pQBR0136, pQBR0137, pQBR0138, pQBR0139, pQBR0140, pQBR0141, pQBR0142, pQBR0143, pQBR0144, pQBR0145, pQBR0146, pQBR0147, pQBR0148, pQBR0149, pQBR0150, ndpA, pQBR0152, pQBR0153, pQBR0154, pQBR0155, pQBR0156, ruvA, ruvB, pQBR0159, pQBR0160, pQBR0161, pQBR0162, pQBR0163, pQBR0164, pQBR0165, pQBR0166, pQBR0167, pQBR0168, pQBR0169, pQBR0170, rnhB, pQBR0172, pQBR0173, pQBR0174, pQBR0175, pQBR0176, pQBR0177, hbs, pQBR0179, pQBR0180, pQBR0181, pQBR0182, pQBR0183, pQBR0184, pQBR0185, pQBR0186, pQBR0187, pQBR0188, pQBR0189, pQBR0190, pQBR0191, pQBR0192, pQBR0193, pQBR0194, pQBR0195, pQBR0196, pQBR0197, pQBR0198, pQBR0199, pQBR0200, pQBR0201, pQBR0202, pQBR0203, pQBR0204, pQBR0205, pQBR0206, pQBR0207, pQBR0208, pQBR0209, pQBR0210, pQBR0211, pQBR0212, pQBR0213, pQBR0214, pQBR0215, pQBR0216, pQBR0217, pQBR0218, pQBR0219, pQBR0220, pQBR0221, pQBR0222, pQBR0223, pQBR0224, pQBR0225, pQBR0226, pQBR0227, pQBR0228, pQBR0229, pQBR0230, pQBR0231, pQBR0232, pQBR0233, pQBR0234, pQBR0235, pQBR0236, pQBR0237, pQBR0238, pQBR0239, pQBR0240, pQBR0241, pQBR0242, pQBR0243, pQBR0244, pQBR0245, pQBR0246, pQBR0247, pQBR0248, pQBR0249, pQBR0250, pQBR0251, pQBR0252, pQBR0253, pQBR0254, pQBR0255, pQBR0256, pQBR0257, pQBR0258, pQBR0259, pQBR0260, pQBR0261, pQBR0262, pQBR0263, pQBR0264, pQBR0265, pQBR0266, pQBR0267, pQBR0268, pQBR0269, pQBR0270, pQBR0271, pQBR0272, pQBR0273, pQBR0274, pQBR0275, pQBR0276, pQBR0277, pQBR0278, pQBR0279, pQBR0280, pQBR0281, pQBR0282, pQBR0283, pQBR0284, pQBR0285, pQBR0286, pQBR0287, pQBR0288, pQBR0289, pQBR0290, pQBR0291, pQBR0292, pQBR0293, pQBR0294, pQBR0295, pQBR0296, pQBR0297, pQBR0298, pQBR0299, pQBR0300, pQBR0301, pQBR0302, pQBR0303, pQBR0304, pQBR0305, pQBR0306, pQBR0307, pQBR0309, pQBR0310, pQBR0311, pQBR0312, pQBR0313, pQBR0314, pQBR0315, pQBR0316, pQBR0317, orn, pQBR0319, pQBR0320, pQBR0321, pQBR0322, pQBR0323, pQBR0324, pQBR0325, pQBR0326, pQBR0327, pQBR0328, pQBR0329, pQBR0330, pQBR0331, pQBR0332, pQBR0333, pQBR0334, pQBR0335, pQBR0336, pQBR0337, pQBR0338, pQBR0339, pQBR0340, pQBR0341, pQBR0342, pQBR0343, pQBR0344, pQBR0345, pQBR0346, pQBR0347, pQBR0348, pQBR0349, pQBR0350, pQBR0351, pQBR0352, pQBR0353, pQBR0354, pQBR0355, pQBR0356, pQBR0357, pQBR0358, pQBR0359, pQBR0360, pQBR0361, pQBR0362, pQBR0363, pQBR0364, pQBR0365, pQBR0366, pQBR0367, pQBR0368, pQBR0369, pQBR0370, pQBR0371, pQBR0372, pQBR0373, pQBR0374, pQBR0375, pQBR0376, pQBR0377, pQBR0378, pQBR0379, pQBR0380, pQBR0381, pQBR0382, pQBR0383, pQBR0384, pQBR0385, pQBR0386, pQBR0387, pQBR0388, pQBR0389, pQBR0390, pQBR0391, pQBR0392, pQBR0393, pQBR0394, pQBR0395, pQBR0396, pQBR0397, pQBR0398, pQBR0399, pQBR0400, pQBR0401, pQBR0402, pQBR0403, pQBR0404, pQBR0405, pQBR0406, pQBR0407, pQBR0408, pQBR0409, pQBR0410, pQBR0411, pQBR0412, pQBR0413, pQBR0414, pQBR0415, pQBR0416, pQBR0417, pQBR0418, pQBR0419, pQBR0420, pQBR0421, pQBR0422, pQBR0423, pQBR0424, pQBR0425, tnpA, tnpB, tnpC, merB, merA, merC, merP, merT, merR, pQBR0436, pQBR0437, rdgC, pQBR0439, pQBR0440, pQBR0441, pQBR0442, pQBR0443, pQBR0444, pQBR0445, pQBR0446, pQBR0447, pQBR0448, pQBR0449, pQBR0450, pQBR0451, pQBR0452, pQBR0453, pQBR0454, pQBR0455, pQBR0456, pQBR0457, pQBR0458, pQBR0459, pQBR0460, pQBR0461, pQBR0462, pQBR0463, dnaN, rpoD, pQBR0466, pQBR0467, pQBR0468, pQBR0469, pQBR0470, pQBR0471, pQBR0472, pQBR0473, pQBR0474, pQBR0475, pQBR0476, pQBR0477, pQBR0478"><b>474
+            genes</b>
+            <noscript>Javascript Disabled: All genes shown.<br></noscript>
+        </i>
+            <noscript>parA, parB, pQBR0003, pQBR0004, pQBR0005, pQBR0006, pQBR0007, pQBR0008, pQBR0009, pQBR0010, pQBR0011, pQBR0012, pQBR0013,
+                pQBR0014, pQBR0015, pQBR0017, pQBR0018, pQBR0019, pQBR0020, pQBR0021, pQBR0022, pQBR0023, pQBR0024, pQBR0025, pQBR0026, pQBR0027,
+                pQBR0028, pQBR0029, pQBR0030, pQBR0031, pQBR0032, pQBR0033, pQBR0034, pQBR0035, pQBR0036, pQBR0037, pQBR0038, pQBR0039, pQBR0040,
+                pQBR0041, pQBR0042, pQBR0043, pQBR0044, pQBR0045, pQBR0046, pQBR0047, pQBR0048, pQBR0049, pQBR0050, pQBR0051, pilT, pQBR0053,
+                pQBR0054, helA, pQBR0056, pQBR0057, pQBR0058, pQBR0059, pQBR0060, pQBR0061, pQBR0062, pQBR0063, pQBR0064, pQBR0065, pQBR0066,
+                pQBR0067, pQBR0068, pQBR0069, pQBR0070, pQBR0071, pQBR0072, vfr, pQBR0074, pQBR0075, pQBR0076, pQBR0077, pQBR0078, pQBR0079, pQBR0080,
+                pQBR0081, pQBR0082, pQBR0083, pQBR0084, pQBR0085, pQBR0086, pQBR0087, pQBR0088, pQBR0089, pQBR0090, pQBR0091, pQBR0092, pQBR0093,
+                pQBR0094, pQBR0095, pQBR0096, pQBR0097, pQBR0098, pQBR0099, pQBR0100, pQBR0101, pQBR0102, pQBR0103, pilD, pQBR0105, pQBR0106,
+                pQBR0107, pQBR0108, pQBR0109, pQBR0110, pQBR0111, pQBR0112, pQBR0113, pQBR0114, pQBR0115, pQBR0116, pQBR0117, pQBR0118, pQBR0119,
+                pQBR0121, pQBR0122, pQBR0123, pQBR0124, pQBR0125, pQBR0126, pQBR0127, pQBR0128, pQBR0129, pQBR0130, pQBR0131, pQBR0132, pQBR0133,
+                pQBR0134, pQBR0135, pQBR0136, pQBR0137, pQBR0138, pQBR0139, pQBR0140, pQBR0141, pQBR0142, pQBR0143, pQBR0144, pQBR0145, pQBR0146,
+                pQBR0147, pQBR0148, pQBR0149, pQBR0150, ndpA, pQBR0152, pQBR0153, pQBR0154, pQBR0155, pQBR0156, ruvA, ruvB, pQBR0159, pQBR0160,
+                pQBR0161, pQBR0162, pQBR0163, pQBR0164, pQBR0165, pQBR0166, pQBR0167, pQBR0168, pQBR0169, pQBR0170, rnhB, pQBR0172, pQBR0173,
+                pQBR0174, pQBR0175, pQBR0176, pQBR0177, hbs, pQBR0179, pQBR0180, pQBR0181, pQBR0182, pQBR0183, pQBR0184, pQBR0185, pQBR0186, pQBR0187,
+                pQBR0188, pQBR0189, pQBR0190, pQBR0191, pQBR0192, pQBR0193, pQBR0194, pQBR0195, pQBR0196, pQBR0197, pQBR0198, pQBR0199, pQBR0200,
+                pQBR0201, pQBR0202, pQBR0203, pQBR0204, pQBR0205, pQBR0206, pQBR0207, pQBR0208, pQBR0209, pQBR0210, pQBR0211, pQBR0212, pQBR0213,
+                pQBR0214, pQBR0215, pQBR0216, pQBR0217, pQBR0218, pQBR0219, pQBR0220, pQBR0221, pQBR0222, pQBR0223, pQBR0224, pQBR0225, pQBR0226,
+                pQBR0227, pQBR0228, pQBR0229, pQBR0230, pQBR0231, pQBR0232, pQBR0233, pQBR0234, pQBR0235, pQBR0236, pQBR0237, pQBR0238, pQBR0239,
+                pQBR0240, pQBR0241, pQBR0242, pQBR0243, pQBR0244, pQBR0245, pQBR0246, pQBR0247, pQBR0248, pQBR0249, pQBR0250, pQBR0251, pQBR0252,
+                pQBR0253, pQBR0254, pQBR0255, pQBR0256, pQBR0257, pQBR0258, pQBR0259, pQBR0260, pQBR0261, pQBR0262, pQBR0263, pQBR0264, pQBR0265,
+                pQBR0266, pQBR0267, pQBR0268, pQBR0269, pQBR0270, pQBR0271, pQBR0272, pQBR0273, pQBR0274, pQBR0275, pQBR0276, pQBR0277, pQBR0278,
+                pQBR0279, pQBR0280, pQBR0281, pQBR0282, pQBR0283, pQBR0284, pQBR0285, pQBR0286, pQBR0287, pQBR0288, pQBR0289, pQBR0290, pQBR0291,
+                pQBR0292, pQBR0293, pQBR0294, pQBR0295, pQBR0296, pQBR0297, pQBR0298, pQBR0299, pQBR0300, pQBR0301, pQBR0302, pQBR0303, pQBR0304,
+                pQBR0305, pQBR0306, pQBR0307, pQBR0309, pQBR0310, pQBR0311, pQBR0312, pQBR0313, pQBR0314, pQBR0315, pQBR0316, pQBR0317, orn, pQBR0319,
+                pQBR0320, pQBR0321, pQBR0322, pQBR0323, pQBR0324, pQBR0325, pQBR0326, pQBR0327, pQBR0328, pQBR0329, pQBR0330, pQBR0331, pQBR0332,
+                pQBR0333, pQBR0334, pQBR0335, pQBR0336, pQBR0337, pQBR0338, pQBR0339, pQBR0340, pQBR0341, pQBR0342, pQBR0343, pQBR0344, pQBR0345,
+                pQBR0346, pQBR0347, pQBR0348, pQBR0349, pQBR0350, pQBR0351, pQBR0352, pQBR0353, pQBR0354, pQBR0355, pQBR0356, pQBR0357, pQBR0358,
+                pQBR0359, pQBR0360, pQBR0361, pQBR0362, pQBR0363, pQBR0364, pQBR0365, pQBR0366, pQBR0367, pQBR0368, pQBR0369, pQBR0370, pQBR0371,
+                pQBR0372, pQBR0373, pQBR0374, pQBR0375, pQBR0376, pQBR0377, pQBR0378, pQBR0379, pQBR0380, pQBR0381, pQBR0382, pQBR0383, pQBR0384,
+                pQBR0385, pQBR0386, pQBR0387, pQBR0388, pQBR0389, pQBR0390, pQBR0391, pQBR0392, pQBR0393, pQBR0394, pQBR0395, pQBR0396, pQBR0397,
+                pQBR0398, pQBR0399, pQBR0400, pQBR0401, pQBR0402, pQBR0403, pQBR0404, pQBR0405, pQBR0406, pQBR0407, pQBR0408, pQBR0409, pQBR0410,
+                pQBR0411, pQBR0412, pQBR0413, pQBR0414, pQBR0415, pQBR0416, pQBR0417, pQBR0418, pQBR0419, pQBR0420, pQBR0421, pQBR0422, pQBR0423,
+                pQBR0424, pQBR0425, tnpA, tnpB, tnpC, merB, merA, merC, merP, merT, merR, pQBR0436, pQBR0437, rdgC, pQBR0439, pQBR0440, pQBR0441,
+                pQBR0442, pQBR0443, pQBR0444, pQBR0445, pQBR0446, pQBR0447, pQBR0448, pQBR0449, pQBR0450, pQBR0451, pQBR0452, pQBR0453, pQBR0454,
+                pQBR0455, pQBR0456, pQBR0457, pQBR0458, pQBR0459, pQBR0460, pQBR0461, pQBR0462, pQBR0463, dnaN, rpoD, pQBR0466, pQBR0467, pQBR0468,
+                pQBR0469, pQBR0470, pQBR0471, pQBR0472, pQBR0473, pQBR0474, pQBR0475, pQBR0476, pQBR0477, pQBR0478
+            </noscript>
+            <div id="gene_hide_DEL_1" class="hidden">parA, parB, pQBR0003, pQBR0004, pQBR0005, pQBR0006, pQBR0007, pQBR0008, pQBR0009, pQBR0010,
+                pQBR0011, pQBR0012, pQBR0013, pQBR0014, pQBR0015, pQBR0017, pQBR0018, pQBR0019, pQBR0020, pQBR0021, pQBR0022, pQBR0023, pQBR0024,
+                pQBR0025, pQBR0026, pQBR0027, pQBR0028, pQBR0029, pQBR0030, pQBR0031, pQBR0032, pQBR0033, pQBR0034, pQBR0035, pQBR0036, pQBR0037,
+                pQBR0038, pQBR0039, pQBR0040, pQBR0041, pQBR0042, pQBR0043, pQBR0044, pQBR0045, pQBR0046, pQBR0047, pQBR0048, pQBR0049, pQBR0050,
+                pQBR0051, pilT, pQBR0053, pQBR0054, helA, pQBR0056, pQBR0057, pQBR0058, pQBR0059, pQBR0060, pQBR0061, pQBR0062, pQBR0063, pQBR0064,
+                pQBR0065, pQBR0066, pQBR0067, pQBR0068, pQBR0069, pQBR0070, pQBR0071, pQBR0072, vfr, pQBR0074, pQBR0075, pQBR0076, pQBR0077, pQBR0078,
+                pQBR0079, pQBR0080, pQBR0081, pQBR0082, pQBR0083, pQBR0084, pQBR0085, pQBR0086, pQBR0087, pQBR0088, pQBR0089, pQBR0090, pQBR0091,
+                pQBR0092, pQBR0093, pQBR0094, pQBR0095, pQBR0096, pQBR0097, pQBR0098, pQBR0099, pQBR0100, pQBR0101, pQBR0102, pQBR0103, pilD,
+                pQBR0105, pQBR0106, pQBR0107, pQBR0108, pQBR0109, pQBR0110, pQBR0111, pQBR0112, pQBR0113, pQBR0114, pQBR0115, pQBR0116, pQBR0117,
+                pQBR0118, pQBR0119, pQBR0121, pQBR0122, pQBR0123, pQBR0124, pQBR0125, pQBR0126, pQBR0127, pQBR0128, pQBR0129, pQBR0130, pQBR0131,
+                pQBR0132, pQBR0133, pQBR0134, pQBR0135, pQBR0136, pQBR0137, pQBR0138, pQBR0139, pQBR0140, pQBR0141, pQBR0142, pQBR0143, pQBR0144,
+                pQBR0145, pQBR0146, pQBR0147, pQBR0148, pQBR0149, pQBR0150, ndpA, pQBR0152, pQBR0153, pQBR0154, pQBR0155, pQBR0156, ruvA, ruvB,
+                pQBR0159, pQBR0160, pQBR0161, pQBR0162, pQBR0163, pQBR0164, pQBR0165, pQBR0166, pQBR0167, pQBR0168, pQBR0169, pQBR0170, rnhB,
+                pQBR0172, pQBR0173, pQBR0174, pQBR0175, pQBR0176, pQBR0177, hbs, pQBR0179, pQBR0180, pQBR0181, pQBR0182, pQBR0183, pQBR0184, pQBR0185,
+                pQBR0186, pQBR0187, pQBR0188, pQBR0189, pQBR0190, pQBR0191, pQBR0192, pQBR0193, pQBR0194, pQBR0195, pQBR0196, pQBR0197, pQBR0198,
+                pQBR0199, pQBR0200, pQBR0201, pQBR0202, pQBR0203, pQBR0204, pQBR0205, pQBR0206, pQBR0207, pQBR0208, pQBR0209, pQBR0210, pQBR0211,
+                pQBR0212, pQBR0213, pQBR0214, pQBR0215, pQBR0216, pQBR0217, pQBR0218, pQBR0219, pQBR0220, pQBR0221, pQBR0222, pQBR0223, pQBR0224,
+                pQBR0225, pQBR0226, pQBR0227, pQBR0228, pQBR0229, pQBR0230, pQBR0231, pQBR0232, pQBR0233, pQBR0234, pQBR0235, pQBR0236, pQBR0237,
+                pQBR0238, pQBR0239, pQBR0240, pQBR0241, pQBR0242, pQBR0243, pQBR0244, pQBR0245, pQBR0246, pQBR0247, pQBR0248, pQBR0249, pQBR0250,
+                pQBR0251, pQBR0252, pQBR0253, pQBR0254, pQBR0255, pQBR0256, pQBR0257, pQBR0258, pQBR0259, pQBR0260, pQBR0261, pQBR0262, pQBR0263,
+                pQBR0264, pQBR0265, pQBR0266, pQBR0267, pQBR0268, pQBR0269, pQBR0270, pQBR0271, pQBR0272, pQBR0273, pQBR0274, pQBR0275, pQBR0276,
+                pQBR0277, pQBR0278, pQBR0279, pQBR0280, pQBR0281, pQBR0282, pQBR0283, pQBR0284, pQBR0285, pQBR0286, pQBR0287, pQBR0288, pQBR0289,
+                pQBR0290, pQBR0291, pQBR0292, pQBR0293, pQBR0294, pQBR0295, pQBR0296, pQBR0297, pQBR0298, pQBR0299, pQBR0300, pQBR0301, pQBR0302,
+                pQBR0303, pQBR0304, pQBR0305, pQBR0306, pQBR0307, pQBR0309, pQBR0310, pQBR0311, pQBR0312, pQBR0313, pQBR0314, pQBR0315, pQBR0316,
+                pQBR0317, orn, pQBR0319, pQBR0320, pQBR0321, pQBR0322, pQBR0323, pQBR0324, pQBR0325, pQBR0326, pQBR0327, pQBR0328, pQBR0329, pQBR0330,
+                pQBR0331, pQBR0332, pQBR0333, pQBR0334, pQBR0335, pQBR0336, pQBR0337, pQBR0338, pQBR0339, pQBR0340, pQBR0341, pQBR0342, pQBR0343,
+                pQBR0344, pQBR0345, pQBR0346, pQBR0347, pQBR0348, pQBR0349, pQBR0350, pQBR0351, pQBR0352, pQBR0353, pQBR0354, pQBR0355, pQBR0356,
+                pQBR0357, pQBR0358, pQBR0359, pQBR0360, pQBR0361, pQBR0362, pQBR0363, pQBR0364, pQBR0365, pQBR0366, pQBR0367, pQBR0368, pQBR0369,
+                pQBR0370, pQBR0371, pQBR0372, pQBR0373, pQBR0374, pQBR0375, pQBR0376, pQBR0377, pQBR0378, pQBR0379, pQBR0380, pQBR0381, pQBR0382,
+                pQBR0383, pQBR0384, pQBR0385, pQBR0386, pQBR0387, pQBR0388, pQBR0389, pQBR0390, pQBR0391, pQBR0392, pQBR0393, pQBR0394, pQBR0395,
+                pQBR0396, pQBR0397, pQBR0398, pQBR0399, pQBR0400, pQBR0401, pQBR0402, pQBR0403, pQBR0404, pQBR0405, pQBR0406, pQBR0407, pQBR0408,
+                pQBR0409, pQBR0410, pQBR0411, pQBR0412, pQBR0413, pQBR0414, pQBR0415, pQBR0416, pQBR0417, pQBR0418, pQBR0419, pQBR0420, pQBR0421,
+                pQBR0422, pQBR0423, pQBR0424, pQBR0425, tnpA, tnpB, tnpC, merB, merA, merC, merP, merT, merR, pQBR0436, pQBR0437, rdgC, pQBR0439,
+                pQBR0440, pQBR0441, pQBR0442, pQBR0443, pQBR0444, pQBR0445, pQBR0446, pQBR0447, pQBR0448, pQBR0449, pQBR0450, pQBR0451, pQBR0452,
+                pQBR0453, pQBR0454, pQBR0455, pQBR0456, pQBR0457, pQBR0458, pQBR0459, pQBR0460, pQBR0461, pQBR0462, pQBR0463, dnaN, rpoD, pQBR0466,
+                pQBR0467, pQBR0468, pQBR0469, pQBR0470, pQBR0471, pQBR0472, pQBR0473, pQBR0474, pQBR0475, pQBR0476, pQBR0477, pQBR0478
+            </div>
+            <input id="gene_hide_DEL_1_button" type="button" onclick="hideTog('gene_hide_DEL_1');showTog('gene_hide_DEL_1_button')" value="Show"/>
+        </td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/INS_2.html">RA</a></td><!-- Evidence -->
-<td align="center">NC_012660</td><!-- Seq_Id -->
-<td align="right">45,881</td><!-- Position -->
-<td align="center">+G</td><!-- Cell Mutation -->
-<td align="center">intergenic&nbsp;(+65/+20)</td>
-<td align="center"><i>PFLU0045</i>&nbsp;&rarr;&nbsp;/&nbsp;&larr;&nbsp;<i>PFLU0046</i></td>
-<td align="left">putative lipoprotein/putative hydrolase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/INS_2.html">RA</a></td><!-- Evidence -->
+        <td align="center">NC_012660</td><!-- Seq_Id -->
+        <td align="right">45,881</td><!-- Position -->
+        <td align="center">+G</td><!-- Cell Mutation -->
+        <td align="center">intergenic&nbsp;(+65/+20)</td>
+        <td align="center"><i>PFLU0045</i>&nbsp;&rarr;&nbsp;/&nbsp;&larr;&nbsp;<i>PFLU0046</i></td>
+        <td align="left">putative lipoprotein/putative hydrolase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/INS_3.html">RA</a></td><!-- Evidence -->
-<td align="center">NC_012660</td><!-- Seq_Id -->
-<td align="right">985,333</td><!-- Position -->
-<td align="center">+C</td><!-- Cell Mutation -->
-<td align="center">intergenic&nbsp;(+17/&#8209;136)</td>
-<td align="center"><i>PFLU0872</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>PFLU0873</i></td>
-<td align="left">microcin&#8209;processing peptidase 1. Unknown type  peptidase. MEROPS family U62/hypothetical protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/INS_3.html">RA</a></td><!-- Evidence -->
+        <td align="center">NC_012660</td><!-- Seq_Id -->
+        <td align="right">985,333</td><!-- Position -->
+        <td align="center">+C</td><!-- Cell Mutation -->
+        <td align="center">intergenic&nbsp;(+17/&#8209;136)</td>
+        <td align="center"><i>PFLU0872</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>PFLU0873</i></td>
+        <td align="left">microcin&#8209;processing peptidase 1. Unknown type peptidase. MEROPS family U62/hypothetical protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/DEL_4.html">RA</a></td><!-- Evidence -->
-<td align="center">NC_012660</td><!-- Seq_Id -->
-<td align="right">3,447,986</td><!-- Position -->
-<td align="center">&Delta;2&nbsp;bp</td><!-- Cell Mutation -->
-<td align="center">intergenic&nbsp;(+57/+21)</td>
-<td align="center"><i>PFLU3154</i>&nbsp;&rarr;&nbsp;/&nbsp;&larr;&nbsp;<i>PFLU3155</i></td>
-<td align="left">hypothetical protein/putative helicase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/DEL_4.html">RA</a></td><!-- Evidence -->
+        <td align="center">NC_012660</td><!-- Seq_Id -->
+        <td align="right">3,447,986</td><!-- Position -->
+        <td align="center">&Delta;2&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="center">intergenic&nbsp;(+57/+21)</td>
+        <td align="center"><i>PFLU3154</i>&nbsp;&rarr;&nbsp;/&nbsp;&larr;&nbsp;<i>PFLU3155</i></td>
+        <td align="left">hypothetical protein/putative helicase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_5.html">RA</a></td><!-- Evidence -->
-<td align="center">NC_012660</td><!-- Seq_Id -->
-<td align="right">3,959,631</td><!-- Position -->
-<td align="center">G&rarr;A</td><!-- Cell Mutation -->
-<td align="center"><font class="snp_type_nonsynonymous">M350I</font>&nbsp;(AT<font class="mutation_in_codon">G</font>&rarr;AT<font class="mutation_in_codon">A</font>)&nbsp;</td>
-<td align="center"><i>PFLU3571</i>&nbsp;&rarr;</td>
-<td align="left">putative GGDEF domain signaling protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_5.html">RA</a></td><!-- Evidence -->
+        <td align="center">NC_012660</td><!-- Seq_Id -->
+        <td align="right">3,959,631</td><!-- Position -->
+        <td align="center">G&rarr;A</td><!-- Cell Mutation -->
+        <td align="center"><font class="snp_type_nonsynonymous">M350I</font>&nbsp;(AT<font class="mutation_in_codon">G</font>&rarr;AT<font
+                class="mutation_in_codon">A</font>)&nbsp;
+        </td>
+        <td align="center"><i>PFLU3571</i>&nbsp;&rarr;</td>
+        <td align="left">putative GGDEF domain signaling protein</td>
+    </tr>
+    <!-- End Table Row -->
 </table>
 <p>
 <table border="0" cellspacing="1" cellpadding="3" width="100%">
-<tr><th colspan="11" align="left" class="missing_coverage_header_row">Unassigned missing coverage evidence</th></tr>
-<tr><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>seq&nbsp;id</th>
-<th>start</th>
-<th>end</th>
-<th>size</th>
-<th>&larr;reads</th>
-<th>reads&rarr;</th>
-<th>gene</th>
-<th width="100%">description</th>
-</tr>
-<tr>
-<td><a href="evidence/MC_SIDE_1_24.html">*</a></td>
-<td><a href="evidence/MC_SIDE_2_24.html">*</a></td>
-<td><a href="evidence/MC_PLOT_24.html">&divide;</a></td>
-<td>NC_012660</td>
-<td align="right">3653418</td>
-<td align="right">3653430</td>
-<td align="right">13</td>
-<td align="center">11&nbsp;[2]</td>
-<td align="center">[4]&nbsp;9</td>
-<td align="center"><i>PFLU3299/PFLU3300</i></td>
-<td align="left">vanillin dehydrogenase (EC 1.2.1.67)/vanillin synthase/trans&#8209;feruloyl&#8209;CoA hydratase</td>
-</tr>
-<tr>
-<td><a href="evidence/MC_SIDE_1_25.html">*</a></td>
-<td><a href="evidence/MC_SIDE_2_25.html">*</a></td>
-<td><a href="evidence/MC_PLOT_25.html">&divide;</a></td>
-<td>NC_012660</td>
-<td align="right">5717355&#8211;5718017</td>
-<td align="right">5722547&#8211;5718108</td>
-<td align="right">92&#8211;5193</td>
-<td align="center">10&nbsp;[8]</td>
-<td align="center">[8]&nbsp;9</td>
-<td align="center"><i>[23S]&#8211;16S</i></td>
-<td align="left">[23S], PFLUt19, PFLUt20, 16S</td>
-</tr>
+    <tr>
+        <th colspan="11" align="left" class="missing_coverage_header_row">Unassigned missing coverage evidence</th>
+    </tr>
+    <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>seq&nbsp;id</th>
+        <th>start</th>
+        <th>end</th>
+        <th>size</th>
+        <th>&larr;reads</th>
+        <th>reads&rarr;</th>
+        <th>gene</th>
+        <th width="100%">description</th>
+    </tr>
+    <tr>
+        <td><a href="evidence/MC_SIDE_1_24.html">*</a></td>
+        <td><a href="evidence/MC_SIDE_2_24.html">*</a></td>
+        <td><a href="evidence/MC_PLOT_24.html">&divide;</a></td>
+        <td>NC_012660</td>
+        <td align="right">3653418</td>
+        <td align="right">3653430</td>
+        <td align="right">13</td>
+        <td align="center">11&nbsp;[2]</td>
+        <td align="center">[4]&nbsp;9</td>
+        <td align="center"><i>PFLU3299/PFLU3300</i></td>
+        <td align="left">vanillin dehydrogenase (EC 1.2.1.67)/vanillin synthase/trans&#8209;feruloyl&#8209;CoA hydratase</td>
+    </tr>
+    <tr>
+        <td><a href="evidence/MC_SIDE_1_25.html">*</a></td>
+        <td><a href="evidence/MC_SIDE_2_25.html">*</a></td>
+        <td><a href="evidence/MC_PLOT_25.html">&divide;</a></td>
+        <td>NC_012660</td>
+        <td align="right">5717355&#8211;5718017</td>
+        <td align="right">5722547&#8211;5718108</td>
+        <td align="right">92&#8211;5193</td>
+        <td align="center">10&nbsp;[8]</td>
+        <td align="center">[8]&nbsp;9</td>
+        <td align="center"><i>[23S]&#8211;16S</i></td>
+        <td align="left">[23S], PFLUt19, PFLUt20, 16S</td>
+    </tr>
 </table>
 <p>
 <table border="0" cellspacing="1" cellpadding="3">
-<tr><th colspan="12" align="left" class="new_junction_header_row">Unassigned new junction evidence</th></tr>
-<!-- Header Lines for New Junction -->
-<tr>
-<th colspan="2">&nbsp;</th>
-<th>seq&nbsp;id</th>
-<th>position</th>
-<th>reads&nbsp;(cov)</th>
-<th>reads&nbsp;(cov)</th>
-<th>score</th>
-<th>skew</th>
-<th>freq</th>
-<th>annotation</th>
-<th>gene</th>
-<th width="100%">product</th>
-</tr>
+    <tr>
+        <th colspan="12" align="left" class="new_junction_header_row">Unassigned new junction evidence</th>
+    </tr>
+    <!-- Header Lines for New Junction -->
+    <tr>
+        <th colspan="2">&nbsp;</th>
+        <th>seq&nbsp;id</th>
+        <th>position</th>
+        <th>reads&nbsp;(cov)</th>
+        <th>reads&nbsp;(cov)</th>
+        <th>score</th>
+        <th>skew</th>
+        <th>freq</th>
+        <th>annotation</th>
+        <th>gene</th>
+        <th width="100%">product</th>
+    </tr>
 
-<!-- Item Lines for New Junction -->
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_28.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_28.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;360367</td><td align="center" class="junction_gene">46 (0.740)</td><td rowspan="2" align="center">54 (0.920)</td>
-<td rowspan="2" align="center">37/252</td>
-<td rowspan="2" align="center">0.4</td>
-<td rowspan="2" align="center">59.6%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(+29/&#8209;273)</td>
-<td align="center" class="junction_gene"><i>PFLU0325/hisB</i></td>
-<td class="junction_gene">hypothetical protein/imidazoleglycerol&#8209;phosphate dehydratase (EC  4.2.1.19)</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_28.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">360497&nbsp;=</td>
-<td align="center" class="junction_gene">30 (0.510)</td><td align="center" class="junction_gene">intergenic&nbsp;(+159/&#8209;143)</td>
-<td align="center" class="junction_gene"><i>PFLU0325/hisB</i></td>
-<td class="junction_gene">hypothetical protein/imidazoleglycerol&#8209;phosphate dehydratase (EC  4.2.1.19)</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_29.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_29.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;384059</td><td align="center" class="junction_gene">32 (0.510)</td><td rowspan="2" align="center">16 (0.260)</td>
-<td rowspan="2" align="center">15/262</td>
-<td rowspan="2" align="center">2.0</td>
-<td rowspan="2" align="center">28.8%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(+80/+147)</td>
-<td align="center" class="junction_gene"><i>typA/PFLU0351</i></td>
-<td class="junction_gene">putative elongation facotr/GTP&#8209;binding protein  TypA/BipA/hypothetical protein</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_29.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">384189&nbsp;=</td>
-<td align="center" class="junction_gene">48 (0.790)</td><td align="center" class="junction_gene">intergenic&nbsp;(+210/+17)</td>
-<td align="center" class="junction_gene"><i>typA/PFLU0351</i></td>
-<td class="junction_gene">putative elongation facotr/GTP&#8209;binding protein  TypA/BipA/hypothetical protein</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_30.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_30.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;495968</td><td align="center" class="junction_gene">57 (0.910)</td><td rowspan="2" align="center">11 (0.180)</td>
-<td rowspan="2" align="center">10/258</td>
-<td rowspan="2" align="center">2.7</td>
-<td rowspan="2" align="center">24.5%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(&#8209;152/+183)</td>
-<td align="center" class="junction_gene"><i>cvrA/PFLU0447</i></td>
-<td class="junction_gene">potassium/proton antiporter, CPA1 family (TC  2.A.36)/putative methyl&#8209;accepting chemotaxis protein</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_30.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">496114&nbsp;=</td>
-<td align="center" class="junction_gene">13 (0.220)</td><td align="center" class="junction_gene">intergenic&nbsp;(&#8209;298/+37)</td>
-<td align="center" class="junction_gene"><i>cvrA/PFLU0447</i></td>
-<td class="junction_gene">potassium/proton antiporter, CPA1 family (TC  2.A.36)/putative methyl&#8209;accepting chemotaxis protein</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_31.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_31.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;2604626</td><td align="center" class="junction_gene">21 (0.340)</td><td rowspan="2" align="center">9 (0.150)</td>
-<td rowspan="2" align="center">9/256</td>
-<td rowspan="2" align="center">2.9</td>
-<td rowspan="2" align="center">27.3%</td>
-<td align="center" class="junction_gene">coding&nbsp;(1072/1098&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>PFLU2390</i></td>
-<td class="junction_gene">putative desaturase</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_31.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">2604733&nbsp;=</td>
-<td align="center" class="junction_gene">28 (0.470)</td><td align="center" class="junction_gene">intergenic&nbsp;(+81/&#8209;52)</td>
-<td align="center" class="junction_gene"><i>PFLU2390/PFLU2391</i></td>
-<td class="junction_gene">putative desaturase/putative dioxygenase system ferredoxin component</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_32.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_32.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;2661871</td><td align="center" class="junction_gene">25 (0.400)</td><td rowspan="2" align="center">11 (0.180)</td>
-<td rowspan="2" align="center">11/260</td>
-<td rowspan="2" align="center">2.6</td>
-<td rowspan="2" align="center">24.9%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(+7/+175)</td>
-<td align="center" class="junction_gene"><i>PFLU2441/PFLU2442</i></td>
-<td class="junction_gene">transcriptional regulator, LysR family/transcriptional regulator, LysR family</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_32.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">2662002&nbsp;=</td>
-<td align="center" class="junction_gene">42 (0.690)</td><td align="center" class="junction_gene">intergenic&nbsp;(+138/+44)</td>
-<td align="center" class="junction_gene"><i>PFLU2441/PFLU2442</i></td>
-<td class="junction_gene">transcriptional regulator, LysR family/transcriptional regulator, LysR family</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_38.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_38.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;5969197</td><td align="center" class="junction_gene">40 (0.640)</td><td rowspan="2" align="center">16 (0.280)</td>
-<td rowspan="2" align="center">14/250</td>
-<td rowspan="2" align="center">2.0</td>
-<td rowspan="2" align="center">32.9%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(+22/+168)</td>
-<td align="center" class="junction_gene"><i>PFLU5436/PFLU5437</i></td>
-<td class="junction_gene">hypothetical protein/putative lipoprotein</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_38.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">5969344&nbsp;=</td>
-<td align="center" class="junction_gene">28 (0.480)</td><td align="center" class="junction_gene">intergenic&nbsp;(+169/+21)</td>
-<td align="center" class="junction_gene"><i>PFLU5436/PFLU5437</i></td>
-<td class="junction_gene">hypothetical protein/putative lipoprotein</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_40.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_40.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;6223019</td><td align="center" class="junction_gene">59 (0.950)</td><td rowspan="2" align="center">60 (1.020)</td>
-<td rowspan="2" align="center">35/252</td>
-<td rowspan="2" align="center">0.4</td>
-<td rowspan="2" align="center">57.0%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(&#8209;390/+142)</td>
-<td align="center" class="junction_gene"><i>PFLU5678/sdaA</i></td>
-<td class="junction_gene">transcriptional regulator, AraC family with  amidase&#8209;like domain/L&#8209;serine ammonia&#8209;lyase (EC 4.3.1.17)</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_40.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">6223152&nbsp;=</td>
-<td align="center" class="junction_gene">35 (0.600)</td><td align="center" class="junction_gene">intergenic&nbsp;(&#8209;523/+9)</td>
-<td align="center" class="junction_gene"><i>PFLU5678/sdaA</i></td>
-<td class="junction_gene">transcriptional regulator, AraC family with  amidase&#8209;like domain/L&#8209;serine ammonia&#8209;lyase (EC 4.3.1.17)</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_41.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_41.html">?</a></td>
-<td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">=&nbsp;6396434</td><td align="center" class="junction_gene">31 (0.500)</td><td rowspan="2" align="center">15 (0.250)</td>
-<td rowspan="2" align="center">14/256</td>
-<td rowspan="2" align="center">2.0</td>
-<td rowspan="2" align="center">34.2%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(+40/+226)</td>
-<td align="center" class="junction_gene"><i>PFLU5839A/potI</i></td>
-<td class="junction_gene">hypothetical protein/putrescine ABC transporter permease</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_41.html">?</a></td><td rowspan="1" class="junction_gene">NC_012660</td>
-<td align="center" class="junction_gene">6396580&nbsp;=</td>
-<td align="center" class="junction_gene">28 (0.470)</td><td align="center" class="junction_gene">intergenic&nbsp;(+186/+80)</td>
-<td align="center" class="junction_gene"><i>PFLU5839A/potI</i></td>
-<td class="junction_gene">hypothetical protein/putrescine ABC transporter permease</td>
-</tr>
+    <!-- Item Lines for New Junction -->
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_28.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_28.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;360367</td>
+        <td align="center" class="junction_gene">46 (0.740)</td>
+        <td rowspan="2" align="center">54 (0.920)</td>
+        <td rowspan="2" align="center">37/252</td>
+        <td rowspan="2" align="center">0.4</td>
+        <td rowspan="2" align="center">59.6%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+29/&#8209;273)</td>
+        <td align="center" class="junction_gene"><i>PFLU0325/hisB</i></td>
+        <td class="junction_gene">hypothetical protein/imidazoleglycerol&#8209;phosphate dehydratase (EC 4.2.1.19)</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_28.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">360497&nbsp;=</td>
+        <td align="center" class="junction_gene">30 (0.510)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+159/&#8209;143)</td>
+        <td align="center" class="junction_gene"><i>PFLU0325/hisB</i></td>
+        <td class="junction_gene">hypothetical protein/imidazoleglycerol&#8209;phosphate dehydratase (EC 4.2.1.19)</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_29.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_29.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;384059</td>
+        <td align="center" class="junction_gene">32 (0.510)</td>
+        <td rowspan="2" align="center">16 (0.260)</td>
+        <td rowspan="2" align="center">15/262</td>
+        <td rowspan="2" align="center">2.0</td>
+        <td rowspan="2" align="center">28.8%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+80/+147)</td>
+        <td align="center" class="junction_gene"><i>typA/PFLU0351</i></td>
+        <td class="junction_gene">putative elongation facotr/GTP&#8209;binding protein TypA/BipA/hypothetical protein</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_29.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">384189&nbsp;=</td>
+        <td align="center" class="junction_gene">48 (0.790)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+210/+17)</td>
+        <td align="center" class="junction_gene"><i>typA/PFLU0351</i></td>
+        <td class="junction_gene">putative elongation facotr/GTP&#8209;binding protein TypA/BipA/hypothetical protein</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_30.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_30.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;495968</td>
+        <td align="center" class="junction_gene">57 (0.910)</td>
+        <td rowspan="2" align="center">11 (0.180)</td>
+        <td rowspan="2" align="center">10/258</td>
+        <td rowspan="2" align="center">2.7</td>
+        <td rowspan="2" align="center">24.5%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;152/+183)</td>
+        <td align="center" class="junction_gene"><i>cvrA/PFLU0447</i></td>
+        <td class="junction_gene">potassium/proton antiporter, CPA1 family (TC 2.A.36)/putative methyl&#8209;accepting chemotaxis protein</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_30.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">496114&nbsp;=</td>
+        <td align="center" class="junction_gene">13 (0.220)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;298/+37)</td>
+        <td align="center" class="junction_gene"><i>cvrA/PFLU0447</i></td>
+        <td class="junction_gene">potassium/proton antiporter, CPA1 family (TC 2.A.36)/putative methyl&#8209;accepting chemotaxis protein</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_31.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_31.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;2604626</td>
+        <td align="center" class="junction_gene">21 (0.340)</td>
+        <td rowspan="2" align="center">9 (0.150)</td>
+        <td rowspan="2" align="center">9/256</td>
+        <td rowspan="2" align="center">2.9</td>
+        <td rowspan="2" align="center">27.3%</td>
+        <td align="center" class="junction_gene">coding&nbsp;(1072/1098&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>PFLU2390</i></td>
+        <td class="junction_gene">putative desaturase</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_31.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">2604733&nbsp;=</td>
+        <td align="center" class="junction_gene">28 (0.470)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+81/&#8209;52)</td>
+        <td align="center" class="junction_gene"><i>PFLU2390/PFLU2391</i></td>
+        <td class="junction_gene">putative desaturase/putative dioxygenase system ferredoxin component</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_32.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_32.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;2661871</td>
+        <td align="center" class="junction_gene">25 (0.400)</td>
+        <td rowspan="2" align="center">11 (0.180)</td>
+        <td rowspan="2" align="center">11/260</td>
+        <td rowspan="2" align="center">2.6</td>
+        <td rowspan="2" align="center">24.9%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+7/+175)</td>
+        <td align="center" class="junction_gene"><i>PFLU2441/PFLU2442</i></td>
+        <td class="junction_gene">transcriptional regulator, LysR family/transcriptional regulator, LysR family</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_32.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">2662002&nbsp;=</td>
+        <td align="center" class="junction_gene">42 (0.690)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+138/+44)</td>
+        <td align="center" class="junction_gene"><i>PFLU2441/PFLU2442</i></td>
+        <td class="junction_gene">transcriptional regulator, LysR family/transcriptional regulator, LysR family</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_38.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_38.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;5969197</td>
+        <td align="center" class="junction_gene">40 (0.640)</td>
+        <td rowspan="2" align="center">16 (0.280)</td>
+        <td rowspan="2" align="center">14/250</td>
+        <td rowspan="2" align="center">2.0</td>
+        <td rowspan="2" align="center">32.9%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+22/+168)</td>
+        <td align="center" class="junction_gene"><i>PFLU5436/PFLU5437</i></td>
+        <td class="junction_gene">hypothetical protein/putative lipoprotein</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_38.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">5969344&nbsp;=</td>
+        <td align="center" class="junction_gene">28 (0.480)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+169/+21)</td>
+        <td align="center" class="junction_gene"><i>PFLU5436/PFLU5437</i></td>
+        <td class="junction_gene">hypothetical protein/putative lipoprotein</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_40.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_40.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;6223019</td>
+        <td align="center" class="junction_gene">59 (0.950)</td>
+        <td rowspan="2" align="center">60 (1.020)</td>
+        <td rowspan="2" align="center">35/252</td>
+        <td rowspan="2" align="center">0.4</td>
+        <td rowspan="2" align="center">57.0%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;390/+142)</td>
+        <td align="center" class="junction_gene"><i>PFLU5678/sdaA</i></td>
+        <td class="junction_gene">transcriptional regulator, AraC family with amidase&#8209;like domain/L&#8209;serine ammonia&#8209;lyase (EC
+            4.3.1.17)
+        </td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_40.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">6223152&nbsp;=</td>
+        <td align="center" class="junction_gene">35 (0.600)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;523/+9)</td>
+        <td align="center" class="junction_gene"><i>PFLU5678/sdaA</i></td>
+        <td class="junction_gene">transcriptional regulator, AraC family with amidase&#8209;like domain/L&#8209;serine ammonia&#8209;lyase (EC
+            4.3.1.17)
+        </td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_41.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_41.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">=&nbsp;6396434</td>
+        <td align="center" class="junction_gene">31 (0.500)</td>
+        <td rowspan="2" align="center">15 (0.250)</td>
+        <td rowspan="2" align="center">14/256</td>
+        <td rowspan="2" align="center">2.0</td>
+        <td rowspan="2" align="center">34.2%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+40/+226)</td>
+        <td align="center" class="junction_gene"><i>PFLU5839A/potI</i></td>
+        <td class="junction_gene">hypothetical protein/putrescine ABC transporter permease</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_41.html">?</a></td>
+        <td rowspan="1" class="junction_gene">NC_012660</td>
+        <td align="center" class="junction_gene">6396580&nbsp;=</td>
+        <td align="center" class="junction_gene">28 (0.470)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+186/+80)</td>
+        <td align="center" class="junction_gene"><i>PFLU5839A/potI</i></td>
+        <td class="junction_gene">hypothetical protein/putrescine ABC transporter permease</td>
+    </tr>
 </table>
-</body></html>
+</body>
+</html>

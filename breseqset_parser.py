@@ -1,11 +1,11 @@
 """ Combines all subfolders generated from a set of breseq runs into a single spreadsheet."""
 
 from pathlib import Path
-from typing import Container, List, Dict
+from typing import Container, Dict, List
 
 import pandas
 
-from breseqparser.isolate_parser import parse_breseq_isolate, get_sample_name
+from breseqparser.isolate_parser import get_sample_name, parse_breseq_isolate
 from file_generators import save_isolate_table
 
 
@@ -26,7 +26,7 @@ def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
 	return breseq_folders
 
 
-def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None, sample_map:Dict[str,str] = None):
+def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None, sample_map: Dict[str, str] = None):
 	""" Expects a folder of breseq runs for a set ofisolates.
 		Parameters
 		----------
@@ -47,7 +47,7 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 	snp_dfs = list()
 	coverage_dfs = list()
 	junction_dfs = list()
-	for index, breseq_folder in enumerate(breseq_folders):
+	for breseq_folder in breseq_folders:
 		isolate_id = get_sample_name(breseq_folder)
 		isolate_name = sample_map.get(isolate_id, isolate_id)
 
@@ -59,7 +59,7 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 
 		in_whitelist = not whitelist or isolate_name in whitelist or isolate_id in whitelist
 		in_blacklist = bool(blacklist) and (isolate_name in blacklist or isolate_id in blacklist)
-		print(whitelist, in_whitelist, in_blacklist)
+
 		if in_blacklist: continue
 		elif not in_whitelist: continue
 
@@ -73,7 +73,7 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 	mutation_counts = dict()
 	for (chrom, position), group in chromosomes:
 		mutation_counts[chrom, position] = len(group)
-	#snp_dataframe_full['presentInNSamples'] = [	mutation_counts[j, k] for j, k in snp_dataframe_full.index]
+	# snp_dataframe_full['presentInNSamples'] = [	mutation_counts[j, k] for j, k in snp_dataframe_full.index]
 
 	coverage_dataframe_full = pandas.concat(coverage_dfs, sort = True)
 	junction_dataframe_full = pandas.concat(junction_dfs, sort = True)

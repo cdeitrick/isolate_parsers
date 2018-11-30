@@ -1,7 +1,8 @@
 """ Generates an aligned fasta file with the concatenated SNPs from the variant table."""
+from functools import partial
 from pathlib import Path
 from typing import Tuple
-from functools import partial
+
 import pandas
 
 from breseqparser.isolate_parser import IsolateTableColumns

@@ -2,7 +2,7 @@ import unittest
 
 from breseqparser.file_parsers.parse_index import *
 # Need to also import private functions
-from breseqparser.file_parsers.parse_index import _extract_index_file_tables, _load_index_file
+from breseqparser.file_parsers.parse_index import _extract_coverage_and_junction_tables, _extract_variant_table_headers, _load_index_file
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 index_filename = data_folder / 'output' / 'index.html'
@@ -28,14 +28,33 @@ class TestIndexParser(unittest.TestCase):
 		self.assertIsInstance(soup, BeautifulSoup)
 
 	def test_extract_index_file_tables(self):
-		# Omit `seq id` since there is only one sequence.
-		columns = ['evidence', 'position', 'mutation', 'annotation', 'gene', 'description']
+		test_coverage, test_junction = _extract_coverage_and_junction_tables(str(self.soup))
 
-		test_headers, test_coverage, test_junction = _extract_index_file_tables(self.soup)
-
-		self.assertListEqual(columns, test_headers)
 		self.assertIsInstance(test_coverage, BeautifulSoup)
 		self.assertIsInstance(test_coverage, BeautifulSoup)
+
+	def test_extract_variant_table_headers(self):
+		string = """<p>
+			<!--Mutation Predictions -->
+			<p>
+			<!--Output Html_Mutation_Table_String-->
+			<table border="0" cellspacing="1" cellpadding="3">
+			<tr><th colspan="6" align="left" class="mutation_header_row">Predicted mutations</th></tr><tr>
+			<th>evidence</th>
+			<th>position</th>
+			<th>mutation</th>
+			<th>annotation</th>
+			<th>gene</th>
+			<th width="100%">description</th>
+			</tr>
+			
+			<!-- Item Lines -->"""
+		truth_headers = ['evidence', 'position', 'mutation', 'annotation', 'gene', 'description']
+		test_headers = _extract_variant_table_headers(string)
+		self.assertListEqual(truth_headers, test_headers)
+
+	def test_extract_coverage_and_junction_tables(self):
+		pass
 
 	def test_index_parser_output(self):
 		snp_table, coverage_table, junction_table = parse_index_file('testIsolate', index_filename)

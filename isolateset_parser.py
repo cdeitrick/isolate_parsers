@@ -1,6 +1,18 @@
 import argparse
 from typing import Dict, List, Optional
 
+from dataclasses import dataclass
+
+
+@dataclass
+class ProgramOptions:
+	folder: str
+	generate_fasta: bool = True
+	whitelist: List[str] = ""
+	blacklist: List[str] = ""
+	sample_map: str = ""
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
 	"-i", "--input",
@@ -50,6 +62,7 @@ def _parse_commandline_list(io: Optional[str]) -> List[str]:
 	-------
 	List[str]
 	"""
+	if isinstance(io, list): return io
 	filename = Path(io)
 
 	# Make sure io is not ''
@@ -106,7 +119,14 @@ if __name__ == "__main__":
 	from breseqset_parser import parse_breseqset
 	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
-	program_options = parser.parse_args()
+	program_options = ProgramOptions(
+		folder = "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output/",
+		generate_fasta = True,
+		whitelist = [],
+		blacklist = [],
+		sample_map = ""
+	)
+	# program_options = parser.parse_args()
 	whitelist = _parse_commandline_list(program_options.whitelist)
 	blacklist = _parse_commandline_list(program_options.blacklist)
 	sample_map = _parse_sample_map(program_options.sample_map)

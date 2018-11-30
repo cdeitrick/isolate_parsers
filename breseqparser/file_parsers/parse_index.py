@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union, NamedTuple
+from typing import Any, Dict, List, NamedTuple, Tuple, Union
 
 import pandas
 from bs4 import BeautifulSoup
@@ -8,6 +8,7 @@ from unidecode import unidecode
 
 TableType = List[Dict[str, Any]]
 DFType = pandas.DataFrame
+
 
 class _VariantTableColumns(NamedTuple):
 	sample_name: str = 'Sample'
@@ -18,7 +19,10 @@ class _VariantTableColumns(NamedTuple):
 	mutation: str = 'mutation'
 	position: str = 'position'
 	sequence_id: str = 'seq id'
+
+
 VariantTableColumns = _VariantTableColumns()
+
 
 def to_number(string: str) -> int:
 	""" Converts a string to a number"""
@@ -45,12 +49,27 @@ def _load_index_file(filename: Path) -> BeautifulSoup:
 	return soup
 
 
-def _extract_index_file_tables(soup: BeautifulSoup) -> Tuple[List[str], BeautifulSoup, BeautifulSoup]:
+def _extract_variant_table_headers(text: str) -> List[str]:
+	begin_snp_header_string = r'<th>evidence</th>'
+	end_snp_header_string = '<!-- Item Lines -->'
+
+	begin_snp_header = text.find(begin_snp_header_string)
+	end_snp_header = text.find(end_snp_header_string)
+
+	snp_header_full = text[begin_snp_header:end_snp_header]
+	# snp_header = snp_header_full[end_snp_header:]
+
+	snp_header_soup = BeautifulSoup(snp_header_full, 'lxml')
+	snp_header_soup = [i.text for i in snp_header_soup.find_all('th')]
+	return snp_header_soup
+
+
+def _extract_coverage_and_junction_tables(alph_soup: str) -> Tuple[BeautifulSoup, BeautifulSoup]:
 	"""
 		Extracts the headers for the snp table, the junction table, and the coverage table.
 	Parameters
 	----------
-	soup: BeautifulSoup
+	alph_soup: BeautifulSoup
 		Equivilent to BeautifulSoup(index.html)
 
 	Returns
@@ -58,18 +77,6 @@ def _extract_index_file_tables(soup: BeautifulSoup) -> Tuple[List[str], Beautifu
 		snp_header, coverage_table, junction_table
 
 	"""
-	alph_soup = str(soup)
-	begin_snp_header_string = r'<th>evidence</th>'
-	end_snp_header_string = '<!-- Item Lines -->'
-
-	begin_snp_header = alph_soup.find(begin_snp_header_string)
-	end_snp_header = alph_soup.find(end_snp_header_string)
-
-	snp_header_full = alph_soup[begin_snp_header:end_snp_header]
-	# snp_header = snp_header_full[end_snp_header:]
-
-	snp_header_soup = BeautifulSoup(snp_header_full, 'lxml')
-	snp_header_soup = [i.text for i in snp_header_soup.find_all('th')]
 
 	begin_umc = alph_soup.find(
 		'<tr><th align="left" class="missing_coverage_header_row" colspan="11">Unassigned missing coverage evidence</th></tr>')
@@ -79,7 +86,7 @@ def _extract_index_file_tables(soup: BeautifulSoup) -> Tuple[List[str], Beautifu
 	junction_string = alph_soup[end_umc:]
 	coverage_soup = BeautifulSoup(coverage_string, 'lxml')
 	junction_soup = BeautifulSoup(junction_string, 'lxml')
-	return snp_header_soup, coverage_soup, junction_soup
+	return coverage_soup, junction_soup
 
 
 def _extract_index_tables(soup: BeautifulSoup) -> Tuple[
@@ -95,15 +102,16 @@ def _extract_index_tables(soup: BeautifulSoup) -> Tuple[
 	-------
 		snp_header, snp_table, coverage_soup, junction_soup
 	"""
+	soup_text = str(soup)
+	snp_header_soup = _extract_variant_table_headers(soup_text)
 
 	normal_table = soup.find_all(attrs = {'class': 'normal_table_row'})
 	poly_table = soup.find_all(attrs = {'class': 'polymorphism_table_row'})
-
 	snp_table = normal_table + poly_table
-	snp_header_soup, coverage_soup, junction_soup = _extract_index_file_tables(soup)
+
+	coverage_soup, junction_soup = _extract_coverage_and_junction_tables(soup_text)
 
 	return snp_header_soup, snp_table, coverage_soup, junction_soup
-
 
 
 def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) -> TableType:
@@ -210,7 +218,7 @@ def get_index_filename(path: Path) -> Path:
 	return index_file
 
 
-def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:bool = True) -> Tuple[DFType, DFType, DFType]:
+def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bool = True) -> Tuple[DFType, DFType, DFType]:
 	"""
 		Extracts information on each of the tables from the index file.
 	Parameters
@@ -235,7 +243,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:boo
 
 	try:
 		coverage_table = _parse_coverage(sample_name, coverage_soup)
-		# If the snp_table does not include a sequence id column, get it from the coverage table.
+	# If the snp_table does not include a sequence id column, get it from the coverage table.
 	except (ValueError, TypeError): coverage_table = []
 
 	try:
@@ -261,7 +269,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index:boo
 
 if __name__ == "__main__":
 	_path = Path(__file__).parent.parent.parent
-	_path = _path / "tests" / "data" / "Clonal_Output" /"breseq_output"/ "output" / "index.html"
+	_path = _path / "tests" / "data" / "Clonal_Output" / "breseq_output" / "output" / "index.html"
 
 	_snp, _cov, _jun = parse_index_file("testIsolate", _path)
 	_snp.to_pickle(_path.with_name('snp_table.pkl'))
