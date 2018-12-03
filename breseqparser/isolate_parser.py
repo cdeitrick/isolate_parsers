@@ -94,8 +94,17 @@ def get_sample_name(folder: Path) -> Optional[str]:
 		return [i for i in folder.parts if 'breseq' not in i][-1]
 	return name
 
+def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
+	""" Filters out variants that occur within 1000bp of each other."""
+	forward: pandas.Series = raw_df[IsolateTableColumns.position].diff().abs()
+	reverse: pandas.Series = raw_df[IsolateTableColumns.position][::-1].diff()[::-1].abs()
 
-def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str = None) -> Tuple[DF, DF, DF]:
+	# noinspection PyTypeChecker
+	fdf: pandas.DataFrame = raw_df[(forward > 1000) & (reverse > 1000) | (forward.isna() | reverse.isna())]
+
+	return fdf
+
+def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str = None, use_filter:bool = False) -> Tuple[DF, DF, DF]:
 	"""
 		Combines all available information for a single breseq (single sample).
 	Parameters
@@ -144,6 +153,10 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 	variant_df[IsolateTableColumns.sample_id] = isolate_id
 	variant_df[IsolateTableColumns.sample_name] = isolate_name
 	variant_df = variant_df[list(IsolateTableColumns)]
+
+	if use_filter:
+		variant_df = _filter_bp(variant_df)
+
 	variant_df.set_index(keys = [IsolateTableColumns.sequence_id, IsolateTableColumns.position])
 
 	return variant_df, coverage_df, junction_df

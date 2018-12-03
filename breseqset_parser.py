@@ -26,7 +26,7 @@ def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
 	return breseq_folders
 
 
-def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None, sample_map: Dict[str, str] = None):
+def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: Container[str] = None, sample_map: Dict[str, str] = None, use_filter:bool = False):
 	""" Expects a folder of breseq runs for a set ofisolates.
 		Parameters
 		----------
@@ -52,7 +52,12 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 		isolate_name = sample_map.get(isolate_id, isolate_id)
 
 		try:
-			snp_df, coverage_df, junction_df = parse_breseq_isolate(breseq_folder, isolate_id = isolate_id, isolate_name = isolate_name)
+			snp_df, coverage_df, junction_df = parse_breseq_isolate(
+				breseq_folder,
+				isolate_id = isolate_id,
+				isolate_name = isolate_name,
+				use_filter = use_filter
+			)
 		except FileNotFoundError as _missing_file_error:
 			print(f"Exception: {_missing_file_error}")
 			continue

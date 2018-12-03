@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
-
+import math
 import pandas
 
 from breseqparser.isolate_parser import IsolateTableColumns
@@ -43,18 +43,21 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	# Get a list of all columns that should be identical throughout the mutational group.
 	static_columns = [
 		IsolateTableColumns.sequence_id, IsolateTableColumns.position,
-		IsolateTableColumns.description, IsolateTableColumns.annotation, IsolateTableColumns.locus_tag,
+		IsolateTableColumns.description, IsolateTableColumns.locus_tag,
 		IsolateTableColumns.gene, IsolateTableColumns.mutation_category
 	]
 	_validate_mutation_group(group, static_columns)
+	# Annotation depends on the 'alt' sequence.
+
 	# Retrieve the values for the static columns from the first row.
 	first_row = group.reset_index().iloc[0]
+	annotation = "|".join([i for i in sorted(set(group[IsolateTableColumns.annotation].tolist())) if isinstance(i, str)])
+	if not annotation: annotation = first_row[IsolateTableColumns.mutation]
 	static_data = first_row[static_columns].to_dict()
+	static_data[IsolateTableColumns.annotation] = annotation
 
 	# Large deletions do not have an annotation.
 	# Replace with the text in the `mutation` field.
-	if isinstance(static_data[IsolateTableColumns.annotation], float):
-		static_data[IsolateTableColumns.annotation] = first_row[IsolateTableColumns.mutation]
 	reference = first_row[ref_col]
 	static_data[ref_col] = reference
 	_number_of_alternate_samples = len(group)
@@ -91,7 +94,7 @@ def _get_relevant_columns(by: str) -> Tuple[str, str]:
 	return reference_column, alternate_column
 
 
-def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str) -> pandas.DataFrame:
+def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table:bool = False) -> pandas.DataFrame:
 	"""
 		Generates a table with sample alt sequences represented by columns.
 	Parameters
@@ -105,13 +108,12 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str) -> pa
 	-------
 	pandas.DataFrame
 	"""
-	unique_samples = list(breseq_table['sampleId'].unique())
+	unique_samples = list(breseq_table[IsolateTableColumns.sample_name].unique())
 	reference_column, alternate_column = _get_relevant_columns(by)
-
-	if 'filterOut' in breseq_table:
-		breseq_table = breseq_table[~breseq_table['filterOut']]
-
-	_group_by = [IsolateTableColumns.sequence_id, IsolateTableColumns.position, IsolateTableColumns.ref]
+	if filter_table:
+		if 'filterOut' in breseq_table:
+			breseq_table = breseq_table[~breseq_table['filterOut']]
+	_group_by = [IsolateTableColumns.sequence_id, IsolateTableColumns.position, IsolateTableColumns.mutation_category]
 	position_groups: List[Tuple[str, pandas.DataFrame]] = breseq_table.groupby(by = _group_by)
 
 	comparison_table = [

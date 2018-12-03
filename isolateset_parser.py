@@ -1,6 +1,6 @@
 import argparse
 from typing import Dict, List, Optional
-
+from pathlib import Path
 from dataclasses import dataclass
 
 
@@ -48,6 +48,12 @@ parser.add_argument(
 	action = 'store',
 	dest = 'sample_map',
 	default = ""
+)
+parser.add_argument(
+	"--filter-1000bp",
+	help = "Whether to filter out variants that occur within 1000bp of each other. Usually indicates a mapping error.",
+	action = "store_true",
+	dest = "use_filter"
 )
 
 
@@ -115,7 +121,6 @@ def _parse_sample_map(path: str) -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-	from pathlib import Path
 	from breseqset_parser import parse_breseqset
 	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
@@ -126,18 +131,18 @@ if __name__ == "__main__":
 		blacklist = [],
 		sample_map = ""
 	)
-	# program_options = parser.parse_args()
+	program_options = parser.parse_args()
 	whitelist = _parse_commandline_list(program_options.whitelist)
 	blacklist = _parse_commandline_list(program_options.blacklist)
 	sample_map = _parse_sample_map(program_options.sample_map)
-
+	from pprint import pprint
 	breseq_run_folder = Path(program_options.folder)
 	breseq_table_filename = breseq_run_folder / "breseq_table.xlsx"
 	fasta_filename_base = breseq_run_folder / "breseq"
 
-	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder, blacklist, whitelist, sample_map)
+	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder, blacklist, whitelist, sample_map, program_options.use_filter)
 	assert 'ref' in variant_df
-	comparison_df = generate_snp_comparison_table(variant_df)
+	comparison_df = generate_snp_comparison_table(variant_df, by = 'base', filter_table = program_options.use_filter)
 	assert 'ref' in variant_df
 	tables = {
 		'comparison': comparison_df,
