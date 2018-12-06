@@ -1,7 +1,7 @@
 # isolate_parsers
 
 ## Usage
-```bash
+```
 python isolateset_parser.py [-h] [-i FOLDER] [--no-fasta] [-w WHITELIST]
                             [-b BLACKLIST] [-m SAMPLE_MAP] [--filter-1000bp]
 
