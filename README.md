@@ -35,7 +35,7 @@ optional arguments:
 The scripts expect a folder of individual breseq runs, with each folder named after the isolate/sample.
 The scipts only require the `output.vcf`, `annotated.gd`, and `index.html` files located in each folder.
 Example folder:
-```bash
+```
     .breseq_folder
     |-- sample1
     |   |-- data
