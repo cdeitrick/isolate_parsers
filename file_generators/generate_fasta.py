@@ -152,6 +152,14 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 
 	# We only care about snps.
 	table = table[table[IsolateTableColumns.mutation_category].isin(['snp_synonymous', 'snp_nonsynonymous'])]
+	groups = table.groupby(by = [IsolateTableColumns.sample_name, IsolateTableColumns.mutation_category])
+	samples = dict()
+	for (isolate_name, mutation_category), group in groups:
+		if isolate_name in samples:
+			samples[isolate_name][mutation_category] = len(group)
+		else:
+			samples[isolate_name] = {mutation_category:len(group)}
+	from pprint import pprint
 
 	_validate_variant_table(table, by, reference_column, alternate_column)
 

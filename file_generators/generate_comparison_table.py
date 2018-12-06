@@ -74,6 +74,7 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 
 	static_data['presentInAllSamples'] = len(group) == len(unique_samples)
 	static_data['presentIn'] = len(group)
+	#static_data[IsolateTableColumns]
 
 	return static_data
 
