@@ -136,7 +136,7 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 		values = [v.text for v in tag.find_all('td')]
 
 		if len(values) > 1:
-			row = {k: unidecode(v) for k, v in zip(headers, values)}
+			row = {k: unidecode(v).strip() for k, v in zip(headers, values)}
 			try:
 				row['Sample'] = sample_name
 			except KeyError:
@@ -218,7 +218,7 @@ def get_index_filename(path: Path) -> Path:
 	return index_file
 
 
-def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bool = True) -> Tuple[DFType, DFType, DFType]:
+def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bool = True, default_seq = 'chrom1') -> Tuple[DFType, DFType, DFType]:
 	"""
 		Extracts information on each of the tables from the index file.
 	Parameters
@@ -227,6 +227,8 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	filename
 	set_index:bool; default True
 		Whether to set the index of the dataframe.
+	default_seq: str; default 'chrom1'
+		Name of the sequence if the `seq id` column is not included in the output.
 
 	Returns
 	-------
@@ -259,7 +261,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 		try:
 			_sequence_id_from_coverage_table = coverage_df.iloc[0]['seq id']
 		except (IndexError, KeyError):
-			_sequence_id_from_coverage_table = 'unavailable'
+			_sequence_id_from_coverage_table = default_seq
 		snp_df[VariantTableColumns.sequence_id] = _sequence_id_from_coverage_table
 	snp_df.columns = VariantTableColumns
 	if set_index:

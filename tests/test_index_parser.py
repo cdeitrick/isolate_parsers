@@ -57,7 +57,7 @@ class TestIndexParser(unittest.TestCase):
 		pass
 
 	def test_index_parser_output(self):
-		snp_table, coverage_table, junction_table = parse_index_file('testIsolate', index_filename)
+		snp_table, coverage_table, junction_table = parse_index_file('testIsolate', index_filename, default_seq = 'REL606')
 
 		pandas.testing.assert_frame_equal(self.snp_table, snp_table)
 		pandas.testing.assert_frame_equal(self.coverage_table, coverage_table)
