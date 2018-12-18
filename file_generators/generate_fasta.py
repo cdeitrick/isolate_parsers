@@ -105,8 +105,8 @@ def _validate_variant_table(variant_table: pandas.DataFrame, by: str, ref_col: s
 	unique_alternate_bases = set(variant_table[alt_col].unique())
 	if by == 'base':
 		try:
-			assert unique_reference_bases <= {'A', 'C', 'T', 'G'}
-			assert unique_alternate_bases <= {'A', 'C', 'T', 'G'}
+			assert unique_reference_bases <= {'A', 'C', 'T', 'G', 'N'}
+			assert unique_alternate_bases <= {'A', 'C', 'T', 'G', 'N'}
 		except AssertionError:
 			print("Found invalid characters!")
 			print("reference", unique_reference_bases)
