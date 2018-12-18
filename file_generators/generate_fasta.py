@@ -151,7 +151,8 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 	table = variant_table.reset_index()
 
 	# We only care about snps.
-	table = table[table[IsolateTableColumns.mutation_category].isin(['snp_synonymous', 'snp_nonsynonymous'])]
+	accepted_mutation_categories = ['snp_nonsynonymous']#, 'snp_synonymous']
+	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
 	groups = table.groupby(by = [IsolateTableColumns.sample_name, IsolateTableColumns.mutation_category])
 	samples = dict()
 	for (isolate_name, mutation_category), group in groups:

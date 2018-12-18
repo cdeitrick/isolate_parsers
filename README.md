@@ -27,9 +27,7 @@ optional arguments:
   --filter-1000bp       Whether to filter out variants that occur within
                         1000bp of each other. Usually indicates a mapping
                         error.
-
 ```
-
 
 ## Input
 The scripts expect a folder of individual breseq runs, with each folder named after the isolate/sample.
@@ -61,7 +59,7 @@ Example folder:
 ```
 
 ## Output
-The scripts generate an excel file with 4 sheets: `comparison`, `variant`, `coverage`, and `junction`.
+The scripts generate an excel file in the breseq run folder with 4 sheets: `comparison`, `variant`, `coverage`, and `junction`.
 The `variant`, `coverage`, and `junction` tables are just the concatenated tables of all samples in the breseq run.
 
 ### Comparision table

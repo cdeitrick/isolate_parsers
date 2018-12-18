@@ -263,6 +263,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 		except (IndexError, KeyError):
 			_sequence_id_from_coverage_table = default_seq
 		snp_df[VariantTableColumns.sequence_id] = _sequence_id_from_coverage_table
+	print(snp_df.to_string())
 	snp_df.columns = VariantTableColumns
 	if set_index:
 		snp_df.set_index(keys = [VariantTableColumns.sequence_id, VariantTableColumns.position], inplace = True)
