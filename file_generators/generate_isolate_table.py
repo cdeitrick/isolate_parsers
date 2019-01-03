@@ -54,14 +54,12 @@ def color_table_cells(filename: Path):
 		filename: Path
 			Path to the excel file. The sheet containing the comparison table should be named 'variant comparison'.
 	"""
-	from openpyxl import load_workbook
-	from openpyxl.styles import PatternFill
-	workbook = load_workbook(filename = str(filename))
+	workbook = openpyxl.load_workbook(filename = str(filename))
 
 	worksheet = workbook['variant comparison']
 
 	# There is an issue with libreoffice when 'bgColor' is used instead of 'fgColor' where cells are rendered with a black background.
-	variant_pattern = PatternFill(fgColor = "FC8D62", fill_type = "solid")
+	variant_pattern = openpyxl.styles.PatternFill(fgColor = "FC8D62", fill_type = "solid")
 	reference_column_label, sample_column_labels = _get_relevant_columns(worksheet)
 
 	for sample_column_label in sample_column_labels:
