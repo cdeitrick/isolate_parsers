@@ -118,7 +118,7 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 	-------
 
 	"""
-
+	print("parsing ", isolate_id, "\t",breseq_folder)
 	if not isolate_name:
 		isolate_name = isolate_id
 
