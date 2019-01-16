@@ -44,7 +44,8 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 	if not sample_map: sample_map = {}
 
 	breseq_folders = _get_breseq_folder_paths(folder)
-	print(breseq_folders)
+	from pprint import pprint
+	pprint(breseq_folders)
 	snp_dfs = list()
 	coverage_dfs = list()
 	junction_dfs = list()
