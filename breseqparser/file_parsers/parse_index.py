@@ -250,7 +250,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 
 	try:
 		junction_table = _parse_junctions(sample_name, junction_soup)
-	except (ValueError, TypeError):
+	except (ValueError, TypeError, IndexError):
 		junction_table = []
 
 	snp_df = convert_to_dataframe(snp_table)
