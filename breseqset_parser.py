@@ -45,12 +45,16 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 
 	breseq_folders = _get_breseq_folder_paths(folder)
 	from pprint import pprint
-	pprint(breseq_folders)
 	snp_dfs = list()
 	coverage_dfs = list()
 	junction_dfs = list()
 	for breseq_folder in breseq_folders:
 		isolate_id = get_sample_name(breseq_folder)
+		
+		if '_' in isolate_id:
+			reduced_isolate_id = isolate_id.partition('_')[0]
+			if reduced_isolate_id in sample_map:
+				isolate_id = reduced_isolate_id
 		isolate_name = sample_map.get(isolate_id, isolate_id)
 
 		try:
