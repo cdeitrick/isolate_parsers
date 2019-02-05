@@ -269,6 +269,8 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 			snp_df.pop(col)
 	snp_df.columns = VariantTableColumns
 	if set_index:
+		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
+		snp_df[VariantTableColumns.position] = [float(str(i).replace(':', '.').replace(',', '')) for i in snp_df[VariantTableColumns.position]]
 		snp_df.set_index(keys = [VariantTableColumns.sequence_id, VariantTableColumns.position], inplace = True)
 	return snp_df, coverage_df, junction_df
 

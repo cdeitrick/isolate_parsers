@@ -15,7 +15,7 @@ class ProgramOptions:
 	use_filter: bool = True
 
 
-def _get_program_options(debug: bool = False) -> Union[ProgramOptions, argparse.Namespace]:
+def _get_program_options(arguments:List[str] = None, debug: bool = False) -> Union[ProgramOptions, argparse.Namespace]:
 	if debug:
 		_program_options = ProgramOptions(
 			folder = "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output/",
@@ -67,7 +67,10 @@ def _get_program_options(debug: bool = False) -> Union[ProgramOptions, argparse.
 			action = "store_true",
 			dest = "use_filter"
 		)
-		_program_options = parser.parse_args()
+		if arguments:
+			_program_options = parser.parse_args(arguments)
+		else:
+			_program_options = parser.parse_args()
 	return _program_options
 
 
