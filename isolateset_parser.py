@@ -126,7 +126,7 @@ def _parse_sample_map(path: str) -> Dict[str, str]:
 	except FileNotFoundError:
 		contents = {}
 	except ValueError:
-		message = "The sample map file is not formatted correctly. Make sure all lines contain exactly two values, the sample id and sample name."
+		message = "The sample map file is not formatted correctly. Make sure all lines contain exactly two values: the sample id and sample name."
 		print(message)
 		contents = {}
 

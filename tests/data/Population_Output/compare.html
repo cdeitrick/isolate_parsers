@@ -1,0 +1,881 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<html>
+<head>
+<title>Mutation Comparison</title>
+<style type = "text/css">
+body {font-family: sans-serif; font-size: 11pt;}
+th {background-color: rgb(0,0,0); color: rgb(255,255,255);}
+table {background-color: rgb(1,0,0); color: rgb(0,0,0);}
+tr {background-color: rgb(255,255,255);}
+.mutation_in_codon {color:red; text-decoration : underline;}
+.mutation_header_row {background-color: rgb(0,130,0);}
+.read_alignment_header_row {background-color: rgb(255,0,0);}
+.missing_coverage_header_row {background-color: rgb(0,100,100);}
+.new_junction_header_row {background-color: rgb(0,0,155);}
+.copy_number_header_row {background-color: rgb(153,102,0);}
+.alternate_table_row_0 {background-color: rgb(255,255,255);}
+.alternate_table_row_1 {background-color: rgb(235,235,235);}
+.gray_table_row {background-color: rgb(230,230,245);}
+.polymorphism_table_row {background-color: rgb(160,255,160);}
+.highlight_table_row {background-color: rgb(192,255,255);}
+.reject_table_row {background-color: rgb(255,200,165);}
+.information_table_row {background-color: rgb(200,255,255);}
+.junction_repeat {background-color: rgb(255,165,0)}
+.junction_gene {}
+.hidden { display: none; }
+.unhidden { display: block; }
+
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<script type="text/javascript">
+  function hideTog(divID) {
+    var item = document.getElementById(divID);
+    if (item) {
+      item.className=(item.className=='hidden')?'unhidden':'hidden';
+    }
+  }
+  function showTog(butID) {
+    var button = document.getElementById(butID);
+    if (button) {
+      button.value=(button.value=='Show')?'Hide':'Show';
+    }
+  }
+</script>
+
+</head>
+<body>
+<!--Output Html_Mutation_Table_String-->
+<table border="0" cellspacing="1" cellpadding="3">
+<tr><th colspan="10" align="left" class="mutation_header_row">Predicted mutations</th></tr><tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+<!-- Item Lines -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">15,395</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"> 6.0%</td>
+<td align="center">intergenic&nbsp;(+99/&#8209;48)</td>
+<td align="center"><i>dnaJ</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>insL&#8209;1</i></td>
+<td align="left">chaperone Hsp40, co&#8209;chaperone with DnaK/IS186 hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">16,972</td><!-- Position -->
+<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">86.1%</td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(&#8209;14/&#8209;514)</td>
+<td align="center"><i>mokC</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>nhaA</i></td>
+<td align="left">regulatory protein for HokC, overlaps CDS of hokC/pH&#8209;dependent sodium/proton antiporter</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">74,220</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">14.4%</td><td align="right"></td><td align="right"></td>
+<td align="center">L22F&nbsp;(TT<font class="mutation_in_codon">G</font>&rarr;TT<font class="mutation_in_codon">T</font>)&nbsp;</td>
+<td align="center"><i>yabI</i>&nbsp;&rarr;</td>
+<td align="left">conserved inner membrane protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">161,041</td><!-- Position -->
+<td align="center">T&rarr;G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">N302H&nbsp;(<font class="mutation_in_codon">A</font>AC&rarr;<font class="mutation_in_codon">C</font>AC)&nbsp;</td>
+<td align="center"><i>pcnB</i>&nbsp;&larr;</td>
+<td align="left">poly(A) polymerase I</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">166,265</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">28.4%</td><td align="right"></td><td align="right"></td>
+<td align="center">A437E&nbsp;(G<font class="mutation_in_codon">C</font>A&rarr;G<font class="mutation_in_codon">A</font>A)&nbsp;</td>
+<td align="center"><i>hrpB</i>&nbsp;&rarr;</td>
+<td align="left">predicted ATP&#8209;dependent helicase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">380,188</td><!-- Position -->
+<td align="center">A&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">40.7%</td><td align="right">92.6%</td><td align="right">100%</td>
+<td align="center">F239L&nbsp;(TT<font class="mutation_in_codon">T</font>&rarr;TT<font class="mutation_in_codon">G</font>)&nbsp;</td>
+<td align="center"><i>araJ</i>&nbsp;&larr;</td>
+<td align="left">predicted transporter</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">430,835</td><!-- Position -->
+<td align="center">C&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(&#8209;48/&#8209;108)</td>
+<td align="center"><i>insL&#8209;2</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>lon</i></td>
+<td align="left">putative transposase insL for insertion sequence IS186/DNA&#8209;binding ATP&#8209;dependent protease La</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">475,288</td><!-- Position -->
+<td align="center">+G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">coding&nbsp;(18/1677&nbsp;nt)</td>
+<td align="center"><i>ybaL</i>&nbsp;&larr;</td>
+<td align="left">predicted transporter with NAD(P)&#8209;binding Rossmann&#8209;fold domain</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">547,700</td><!-- Position -->
+<td align="center">&Delta;8,224&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">IS<i>1</i>&#8209;mediated</td>
+<td align="center"><i>[nmpC]</i>&#8211;<i>[ECB_00513]</i></td>
+<td align="left"><i>[nmpC], ybcR, ybcS, ybcT, ybcU, ECB_00510, nohB, ECB_00512, [ECB_00513]</i></td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">649,391</td><!-- Position -->
+<td align="center">T&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">I471F&nbsp;(<font class="mutation_in_codon">A</font>TC&rarr;<font class="mutation_in_codon">T</font>TC)&nbsp;</td>
+<td align="center"><i>mrdA</i>&nbsp;&larr;</td>
+<td align="left">transpeptidase involved in peptidoglycan synthesis (penicillin&#8209;binding protein 2)</td>
+</tr>
+<!-- End Table Row -->
+<tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">668,787</td><!-- Position -->
+<td align="center">A&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">Y65D&nbsp;(<font class="mutation_in_codon">T</font>AC&rarr;<font class="mutation_in_codon">G</font>AC)&nbsp;</td>
+<td align="center"><i>gltI</i>&nbsp;&larr;</td>
+<td align="left">glutamate and aspartate transporter subunit</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">683,496</td><!-- Position -->
+<td align="center">A&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">V65G&nbsp;(G<font class="mutation_in_codon">T</font>T&rarr;G<font class="mutation_in_codon">G</font>T)&nbsp;</td>
+<td align="center"><i>nagC</i>&nbsp;&larr;</td>
+<td align="left">DNA&#8209;binding transcriptional dual regulator, repressor of N&#8209;acetylglucosamine</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">751,788</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right">21.3%</td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">intergenic&nbsp;(+295/&#8209;552)</td>
+<td align="center"><i>ybgG</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>cydA</i></td>
+<td align="left">alpha&#8209;mannosidase/cytochrome d terminal oxidase, subunit I</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">851,606</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">18.4%</td><td align="right"></td>
+<td align="center">S3F&nbsp;(T<font class="mutation_in_codon">C</font>T&rarr;T<font class="mutation_in_codon">T</font>T)&nbsp;</td>
+<td align="center"><i>ybiU</i>&nbsp;&larr;</td>
+<td align="left">hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">910,316</td><!-- Position -->
+<td align="center">T&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(+176/&#8209;175)</td>
+<td align="center"><i>ybjN</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>potF</i></td>
+<td align="left">predicted oxidoreductase/putrescine transporter subunit: periplasmic&#8209;binding component of ABC superfamily</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">980,180</td><!-- Position -->
+<td align="center">A&rarr;G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">60.3%</td><td align="right"></td><td align="right"></td>
+<td align="center">D365G&nbsp;(G<font class="mutation_in_codon">A</font>C&rarr;G<font class="mutation_in_codon">G</font>C)&nbsp;</td>
+<td align="center"><i>rpsA</i>&nbsp;&rarr;</td>
+<td align="left">30S ribosomal protein S1</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">980,293</td><!-- Position -->
+<td align="center">3&nbsp;bp&nbsp;x&nbsp;2</td><!-- Cell Mutation -->
+<td align="right"> 7.6%</td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">duplication</td>
+<td align="center"><i>rpsA</i>&nbsp;&rarr;</td>
+<td align="left">30S ribosomal protein S1</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,004,251</td><!-- Position -->
+<td align="center">T&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(&#8209;177/+425)</td>
+<td align="center"><i>ompF</i>&nbsp;&larr;&nbsp;/&nbsp;&larr;&nbsp;<i>asnS</i></td>
+<td align="left">outer membrane porin 1a (Ia;b;F)/asparaginyl&#8209;tRNA synthetase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">1,248,380</td><!-- Position -->
+<td align="center">A&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">87.0%</td><td align="right">100%</td>
+<td align="center">D295E&nbsp;(GA<font class="mutation_in_codon">T</font>&rarr;GA<font class="mutation_in_codon">G</font>)&nbsp;</td>
+<td align="center"><i>dhaM</i>&nbsp;&larr;</td>
+<td align="left">fused predicted dihydroxyacetone&#8209;specific PTS enzymes: HPr component/EI component</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,286,699</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(+23/&#8209;160)</td>
+<td align="center"><i>narI</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>ECB_01206</i></td>
+<td align="left">nitrate reductase 1, gamma (cytochrome b(NR)) subunit/hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+<tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">1,329,516</td><!-- Position -->
+<td align="center">C&rarr;T</td><!-- Cell Mutation -->
+<td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">H33Y&nbsp;(<font class="mutation_in_codon">C</font>AC&rarr;<font class="mutation_in_codon">T</font>AC)&nbsp;</td>
+<td align="center"><i>topA</i>&nbsp;&rarr;</td>
+<td align="left">DNA topoisomerase I</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,370,728</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">17.0%</td><td align="right"></td>
+<td align="center">W151L&nbsp;(T<font class="mutation_in_codon">G</font>G&rarr;T<font class="mutation_in_codon">T</font>G)&nbsp;</td>
+<td align="center"><i>ycjN</i>&nbsp;&rarr;</td>
+<td align="left">predicted sugar transporter subunit: periplasmic&#8209;binding component of ABC superfamily</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">1,733,288</td><!-- Position -->
+<td align="center">8&nbsp;bp&nbsp;x&nbsp;2</td><!-- Cell Mutation -->
+<td align="right">17.7%</td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">duplication</td>
+<td align="center"><i>pykF</i>&nbsp;&rarr;</td>
+<td align="left">pyruvate kinase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,733,579</td><!-- Position -->
+<td align="center">7&nbsp;bp&nbsp;x&nbsp;2</td><!-- Cell Mutation -->
+<td align="right">49.5%</td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">duplication</td>
+<td align="center"><i>pykF</i>&nbsp;&rarr;</td>
+<td align="left">pyruvate kinase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">1,733,647</td><!-- Position -->
+<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right">18.4%</td><td align="right">98.1%</td><td align="right">98.2%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">coding&nbsp;(683&#8209;685/1413&nbsp;nt)</td>
+<td align="center"><i>pykF</i>&nbsp;&rarr;</td>
+<td align="left">pyruvate kinase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,764,698</td><!-- Position -->
+<td align="center">IS<i>1</i>&nbsp;(&#8211;)&nbsp;+9&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">52.5%</td><td align="right"></td><td align="right"></td>
+<td align="center">intergenic&nbsp;(&#8209;318/&#8209;7)</td>
+<td align="center"><i>ppsA</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>ydiA</i></td>
+<td align="left">phosphoenolpyruvate synthase/hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">1,806,030</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right">17.9%</td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">E324*&nbsp;(<font class="mutation_in_codon">G</font>AA&rarr;<font class="mutation_in_codon">T</font>AA)&nbsp;</td>
+<td align="center"><i>astD</i>&nbsp;&larr;</td>
+<td align="left">succinylglutamic semialdehyde dehydrogenase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,821,525</td><!-- Position -->
+<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">96.3%</td><td align="right">100%</td>
+<td align="center">coding&nbsp;(573&#8209;575/1041&nbsp;nt)</td>
+<td align="center"><i>ynjI</i>&nbsp;&larr;</td>
+<td align="left">predicted inner membrane protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">1,976,879</td><!-- Position -->
+<td align="center">T&rarr;G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">40.5%</td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(&#8209;57/&#8209;76)</td>
+<td align="center"><i>yedW</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>yedX</i></td>
+<td align="left">predicted DNA&#8209;binding response regulator in two&#8209;component system with YedV/hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">1,992,583</td><!-- Position -->
+<td align="center">&Delta;1&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"> 9.1%</td><td align="right"></td><td align="right"></td>
+<td align="center">coding&nbsp;(942/1317&nbsp;nt)</td>
+<td align="center"><i>shiA</i>&nbsp;&rarr;</td>
+<td align="left">shikimate transporter</td>
+</tr>
+<!-- End Table Row -->
+<tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">2,082,685</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right">16.2%</td><td align="right">100%</td><td align="right">100%</td><td align="right">92.5%</td><td align="right">100%</td>
+<td align="center">A494V&nbsp;(G<font class="mutation_in_codon">C</font>T&rarr;G<font class="mutation_in_codon">T</font>T)&nbsp;</td>
+<td align="center"><i>yegI</i>&nbsp;&larr;</td>
+<td align="left">hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">2,329,291</td><!-- Position -->
+<td align="center">A&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">20.6%</td><td align="right"></td><td align="right"></td>
+<td align="center">A22A&nbsp;(GC<font class="mutation_in_codon">A</font>&rarr;GC<font class="mutation_in_codon">T</font>)&nbsp;</td>
+<td align="center"><i>elaD</i>&nbsp;&rarr;</td>
+<td align="left">predicted enzyme</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">2,336,064</td><!-- Position -->
+<td align="center">T&rarr;G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">15.4%</td><td align="right"></td><td align="right"></td>
+<td align="center">I168L&nbsp;(<font class="mutation_in_codon">A</font>TC&rarr;<font class="mutation_in_codon">C</font>TC)&nbsp;</td>
+<td align="center"><i>nuoM</i>&nbsp;&larr;</td>
+<td align="left">NADH dehydrogenase subunit M</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">2,342,867</td><!-- Position -->
+<td align="center">T&rarr;G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">13.4%</td><td align="right"></td><td align="right"></td>
+<td align="center">Q299P&nbsp;(C<font class="mutation_in_codon">A</font>G&rarr;C<font class="mutation_in_codon">C</font>G)&nbsp;</td>
+<td align="center"><i>nuoG</i>&nbsp;&larr;</td>
+<td align="left">NADH dehydrogenase subunit G</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">2,499,315</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">36.6%</td><td align="right"></td><td align="right"></td>
+<td align="center">intergenic&nbsp;(&#8209;110/&#8209;179)</td>
+<td align="center"><i>maeB</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>talA</i></td>
+<td align="left">malic enzyme/transaldolase A</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">2,732,014</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">34.6%</td>
+<td align="center">R91L&nbsp;(C<font class="mutation_in_codon">G</font>C&rarr;C<font class="mutation_in_codon">T</font>C)&nbsp;</td>
+<td align="center"><i>hypF</i>&nbsp;&larr;</td>
+<td align="left">carbamoyl phosphate phosphatase and maturation protein for [NiFe] hydrogenases</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,015,771</td><!-- Position -->
+<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+4&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">98.3%</td>
+<td align="center">coding&nbsp;(1192&#8209;1195/1677&nbsp;nt)</td>
+<td align="center"><i>ECB_02816</i>&nbsp;&rarr;</td>
+<td align="left">KpsD protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,045,069</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">46.7%</td><td align="right"></td><td align="right">100%</td>
+<td align="center">T312N&nbsp;(A<font class="mutation_in_codon">C</font>C&rarr;A<font class="mutation_in_codon">A</font>C)&nbsp;</td>
+<td align="center"><i>yghJ</i>&nbsp;&larr;</td>
+<td align="left">predicted inner membrane lipoprotein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,155,168</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">93.0%</td><td align="right">100%</td>
+<td align="center">G296S&nbsp;(<font class="mutation_in_codon">G</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
+<td align="center"><i>ebgR</i>&nbsp;&rarr;</td>
+<td align="left">DNA&#8209;binding transcriptional repressor</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,248,957</td><!-- Position -->
+<td align="center">A&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">100%</td><td align="right"></td><td align="right">100%</td>
+<td align="center">D764E&nbsp;(GA<font class="mutation_in_codon">T</font>&rarr;GA<font class="mutation_in_codon">A</font>)&nbsp;</td>
+<td align="center"><i>infB</i>&nbsp;&larr;</td>
+<td align="left">translation initiation factor IF&#8209;2</td>
+</tr>
+<!-- End Table Row -->
+<tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,288,092</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">R57C&nbsp;(<font class="mutation_in_codon">C</font>GT&rarr;<font class="mutation_in_codon">T</font>GT)&nbsp;</td>
+<td align="center"><i>arcB</i>&nbsp;&larr;</td>
+<td align="left">hybrid sensory histidine kinase in two&#8209;component regulatory system with ArcA</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,289,962</td><!-- Position -->
+<td align="center">&Delta;16&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">39.4%</td><td align="right">91.9%</td><td align="right">100%</td>
+<td align="center">coding&nbsp;(96&#8209;111/4554&nbsp;nt)</td>
+<td align="center"><i>gltB</i>&nbsp;&rarr;</td>
+<td align="left">glutamate synthase, large subunit</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,293,142</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right">21.1%</td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">L1092F&nbsp;(TT<font class="mutation_in_codon">G</font>&rarr;TT<font class="mutation_in_codon">T</font>)&nbsp;</td>
+<td align="center"><i>gltB</i>&nbsp;&rarr;</td>
+<td align="left">glutamate synthase, large subunit</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,339,158</td><!-- Position -->
+<td align="center">A&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">54.9%</td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(+22/&#8209;4)</td>
+<td align="center"><i>yhdG</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>fis</i></td>
+<td align="left">tRNA&#8209;dihydrouridine synthase B/DNA&#8209;binding protein Fis</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,369,432</td><!-- Position -->
+<td align="center">T&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">D50G&nbsp;(G<font class="mutation_in_codon">A</font>C&rarr;G<font class="mutation_in_codon">G</font>C)&nbsp;</td>
+<td align="center"><i>rpsD</i>&nbsp;&larr;</td>
+<td align="left">30S ribosomal protein S4</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,370,027</td><!-- Position -->
+<td align="center">T&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">59.4%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">K117M&nbsp;(A<font class="mutation_in_codon">A</font>G&rarr;A<font class="mutation_in_codon">T</font>G)&nbsp;</td>
+<td align="center"><i>rpsM</i>&nbsp;&larr;</td>
+<td align="left">30S ribosomal protein S13</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,483,047</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">R455S&nbsp;(<font class="mutation_in_codon">C</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
+<td align="center"><i>malT</i>&nbsp;&rarr;</td>
+<td align="left">transcriptional regulator MalT</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,490,112</td><!-- Position -->
+<td align="center">C&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right">100%</td>
+<td align="center">A105T&nbsp;(<font class="mutation_in_codon">G</font>CG&rarr;<font class="mutation_in_codon">A</font>CG)&nbsp;</td>
+<td align="center"><i>glpE</i>&nbsp;&larr;</td>
+<td align="left">thiosulfate sulfurtransferase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,750,741</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right">19.1%</td><td align="right"></td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">L58F&nbsp;(TT<font class="mutation_in_codon">G</font>&rarr;TT<font class="mutation_in_codon">T</font>)&nbsp;</td>
+<td align="center"><i>radC</i>&nbsp;&larr;</td>
+<td align="left">DNA repair protein RadC</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,762,741</td><!-- Position -->
+<td align="center">A&rarr;T</td><!-- Cell Mutation -->
+<td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">K662I&nbsp;(A<font class="mutation_in_codon">A</font>A&rarr;A<font class="mutation_in_codon">T</font>A)&nbsp;</td>
+<td align="center"><i>spoT</i>&nbsp;&rarr;</td>
+<td align="left">bifunctional (p)ppGpp synthetase II/ guanosine&#8209;3',5'&#8209;bis pyrophosphate 3'&#8209;pyrophosphohydrolase</td>
+</tr>
+<!-- End Table Row -->
+<tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,875,625</td><!-- Position -->
+<td align="center">+T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right">100%</td><td align="right">100%</td><td align="right"></td><td align="right">100%</td>
+<td align="center">intergenic&nbsp;(&#8209;59/+294)</td>
+<td align="center"><i>glmU</i>&nbsp;&larr;&nbsp;/&nbsp;&larr;&nbsp;<i>atpC</i></td>
+<td align="left">bifunctional N&#8209;acetylglucosamine&#8209;1&#8209;phosphate uridyltransferase/glucosamine&#8209;1&#8209;phosphate acetyltransferase/F0F1 ATP synthase subunit epsilon</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,893,550</td><!-- Position -->
+<td align="center">+G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">52.5%</td><td align="right"></td><td align="right"></td>
+<td align="center">intergenic&nbsp;(+5/&#8209;51)</td>
+<td align="center"><i>kup</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>insJ&#8209;5</i></td>
+<td align="left">potassium transporter/IS150 hypothetical protein</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">3,894,997</td><!-- Position -->
+<td align="center">&Delta;6,934&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">IS<i>150</i>&#8209;mediated</td>
+<td align="center"><i>rbsD</i>&#8211;<i>[yieO]</i></td>
+<td align="left"><i>rbsD, rbsA, rbsC, rbsB, rbsK, rbsR, [yieO]</i></td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">3,901,931</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right">&Delta;</td><td align="right">&Delta;</td><td align="right">&Delta;</td><td align="right"> 6.8%</td><td align="right">&Delta;</td>
+<td align="center">T163T&nbsp;(AC<font class="mutation_in_codon">C</font>&rarr;AC<font class="mutation_in_codon">A</font>)&nbsp;</td>
+<td align="center"><i>yieO</i>&nbsp;&larr;</td>
+<td align="left">predicted multidrug or homocysteine efflux system</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,100,655</td><!-- Position -->
+<td align="center">C&rarr;T</td><!-- Cell Mutation -->
+<td align="right">16.6%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">M192I&nbsp;(AT<font class="mutation_in_codon">G</font>&rarr;AT<font class="mutation_in_codon">A</font>)&nbsp;</td>
+<td align="center"><i>hslU</i>&nbsp;&larr;</td>
+<td align="left">ATP&#8209;dependent protease ATP&#8209;binding subunit</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">4,126,699</td><!-- Position -->
+<td align="center">&Delta;1&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">50.0%</td><td align="right">90.2%</td><td align="right">100%</td>
+<td align="center">coding&nbsp;(335/879&nbsp;nt)</td>
+<td align="center"><i>pflC</i>&nbsp;&rarr;</td>
+<td align="left">pyruvate formate lyase II activase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,141,009</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">23.6%</td><td align="right"></td>
+<td align="center">E28K&nbsp;(<font class="mutation_in_codon">G</font>AA&rarr;<font class="mutation_in_codon">A</font>AA)&nbsp;</td>
+<td align="center"><i>yijC</i>&nbsp;&rarr;</td>
+<td align="left">DNA&#8209;binding transcriptional repressor</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">4,192,978</td><!-- Position -->
+<td align="center">G&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right">100%</td><td align="right"></td><td align="right"></td><td align="right">?</td>
+<td align="center">intergenic&nbsp;(+146/+147)</td>
+<td align="center"><i>rrfE</i>&nbsp;&rarr;&nbsp;/&nbsp;&larr;&nbsp;<i>yjaB</i></td>
+<td align="left">5S ribosomal RNA/predicted acetyltransferase</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,201,911</td><!-- Position -->
+<td align="center">C&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right">81.5%</td><td align="right">100%</td>
+<td align="center">A217T&nbsp;(<font class="mutation_in_codon">G</font>CG&rarr;<font class="mutation_in_codon">A</font>CG)&nbsp;</td>
+<td align="center"><i>iclR</i>&nbsp;&larr;</td>
+<td align="left">DNA&#8209;binding transcriptional repressor</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">4,266,356</td><!-- Position -->
+<td align="center">G&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">33.3%</td><td align="right"></td><td align="right"></td>
+<td align="center">intergenic&nbsp;(&#8209;52/&#8209;341)</td>
+<td align="center"><i>acs</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>nrfA</i></td>
+<td align="left">acetyl&#8209;coenzyme A synthetase/nitrite reductase, formate&#8209;dependent, cytochrome</td>
+</tr>
+<!-- End Table Row -->
+<tr>
+<th>position</th>
+<th>mutation</th>
+<th>2K</th>
+<th>5K</th>
+<th>10K</th>
+<th>15K</th>
+<th>20K</th>
+<th>annotation</th>
+<th>gene</th>
+<th width="100%">description</th>
+</tr>
+
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,266,649</td><!-- Position -->
+<td align="center">C&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"> 9.7%</td><td align="right"></td><td align="right"></td><td align="right"></td>
+<td align="center">intergenic&nbsp;(&#8209;345/&#8209;48)</td>
+<td align="center"><i>acs</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>nrfA</i></td>
+<td align="left">acetyl&#8209;coenzyme A synthetase/nitrite reductase, formate&#8209;dependent, cytochrome</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">4,366,935</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">24.2%</td><td align="right"></td><td align="right"></td>
+<td align="center">A197A&nbsp;(GC<font class="mutation_in_codon">C</font>&rarr;GC<font class="mutation_in_codon">A</font>)&nbsp;</td>
+<td align="center"><i>yjeP</i>&nbsp;&larr;</td>
+<td align="left">predicted mechanosensitive channel</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,524,522</td><!-- Position -->
+<td align="center">IS<i>186</i>&nbsp;(+)&nbsp;+6&nbsp;bp</td><!-- Cell Mutation -->
+<td align="right">25.9%</td><td align="right"></td><td align="right">68.8%</td><td align="right">93.5%</td><td align="right">98.5%</td>
+<td align="center">coding&nbsp;(494&#8209;499/549&nbsp;nt)</td>
+<td align="center"><i>fimA</i>&nbsp;&rarr;</td>
+<td align="left">major type 1 subunit fimbrin (pilin)</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">4,560,632</td><!-- Position -->
+<td align="center">T&rarr;C</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right">30.9%</td><td align="right"></td><td align="right"></td>
+<td align="center">Y131C&nbsp;(T<font class="mutation_in_codon">A</font>C&rarr;T<font class="mutation_in_codon">G</font>C)&nbsp;</td>
+<td align="center"><i>hsdM</i>&nbsp;&larr;</td>
+<td align="left">DNA methylase M</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,561,446</td><!-- Position -->
+<td align="center">C&rarr;G</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"> 9.6%</td><td align="right"></td>
+<td align="center">L1097L&nbsp;(CT<font class="mutation_in_codon">G</font>&rarr;CT<font class="mutation_in_codon">C</font>)&nbsp;</td>
+<td align="center"><i>hsdR</i>&nbsp;&larr;</td>
+<td align="left">endonuclease R</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_0">
+<td align="right">4,561,448</td><!-- Position -->
+<td align="center">G&rarr;T</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"></td><td align="right"> 7.6%</td><td align="right"></td>
+<td align="center">L1097M&nbsp;(<font class="mutation_in_codon">C</font>TG&rarr;<font class="mutation_in_codon">A</font>TG)&nbsp;</td>
+<td align="center"><i>hsdR</i>&nbsp;&larr;</td>
+<td align="left">endonuclease R</td>
+</tr>
+<!-- End Table Row -->
+
+<!-- Print The Table Row -->
+<tr class="alternate_table_row_1">
+<td align="right">4,616,396</td><!-- Position -->
+<td align="center">G&rarr;A</td><!-- Cell Mutation -->
+<td align="right"></td><td align="right"></td><td align="right"> 9.9%</td><td align="right">100%</td><td align="right">100%</td>
+<td align="center">G290S&nbsp;(<font class="mutation_in_codon">G</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
+<td align="center"><i>nadR</i>&nbsp;&rarr;</td>
+<td align="left">nicotinamide&#8209;nucleotide adenylyltransferase</td>
+</tr>
+<!-- End Table Row -->
+</table></body></html>

@@ -15,10 +15,12 @@ class _VariantTableColumns(NamedTuple):
 	annotation: str = 'annotation'
 	description: str = 'description'
 	evidence: str = 'evidence'
+	#freq: str = "freq"
 	gene: str = 'gene'
 	mutation: str = 'mutation'
 	position: str = 'position'
 	sequence_id: str = 'seq id'
+
 
 
 VariantTableColumns = _VariantTableColumns()
@@ -148,7 +150,7 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 				row['position'] = None
 			try:
 				row['freq %'] = float(row['freq'][:-1])
-				row.pop('freq')
+				#row.pop('freq')
 			except KeyError:
 				pass
 			# `description` is the column name in the index file.
