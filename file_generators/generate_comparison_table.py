@@ -31,6 +31,7 @@ def flatten_mutation_group(unique_samples: List[str], group: pandas.DataFrame) -
 
 
 def _validate_mutation_group(group: pandas.DataFrame, static_columns: List[str]) -> pandas.DataFrame:
+	"""Determines whther a column contains more than one unique value."""
 	for column in static_columns:
 		unique_values = group[column].unique()
 		if len(unique_values) != 1:
@@ -46,7 +47,7 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 		IsolateTableColumns.description, IsolateTableColumns.locus_tag,
 		IsolateTableColumns.gene, IsolateTableColumns.mutation_category
 	]
-	_validate_mutation_group(group, static_columns)
+	#_validate_mutation_group(group, static_columns)
 	# Annotation depends on the 'alt' sequence.
 
 	# Retrieve the values for the static columns from the first row.
