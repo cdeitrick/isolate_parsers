@@ -44,10 +44,10 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	# Get a list of all columns that should be identical throughout the mutational group.
 	static_columns = [
 		IsolateTableColumns.sequence_id, IsolateTableColumns.position,
-		IsolateTableColumns.description, IsolateTableColumns.locus_tag,
+		IsolateTableColumns.locus_tag,
 		IsolateTableColumns.gene, IsolateTableColumns.mutation_category
 	]
-	#_validate_mutation_group(group, static_columns)
+	_validate_mutation_group(group, static_columns)
 	# Annotation depends on the 'alt' sequence.
 
 	# Retrieve the values for the static columns from the first row.
