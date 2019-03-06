@@ -47,7 +47,7 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 		IsolateTableColumns.locus_tag,
 		IsolateTableColumns.gene, IsolateTableColumns.mutation_category
 	]
-	_validate_mutation_group(group, static_columns)
+	#_validate_mutation_group(group, static_columns)
 	# Annotation depends on the 'alt' sequence.
 
 	# Retrieve the values for the static columns from the first row.

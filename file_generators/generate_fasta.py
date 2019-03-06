@@ -145,8 +145,6 @@ def write_fasta_file(df: pandas.DataFrame, filename: Path) -> Path:
 			fasta_file.write(f">{index}\n{seq}\n")
 	return filename
 
-def _filter_out_variants_in_reference(aligned_table:pandas.DataFrame, reference_label:str):
-	pass
 
 def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'codon', reference_label:Optional[str] = None) -> pandas.DataFrame:
 	"""Converts the variant table generated from the breseqset parser into a fasta file."""
