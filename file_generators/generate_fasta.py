@@ -83,6 +83,7 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	pandas.DataFrame
 		A table with rows corresponding to a single sample and columns corresponding to (`seq id`, `position`) indicies.
 	"""
+	snp_table.to_csv("snp_table.tsv", sep = "\t")
 	partial_parse_sample = partial(
 		_parse_sample_group,
 		reference_sequence = reference_sequence,
@@ -149,6 +150,7 @@ def write_fasta_file(df: pandas.DataFrame, filename: Path) -> Path:
 
 def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'codon', reference_label:Optional[str] = None) -> pandas.DataFrame:
 	"""Converts the variant table generated from the breseqset parser into a fasta file."""
+	variant_table.to_csv("variant_table.tsv", sep = "\t")
 	reference_column, alternate_column = _get_relevant_columns(by)
 
 	# Make sure `filename` is a Path
