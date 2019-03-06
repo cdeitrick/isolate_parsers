@@ -95,6 +95,7 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 
 	# Filter out variants that are present in the reference sample
 	if reference_label:
+		df.to_csv("debug_table.tsv", delimiter = "\t")
 		reference_sample_variants = df['reference'] != df[reference_label]
 		df = df[~reference_sample_variants]
 
