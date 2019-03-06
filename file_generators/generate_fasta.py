@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Tuple, Optional
 
 import pandas
-
+import datatools
 from breseqparser.isolate_parser import IsolateTableColumns
 
 SEQUENCE_ID_COLUMN = IsolateTableColumns.sequence_id
@@ -12,12 +12,23 @@ POSITION_COLUMN = IsolateTableColumns.position
 
 
 def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: str) -> pandas.Series:
-	# indexed_table = snp_table.reset_index().set_index(keys = [SEQUENCE_ID_COLUMN, POSITION_COLUMN], verify_integrity = False)
+	"""
+		Generates a pandas.Series object mapping a seq id and position to the proper reference sequence.
+	Parameters
+	----------
+	snp_table
+	reference_column
+
+	Returns
+	-------
+
+	"""
 	unindexed_table = snp_table.reset_index()
 	groups = unindexed_table.groupby(by = [SEQUENCE_ID_COLUMN, POSITION_COLUMN])
 	reference_data = list()
 
 	for (seq_id, position), group in groups:
+		# Check whether there is exactly one sequence in the reference for a given position.
 		_unique_values = group[reference_column].unique()
 		if len(_unique_values) != 1:
 			print(f"Found {_unique_values} values.")
@@ -33,6 +44,7 @@ def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: s
 
 	reference_table = pandas.DataFrame(reference_data).set_index([SEQUENCE_ID_COLUMN, POSITION_COLUMN])
 	reference_table = reference_table.sort_index()
+	# Convert to pandas.Series
 	return reference_table['reference']
 
 
@@ -69,6 +81,23 @@ def _parse_sample_group(sample_name: str, group: pandas.DataFrame, reference_seq
 	sample_alt = sample_alt.where(sample_alt.notna(), other = reference_sequence)
 	return sample_alt
 
+def _filter_variants_in_sample(variant_table:pandas.DataFrame, sample_label:str, reference_label:str)->pandas.DataFrame:
+	"""
+		Filters out variants which appear in the given sample.
+	Parameters
+	----------
+	variant_table: pandas.DataFrame
+		A dataframe where columns correspond to columns. The index does not matter.
+	label: str
+		The label of the sample to use as the reference. Variants found in this sample will be filtered out.
+
+	Returns
+	-------
+	pandas.DataFrame
+	"""
+	sample_variants = variant_table[sample_label] != variant_table[reference_label]
+	filtered_table = variant_table[~sample_variants]
+	return filtered_table
 
 def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, reference_sequence: pandas.Series, alt_col: str, reference_label:str) -> pandas.DataFrame:
 	"""
@@ -95,10 +124,10 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	df: pandas.DataFrame = pandas.concat(sample_alts, axis = 1)
 
 	# Filter out variants that are present in the reference sample
-	if reference_label:
-		df.to_csv("debug_table.tsv", sep = "\t")
-		reference_sample_variants = df['reference'] != df[reference_label]
-		df = df[~reference_sample_variants]
+	if reference_label and reference_label in df.columns:
+		df = _filter_variants_in_sample(df, reference_label, 'reference')
+	df = datatools.filter_variants_in_all_samples(df, 'reference')
+	# Filter out variants that appear in all samples.
 
 	# It is easier to iterate over rows rather than columns, so transpose the dataframe such that rows correspond to samples.
 	df = df.transpose()
@@ -158,15 +187,8 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 	table = variant_table.reset_index()
 
 	# We only care about snps.
-	accepted_mutation_categories = ['snp_nonsynonymous']#, 'snp_synonymous']
+	accepted_mutation_categories = ['snp_nonsynonymous']
 	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
-	groups = table.groupby(by = [IsolateTableColumns.sample_name, IsolateTableColumns.mutation_category])
-	samples = dict()
-	for (isolate_name, mutation_category), group in groups:
-		if isolate_name in samples:
-			samples[isolate_name][mutation_category] = len(group)
-		else:
-			samples[isolate_name] = {mutation_category:len(group)}
 
 	_validate_variant_table(table, by, reference_column, alternate_column)
 
