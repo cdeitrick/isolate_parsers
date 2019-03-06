@@ -13,6 +13,7 @@ class ProgramOptions:
 	blacklist: List[str] = ""
 	sample_map: str = ""
 	use_filter: bool = True
+	reference_label: Optional[str] = None
 
 
 def _get_program_options(arguments:List[str] = None, debug: bool = False) -> Union[ProgramOptions, argparse.Namespace]:
@@ -66,6 +67,13 @@ def _get_program_options(arguments:List[str] = None, debug: bool = False) -> Uni
 			help = "Whether to filter out variants that occur within 1000bp of each other. Usually indicates a mapping error.",
 			action = "store_true",
 			dest = "use_filter"
+		)
+		parser.add_argument(
+			"--reference",
+			help = "The sample that was used as the reference, if available.",
+			action = "store",
+			default = None,
+			dest = "reference_label"
 		)
 		if arguments:
 			_program_options = parser.parse_args(arguments)
@@ -172,6 +180,6 @@ if __name__ == "__main__":
 		fasta_filename_snp = fasta_filename_base.with_suffix(f".snp.fasta")
 		fasta_filename_codon = fasta_filename_base.with_suffix(f".codon.fasta")
 		fasta_filename_amino = fasta_filename_base.with_suffix(f".amino.fasta")
-		generate_fasta_file(variant_df, fasta_filename_snp, by = 'base')
-		generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon')
-		generate_fasta_file(variant_df, fasta_filename_amino, by = 'amino')
+		generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
+		generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = program_options.reference_label)
+		generate_fasta_file(variant_df, fasta_filename_amino, by = 'amino', reference_label = program_options.reference_label)
