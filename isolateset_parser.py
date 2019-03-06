@@ -157,14 +157,15 @@ if __name__ == "__main__":
 	breseq_run_folder = Path(program_options.folder)
 	breseq_table_filename = breseq_run_folder / "breseq_table.xlsx"
 	fasta_filename_base = breseq_run_folder / "breseq"
-
+	print("Parsing breseqset...")
 	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder, blacklist, whitelist, sample_map, program_options.use_filter)
 	assert 'ref' in variant_df
+	print("Generating comparison table...")
 	snp_comparison_df = generate_snp_comparison_table(variant_df, by = 'base', filter_table = program_options.use_filter)
 	amino_comparison_df = generate_snp_comparison_table(variant_df, by = 'amino', filter_table = program_options.use_filter)
 	codon_comparison_df = generate_snp_comparison_table(variant_df, by = 'codon', filter_table = program_options.use_filter)
 	assert 'ref' in variant_df
-	#generate_basic_statistics.calculate_basic_statistics(snp_comparison_df)
+
 	tables = {
 		'variant comparison': snp_comparison_df,
 		'amino comparison':   amino_comparison_df,
@@ -173,10 +174,11 @@ if __name__ == "__main__":
 		'coverage':           coverage_df.reset_index(),
 		'junction':           junction_df.reset_index()
 	}
-
+	print("Saving isolate table...")
 	save_isolate_table(tables, breseq_run_folder / "breseq_table.xlsx")
 
 	if program_options.generate_fasta:
+		print("Generating fasta...")
 		fasta_filename_snp = fasta_filename_base.with_suffix(f".snp.fasta")
 		fasta_filename_codon = fasta_filename_base.with_suffix(f".codon.fasta")
 		fasta_filename_amino = fasta_filename_base.with_suffix(f".amino.fasta")
