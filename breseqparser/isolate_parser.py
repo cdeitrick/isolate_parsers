@@ -128,7 +128,6 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 		# GDColumns.alternate_base, GDColumns.reference_base
 		# , GDColumns.position, GDColumns.sequence_id These columns are in the index.
 	]
-	print("parsing ", breseq_folder)
 	# Retrieve the filenames
 	index_file = parse_index.get_index_filename(breseq_folder)
 	# The VCF file provides the quality and read depth.
