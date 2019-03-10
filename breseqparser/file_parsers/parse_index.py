@@ -154,9 +154,11 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 			except KeyError:
 				pass
 			# `description` is the column name in the index file.
-			print(row.keys())
-			if 'javascript' in row['description'] or 'Javascript' in row['description']:
-				row['description'] = 'large deletion'
+			try:
+				if 'javascript' in row['description'] or 'Javascript' in row['description']:
+					row['description'] = 'large deletion'
+			except KeyError:
+				pass
 			converted_table.append(row)
 	return converted_table
 
