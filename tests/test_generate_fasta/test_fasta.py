@@ -36,8 +36,14 @@ def combined_table()->pandas.DataFrame:
 		NODE_1	367587	A	G	G	G	G	G	G	G
 	"""
 
+@pytest.fixture
+def sample_group()->pandas.DataFrame:
+	pass
 def test_convert_combined_table_to_aligned_table():
 	pass
 
 def test_generate_reference_sequence():
+	pass
+
+def test_parse_sample_group():
 	pass

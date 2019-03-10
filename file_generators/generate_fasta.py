@@ -60,6 +60,10 @@ def _parse_sample_group(sample_name: str, group: pandas.DataFrame, reference_seq
 			- values _> str
 		group: pandas.DataFrame
 			A subset of the breseqset table corresponding to a single sample.
+		reference_sequence: pandas.Series
+			Maps the indexed sequence id and position to the reference sequence
+		alt_column: str
+			name of the column containing the alternate sequence.
 		Returns
 		-------
 		pandas.Series
@@ -122,13 +126,12 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 
 	sample_alts = [reference_sequence] + [partial_parse_sample(name, group) for name, group in groups]
 	df: pandas.DataFrame = pandas.concat(sample_alts, axis = 1)
-
 	# Filter out variants that are present in the reference sample
 	if reference_label and reference_label in df.columns:
 		df = _filter_variants_in_sample(df, reference_label, 'reference')
-	df = datatools.filter_variants_in_all_samples(df, 'reference')
-	# Filter out variants that appear in all samples.
 
+	# Filter out variants that appear in all samples.
+	df = datatools.filter_variants_in_all_samples(df, 'reference')
 	# It is easier to iterate over rows rather than columns, so transpose the dataframe such that rows correspond to samples.
 	df = df.transpose()
 	return df
