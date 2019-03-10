@@ -67,6 +67,8 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 		except FileNotFoundError as _missing_file_error:
 			print(f"Exception: {_missing_file_error}")
 			continue
+		except Exception as exception:
+			continue
 
 		in_whitelist = not whitelist or isolate_name in whitelist or isolate_id in whitelist
 		in_blacklist = bool(blacklist) and (isolate_name in blacklist or isolate_id in blacklist)
