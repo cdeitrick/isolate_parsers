@@ -28,7 +28,7 @@ def _import_table_from_string(string: str, delimiter: Optional[str] = None, inde
 	result = pandas.read_table(io.StringIO(string), sep = delimiter, index_col = False)
 	if index:
 		# Using `index_col` in `read_table()` doesn't work for some reason.
-		result[index] = result[index].astype(str)
+		#result[index] = result[index].astype(str)
 		result.set_index(index, inplace = True)
 	return result
 

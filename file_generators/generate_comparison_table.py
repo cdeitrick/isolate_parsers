@@ -39,6 +39,24 @@ def _validate_mutation_group(group: pandas.DataFrame, static_columns: List[str])
 			raise ValueError(message)
 	return group
 
+def _extract_annotation_from_group(group:pandas.DataFrame)->str:
+	"""
+		Essentially concatenates the annotations for each of the samples in the group. This will typically be the same for all variants,
+		but is assumed otherwise just in case.
+	Parameters
+	----------
+	group: pandas.DataFrame
+
+	Returns
+	-------
+
+	"""
+	annotation_values = group[IsolateTableColumns.annotation].tolist()
+	# Remove duplicate and missing annotations. DataFrames save missing values as math.nan
+	annotation_set = {i for i in annotation_values if isinstance(i, str)}
+	# Combine and merge into a string
+	annotation_string = "|".join(annotation_set)
+	return annotation_string
 
 def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref_col: str, alt_col: str) -> Dict[str, Union[int, float, str]]:
 	# Get a list of all columns that should be identical throughout the mutational group.
@@ -52,7 +70,7 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 
 	# Retrieve the values for the static columns from the first row.
 	first_row = group.reset_index().iloc[0]
-	annotation = "|".join([i for i in sorted(set(group[IsolateTableColumns.annotation].tolist())) if isinstance(i, str)])
+	annotation = _extract_annotation_from_group(group)
 	if not annotation: annotation = first_row[IsolateTableColumns.mutation]
 	static_data = first_row[static_columns].to_dict()
 	static_data[IsolateTableColumns.annotation] = annotation

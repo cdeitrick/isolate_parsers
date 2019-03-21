@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, NamedTuple, Tuple, Union
+from typing import Any, Dict, List, NamedTuple, Tuple, Union, Optional
 
 import pandas
 from bs4 import BeautifulSoup
@@ -25,11 +25,16 @@ class _VariantTableColumns(NamedTuple):
 
 VariantTableColumns = _VariantTableColumns()
 
+def extract_sample_name(filename: Path, sample_name:Optional[str] = None):
+	# Attempts to infer the sample name from the filename of the index file.
+	if sample_name: return sample_name
 
-def to_number(string: str) -> int:
+
+
+def to_integer(string: str) -> int:
 	""" Converts a string to a number"""
 	try:
-		string = int(string.replace(',', ''))
+		string =int(float(string.replace(',', '')))
 	except ValueError:
 		pass
 	return string
@@ -47,7 +52,8 @@ def convert_to_dataframe(table: TableType) -> pandas.DataFrame:
 def _load_index_file(filename: Path) -> BeautifulSoup:
 	"""Loads the index file."""
 	filename = Path(filename)
-	soup = BeautifulSoup(filename.read_text(), 'lxml')
+	# Use read_bytes to avoid encoding errors.
+	soup = BeautifulSoup(filename.read_bytes(), 'lxml')
 	return soup
 
 
@@ -115,6 +121,33 @@ def _extract_index_tables(soup: BeautifulSoup) -> Tuple[
 
 	return snp_header_soup, snp_table, coverage_soup, junction_soup
 
+def _parse_html_row(row:Dict[str,str])->Dict[str,str]:
+	"""
+		Converts an individual row in one of the html tables to a dictionary.
+	Parameters
+	----------
+	values
+
+	Returns
+	-------
+
+	"""
+	try:
+		#
+		row['position'] = to_integer(row['position'])
+	except KeyError:
+		row['position'] = None
+	try:
+		row['freq %'] = float(row['freq'][:-1])
+	# row.pop('freq')
+	except KeyError:
+		pass
+	# `description` is the column name in the index file.
+	if 'javascript' in row['description'] or 'Javascript' in row['description']:
+		row['description'] = 'large deletion'
+
+	return row
+
 
 def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) -> TableType:
 	"""
@@ -133,30 +166,13 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 
 	"""
 	converted_table = list()
-
 	for tag in rows:
 		values = [v.text for v in tag.find_all('td')]
-
 		if len(values) > 1:
 			row = {k: unidecode(v).strip() for k, v in zip(headers, values)}
-			try:
-				row['Sample'] = sample_name
-			except KeyError:
-				row['Sample'] = "noname"
-			try:
-				#
-				row['position'] = to_number(row['position'])
-			except KeyError:
-				row['position'] = None
-			try:
-				row['freq %'] = float(row['freq'][:-1])
-				#row.pop('freq')
-			except KeyError:
-				pass
-			# `description` is the column name in the index file.
-			if 'javascript' in row['description'] or 'Javascript' in row['description']:
-				row['description'] = 'large deletion'
-			converted_table.append(row)
+			row['Sample'] = sample_name
+			parsed_row = _parse_html_row(row)
+			converted_table.append(parsed_row)
 	return converted_table
 
 
@@ -174,9 +190,9 @@ def _parse_coverage(sample_name: str, coverage: BeautifulSoup) -> TableType:
 			row = [('Sample', sample_name)] + [(k, v.get_text()) for k, v in zip(column_names, values)]
 			row = OrderedDict(row)
 
-			row['start'] = to_number(row['start'])
-			row['end'] = to_number(row['end'])
-			row['size'] = to_number(row['size'])
+			row['start'] = to_integer(row['start'])
+			row['end'] = to_integer(row['end'])
+			row['size'] = to_integer(row['size'])
 			coverage_table.append(row)
 
 	return coverage_table
@@ -204,7 +220,7 @@ def _parse_junctions(sample_name: str, junctions: BeautifulSoup) -> TableType:
 
 def get_index_filename(path: Path) -> Path:
 	path = Path(path)
-	if path.name == 'index.html':
+	if path.suffix == '.html':
 		return path
 	index_file = path / "output" / "index.html"
 
@@ -279,7 +295,17 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 
 if __name__ == "__main__":
 	_path = Path(__file__).parent.parent.parent
-	_path = _path / "tests" / "data" / "Clonal_Output" / "breseq_output" / "output" / "index.html"
+	folder = _path / "tests" / "data" / "Population_Output"
 
-	_snp, _cov, _jun = parse_index_file("testIsolate", _path)
-	_snp.to_pickle(_path.with_name('snp_table.pkl'))
+	dfs = list()
+	for filename in folder.iterdir():
+		if filename.name == 'compare.html': continue
+		print(filename)
+		t, *_ = parse_index_file(filename.name, filename)
+		dfs.append(t)
+
+	df = pandas.concat(dfs)
+	groups = df.groupby(by = 'annotation')
+	for annotation, group in groups:
+		if isinstance(group, pandas.DataFrame) and annotation == "K662I (AAA-ATA)":
+			group.to_csv("test.tsv", sep = "\t")
