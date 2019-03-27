@@ -33,7 +33,10 @@ def save_isolate_table(tables: Dict[str, pandas.DataFrame], filename: Path) -> P
 	writer.save() #otherwise color_table_cells will not be able to load the file
 	# Color in the spreadsheet cells based on whether the sequence differs from the reference.
 	if openpyxl is not None:
-		color_table_cells(filename)
+		try:
+			color_table_cells(filename)
+		except:
+			pass
 	return filename
 
 

@@ -91,7 +91,7 @@ def _filter_variants_in_sample(variant_table:pandas.DataFrame, sample_label:str,
 	Parameters
 	----------
 	variant_table: pandas.DataFrame
-		A dataframe where columns correspond to columns. The index does not matter.
+		A dataframe where columns correspond to samples. The index does not matter.
 	label: str
 		The label of the sample to use as the reference. Variants found in this sample will be filtered out.
 
@@ -180,7 +180,7 @@ def write_fasta_file(df: pandas.DataFrame, filename: Path) -> Path:
 	return filename
 
 
-def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'codon', reference_label:Optional[str] = None) -> pandas.DataFrame:
+def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'base', reference_label:Optional[str] = None) -> pandas.DataFrame:
 	"""Converts the variant table generated from the breseqset parser into a fasta file."""
 	variant_table.to_csv("variant_table.tsv", sep = "\t")
 	reference_column, alternate_column = _get_relevant_columns(by)

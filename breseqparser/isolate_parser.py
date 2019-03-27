@@ -104,6 +104,14 @@ def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 
 	return fdf
 
+def _get_file_locations(breseq_folder:Path):
+	index_file = parse_index.get_index_filename(breseq_folder)
+	# The VCF file provides the quality and read depth.
+	vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
+	gd_file = parse_gd.get_gd_filename(breseq_folder)
+
+	return index_file, vcf_file, gd_file
+
 def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str = None, use_filter:bool = False) -> Tuple[DF, DF, DF]:
 	"""
 		Combines all available information for a single breseq (single sample).
@@ -130,11 +138,7 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 	]
 
 	# Retrieve the filenames
-	index_file = parse_index.get_index_filename(breseq_folder)
-	# The VCF file provides the quality and read depth.
-	vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
-	gd_file = parse_gd.get_gd_filename(breseq_folder)
-
+	index_file, vcf_file, gd_file = _get_file_locations(breseq_folder)
 	# Generate the tables
 	# They should be indexed by sequence id and position.
 	_set_table_index = True

@@ -29,7 +29,11 @@ def calculate_basic_statistics(comparison_table: pandas.DataFrame):
 		mutation_category_table.append(sample_mutation_category)
 
 	mutation_category_table = pandas.DataFrame(mutation_category_table)
-	mutation_category_table['dN/dS'] = mutation_category_table['snp_nonsynonymous'] / mutation_category_table['snp_synonymous']
+	mutation_category_table = mutation_category_table.fillna(0.0)
+	try:
+		mutation_category_table['dN/dS'] = mutation_category_table['snp_nonsynonymous'] / mutation_category_table['snp_synonymous']
+	except KeyError:
+		mutation_category_table['dN/dS'] = 0
 	return mutation_category_table
 
 

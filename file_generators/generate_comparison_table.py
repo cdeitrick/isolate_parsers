@@ -16,30 +16,9 @@ def _calculate_average_value(values: List[str]) -> float:
 	return average
 
 
-def flatten_mutation_group(unique_samples: List[str], group: pandas.DataFrame) -> Dict[str, Any]:
-	""" Averages the values of `readDepth` and `readQuality` from all samples."""
-	ignore = [
-		'aaAlt', 'aaRef', 'codonAltSeq', 'codonRefSeq', 'Sample',
-		'aaPosition', 'codonNumber', 'coverage', 'polymorphismFrequency'
-	]
-
-	row = {k: '|'.join(str(i) for i in group[k].unique() if not pandas.isna(i)) for k in group.columns if k not in (unique_samples + ignore)}
-
-	row['mutationCount'] = len(group)
-
-	return row
 
 
-def _validate_mutation_group(group: pandas.DataFrame, static_columns: List[str]) -> pandas.DataFrame:
-	"""Determines whther a column contains more than one unique value."""
-	for column in static_columns:
-		unique_values = group[column].unique()
-		if len(unique_values) != 1:
-			message = f"Found {unique_values}"
-			raise ValueError(message)
-	return group
-
-def _extract_annotation_from_group(group:pandas.DataFrame)->str:
+def _extract_string_from_group(group:pandas.DataFrame, column:str)->str:
 	"""
 		Essentially concatenates the annotations for each of the samples in the group. This will typically be the same for all variants,
 		but is assumed otherwise just in case.
@@ -51,7 +30,7 @@ def _extract_annotation_from_group(group:pandas.DataFrame)->str:
 	-------
 
 	"""
-	annotation_values = group[IsolateTableColumns.annotation].tolist()
+	annotation_values = group[column].tolist()
 	# Remove duplicate and missing annotations. DataFrames save missing values as math.nan
 	annotation_set = {i for i in annotation_values if isinstance(i, str)}
 	# Combine and merge into a string
@@ -70,10 +49,12 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 
 	# Retrieve the values for the static columns from the first row.
 	first_row = group.reset_index().iloc[0]
-	annotation = _extract_annotation_from_group(group)
+	annotation = _extract_string_from_group(group, IsolateTableColumns.annotation)
+	description = _extract_string_from_group(group, IsolateTableColumns.description)
 	if not annotation: annotation = first_row[IsolateTableColumns.mutation]
 	static_data = first_row[static_columns].to_dict()
 	static_data[IsolateTableColumns.annotation] = annotation
+	static_data[IsolateTableColumns.description] = description
 
 	# Large deletions do not have an annotation.
 	# Replace with the text in the `mutation` field.
@@ -113,7 +94,6 @@ def _get_relevant_columns(by: str) -> Tuple[str, str]:
 
 	return reference_column, alternate_column
 
-
 def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table:bool = False) -> pandas.DataFrame:
 	"""
 		Generates a table with sample alt sequences represented by columns.
@@ -142,20 +122,3 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 	df = pandas.DataFrame(comparison_table)
 	return df
 
-
-if __name__ == "__main__":
-	from breseqset_parser import parse_breseqset
-
-	breseq_run_folder = Path(__file__).parent.parent / "tests" / "data" / "set_output"
-
-	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder)
-	comparison_df = generate_snp_comparison_table(variant_df, 'base')
-
-	tables = {
-		'comparison': comparison_df,
-		'variant':    variant_df.reset_index(),
-		'coverage':   coverage_df.reset_index(),
-		'junction':   junction_df.reset_index()
-	}
-
-	print(comparison_df.to_dict(orient = 'records'))
