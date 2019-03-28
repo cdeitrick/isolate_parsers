@@ -293,19 +293,3 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	return snp_df, coverage_df, junction_df
 
 
-if __name__ == "__main__":
-	_path = Path(__file__).parent.parent.parent
-	folder = _path / "tests" / "data" / "Population_Output"
-
-	dfs = list()
-	for filename in folder.iterdir():
-		if filename.name == 'compare.html': continue
-		print(filename)
-		t, *_ = parse_index_file(filename.name, filename)
-		dfs.append(t)
-
-	df = pandas.concat(dfs)
-	groups = df.groupby(by = 'annotation')
-	for annotation, group in groups:
-		if isinstance(group, pandas.DataFrame) and annotation == "K662I (AAA-ATA)":
-			group.to_csv("test.tsv", sep = "\t")
