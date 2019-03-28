@@ -16,69 +16,60 @@ class ProgramOptions:
 	reference_label: Optional[str] = None
 
 
-def _get_program_options(arguments:List[str] = None, debug: bool = False) -> Union[ProgramOptions, argparse.Namespace]:
-	if debug:
-		_program_options = ProgramOptions(
-			folder = "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline_output/",
-			generate_fasta = True,
-			whitelist = [],
-			blacklist = [],
-			sample_map = ""
-		)
+def _get_program_options(arguments:List[str] = None) -> Union[ProgramOptions, argparse.Namespace]:
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		"-i", "--input",
+		help = "The breseq folder to parse.",
+		dest = "folder"
+	)
+	parser.add_argument(
+		"--no-fasta",
+		help = "Whether to generate an aligned fasta file of all snps in the breseq VCF file.",
+		action = 'store_false',
+		dest = 'generate_fasta'
+	)
+
+	parser.add_argument(
+		"-w", "--whitelist",
+		help = "Samples not in the whitelist are ignored. Either a comma-separated list of sample ids for a file with each sample id occupying a single line.",
+		dest = "whitelist",
+		action = 'store',
+		default = ""
+	)
+
+	parser.add_argument(
+		"-b", "--blacklist",
+		help = "Samples to ignore. See `--whitelist` for possible input formats.",
+		action = 'store',
+		dest = 'blacklist',
+		default = ""
+	)
+	parser.add_argument(
+		"-m", "--sample-map",
+		help = """A file mapping sample ids to sample names. Use if the subfolders in the breseqset folder are named differently from the sample names."""
+			   """ The file should have two columns: `sampleId` and `sampleName`, separated by a tab character.""",
+		action = 'store',
+		dest = 'sample_map',
+		default = ""
+	)
+	parser.add_argument(
+		"--filter-1000bp",
+		help = "Whether to filter out variants that occur within 1000bp of each other. Usually indicates a mapping error.",
+		action = "store_true",
+		dest = "use_filter"
+	)
+	parser.add_argument(
+		"--reference",
+		help = "The sample that was used as the reference, if available.",
+		action = "store",
+		default = None,
+		dest = "reference_label"
+	)
+	if arguments:
+		_program_options = parser.parse_args(arguments)
 	else:
-		parser = argparse.ArgumentParser()
-		parser.add_argument(
-			"-i", "--input",
-			help = "The breseq folder to parse.",
-			dest = "folder"
-		)
-		parser.add_argument(
-			"--no-fasta",
-			help = "Whether to generate an aligned fasta file of all snps in the breseq VCF file.",
-			action = 'store_false',
-			dest = 'generate_fasta'
-		)
-
-		parser.add_argument(
-			"-w", "--whitelist",
-			help = "Samples not in the whitelist are ignored. Either a comma-separated list of sample ids for a file with each sample id occupying a single line.",
-			dest = "whitelist",
-			action = 'store',
-			default = ""
-		)
-
-		parser.add_argument(
-			"-b", "--blacklist",
-			help = "Samples to ignore. See `--whitelist` for possible input formats.",
-			action = 'store',
-			dest = 'blacklist',
-			default = ""
-		)
-		parser.add_argument(
-			"-m", "--sample-map",
-			help = """A file mapping sample ids to sample names. Use if the subfolders in the breseqset folder are named differently from the sample names."""
-				   """ The file should have two columns: `sampleId` and `sampleName`, separated by a tab character.""",
-			action = 'store',
-			dest = 'sample_map',
-			default = ""
-		)
-		parser.add_argument(
-			"--filter-1000bp",
-			help = "Whether to filter out variants that occur within 1000bp of each other. Usually indicates a mapping error.",
-			action = "store_true",
-			dest = "use_filter"
-		)
-		parser.add_argument(
-			"--reference",
-			help = "The sample that was used as the reference, if available.",
-			action = "store",
-			default = None,
-			dest = "reference_label"
-		)
-		if arguments:
-			_program_options = parser.parse_args(arguments)
-		else:
-			_program_options = parser.parse_args()
+		_program_options = parser.parse_args()
 	return _program_options
 
 
