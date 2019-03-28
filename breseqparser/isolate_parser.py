@@ -165,8 +165,3 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 
 	return variant_df, coverage_df, junction_df
 
-
-if __name__ == "__main__":
-	path = Path(__file__).parent.parent / 'tests' / 'data' / 'Clonal_Output' / 'breseq_output'
-	v, c, j = parse_breseq_isolate(path, 'testIsolate')
-	print(v.to_string())
