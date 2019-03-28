@@ -58,6 +58,7 @@ class _IsolateTableColumns(NamedTuple):
 	annotation: str = 'annotation'
 	description: str = 'description'
 	evidence: str = 'evidence'
+	freq: str = 'freq'
 	gene: str = 'gene'
 	mutation: str = 'mutation'
 	alt: str = VCFColumns.alternate

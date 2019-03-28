@@ -91,15 +91,3 @@ def parse_breseqset(folder: Path, blacklist: Container[str] = None, whitelist: C
 
 	return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full
 
-
-if __name__ == "__main__":
-	_folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/TravisanoBreseq/")
-	_variant_dataframe, _coverage_dataframe, _junction_dataframe = parse_breseqset(_folder)
-
-	_tables = {
-		'snp':      _variant_dataframe.reset_index(),
-		'coverage': _coverage_dataframe.reset_index(),
-		'junction': _junction_dataframe.reset_index()
-	}
-
-	save_isolate_table(_tables, _folder / "breseq_table.xlsx")

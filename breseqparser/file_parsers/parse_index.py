@@ -15,7 +15,7 @@ class _VariantTableColumns(NamedTuple):
 	annotation: str = 'annotation'
 	description: str = 'description'
 	evidence: str = 'evidence'
-	#freq: str = "freq"
+	freq: str = "freq"
 	gene: str = 'gene'
 	mutation: str = 'mutation'
 	position: str = 'position'
@@ -285,6 +285,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	for col in snp_df.columns:
 		if col not in VariantTableColumns:
 			snp_df.pop(col)
+	
 	snp_df.columns = VariantTableColumns
 	if set_index:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
