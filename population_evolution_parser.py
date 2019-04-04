@@ -1,7 +1,6 @@
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List
 import pandas
-import math
 from breseqparser.file_parsers.parse_index import parse_index_file
 
 

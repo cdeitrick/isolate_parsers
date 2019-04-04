@@ -46,7 +46,6 @@ from breseqparser.file_parsers import parse_gd, parse_index, parse_vcf
 DF = pandas.DataFrame
 GDColumns = parse_gd.GDColumns
 VCFColumns = parse_vcf.VCFColumns
-IndexColumns = parse_index.VariantTableColumns
 
 
 class _IsolateTableColumns(NamedTuple):
@@ -155,14 +154,14 @@ def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str
 	assert VCFColumns.alternate in variant_df.columns
 	variant_df.reset_index(inplace = True)
 
-	variant_df[IsolateTableColumns.sample_id] = isolate_id
-	variant_df[IsolateTableColumns.sample_name] = isolate_name
-	variant_df = variant_df[list(IsolateTableColumns)]
+	variant_df['sampleId'] = isolate_id
+	variant_df['sampleName'] = isolate_name
+	variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
 
 	if use_filter:
 		variant_df = _filter_bp(variant_df)
 
-	variant_df.set_index(keys = [IsolateTableColumns.sequence_id, IsolateTableColumns.position])
+	variant_df.set_index(keys = ['seq id', 'position'])
 
 	return variant_df, coverage_df, junction_df
 

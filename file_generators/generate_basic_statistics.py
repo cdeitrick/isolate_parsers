@@ -1,7 +1,6 @@
 import pandas
 from pathlib import Path
 from typing import Union
-from file_generators.generate_comparison_table import IsolateTableColumns
 
 
 def calculate_basic_statistics(comparison_table: pandas.DataFrame):

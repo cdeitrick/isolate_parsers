@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, NamedTuple, Tuple, Union, Optional
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 import pandas
 from bs4 import BeautifulSoup
@@ -9,21 +9,16 @@ from unidecode import unidecode
 TableType = List[Dict[str, Any]]
 DFType = pandas.DataFrame
 
-
-class _VariantTableColumns(NamedTuple):
-	sample_name: str = 'Sample'
-	annotation: str = 'annotation'
-	description: str = 'description'
-	evidence: str = 'evidence'
-	freq: str = "freq"
-	gene: str = 'gene'
-	mutation: str = 'mutation'
-	position: str = 'position'
-	sequence_id: str = 'seq id'
-
-
-
-VariantTableColumns = _VariantTableColumns()
+VariantTableColumnMap = {
+	'Sample': 'sample',
+	'annotation': 'annotation',
+	'description': 'description',
+	'freq': 'frequency',
+	'gene': 'gene',
+	'mutation': 'mutation',
+	'position': 'position',
+	'seq iq': 'seq id'
+}
 
 def extract_sample_name(filename: Path, sample_name:Optional[str] = None):
 	# Attempts to infer the sample name from the filename of the index file.
@@ -126,7 +121,8 @@ def _parse_html_row(row:Dict[str,str])->Dict[str,str]:
 		Converts an individual row in one of the html tables to a dictionary.
 	Parameters
 	----------
-	values
+	row: Dict[str,str]
+		The extracted row from the varaint table present in the index.html file.
 
 	Returns
 	-------
@@ -275,22 +271,22 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	coverage_df = convert_to_dataframe(coverage_table)
 	junction_df = convert_to_dataframe(junction_table)
 
-	if VariantTableColumns.sequence_id not in snp_df.columns:
+	if 'seq id' not in snp_df.columns:
 		try:
 			_sequence_id_from_coverage_table = coverage_df.iloc[0]['seq id']
 		except (IndexError, KeyError):
 			_sequence_id_from_coverage_table = default_seq
-		snp_df[VariantTableColumns.sequence_id] = _sequence_id_from_coverage_table
+		snp_df['seq id'] = _sequence_id_from_coverage_table
 	# Remove columns that shouldn't be there
 	for col in snp_df.columns:
-		if col not in VariantTableColumns:
+		if col not in VariantTableColumnMap:
 			snp_df.pop(col)
-	
-	snp_df.columns = VariantTableColumns
+	print(list(snp_df.columns))
+	snp_df.columns = [VariantTableColumnMap[i] for i in snp_df.columns]
 	if set_index:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
-		snp_df[VariantTableColumns.position] = [float(str(i).replace(':', '.').replace(',', '')) for i in snp_df[VariantTableColumns.position]]
-		snp_df.set_index(keys = [VariantTableColumns.sequence_id, VariantTableColumns.position], inplace = True)
+		snp_df['position'] = [float(str(i).replace(':', '.').replace(',', '')) for i in snp_df['position']]
+		snp_df.set_index(keys = ['seq id', 'position'], inplace = True)
 	return snp_df, coverage_df, junction_df
 
 

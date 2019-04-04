@@ -6,7 +6,6 @@ from typing import Container, Dict, List
 import pandas
 
 from breseqparser.isolate_parser import get_sample_name, parse_breseq_isolate
-from file_generators import save_isolate_table
 
 
 def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:

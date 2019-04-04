@@ -138,7 +138,7 @@ def _parse_sample_map(path: str) -> Dict[str, str]:
 
 if __name__ == "__main__":
 	from breseqset_parser import parse_breseqset
-	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file, generate_basic_statistics
+	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
 	program_options = _get_program_options()
 	whitelist = _parse_commandline_list(program_options.whitelist)

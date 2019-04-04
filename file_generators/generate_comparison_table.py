@@ -1,6 +1,5 @@
-from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
-import math
+
+from typing import Dict, List, Tuple, Union
 import pandas
 
 from breseqparser.isolate_parser import IsolateTableColumns
