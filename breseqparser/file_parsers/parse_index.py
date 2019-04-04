@@ -17,7 +17,7 @@ VariantTableColumnMap = {
 	'gene': 'gene',
 	'mutation': 'mutation',
 	'position': 'position',
-	'seq iq': 'seq id'
+	'seq id': 'seq id'
 }
 
 def extract_sample_name(filename: Path, sample_name:Optional[str] = None):
@@ -281,7 +281,6 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	for col in snp_df.columns:
 		if col not in VariantTableColumnMap:
 			snp_df.pop(col)
-	print(list(snp_df.columns))
 	snp_df.columns = [VariantTableColumnMap[i] for i in snp_df.columns]
 	if set_index:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
