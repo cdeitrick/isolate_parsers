@@ -125,6 +125,6 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 
 	# Add a column indicating if the reference sample contained the variant. This only applies if the reference sample is known.
 	if reference_sample and reference_sample in df.columns:
-		df['inReference'] = df[reference_sample] == df[reference_column]
+		df['inReference'] = df[reference_sample] != df[reference_column]
 	return df
 
