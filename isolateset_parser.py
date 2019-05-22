@@ -183,5 +183,5 @@ if __name__ == "__main__":
 		fasta_filename_codon = fasta_filename_base.with_suffix(".codon.fasta")
 		fasta_filename_amino = fasta_filename_base.with_suffix(".amino.fasta")
 		generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
-		generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = program_options.reference_label)
-		generate_fasta_file(variant_df, fasta_filename_amino, by = 'amino', reference_label = program_options.reference_label)
+		#generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = program_options.reference_label)
+		#generate_fasta_file(variant_df, fasta_filename_amino, by = 'amino', reference_label = program_options.reference_label)

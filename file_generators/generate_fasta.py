@@ -5,6 +5,7 @@ from typing import Tuple, Optional, List
 import itertools
 import pandas
 import datatools
+from loguru import logger
 from breseqparser.isolate_parser import IsolateTableColumns
 
 SEQUENCE_ID_COLUMN = IsolateTableColumns.sequence_id
@@ -31,7 +32,7 @@ def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: s
 		# Check whether there is exactly one sequence in the reference for a given position.
 		_unique_values = group[reference_column].unique()
 		if len(_unique_values) != 1:
-			print(f"Found {_unique_values} values.")
+			logger.critical(f"Found {_unique_values} values.")
 			print(group.to_string())
 			raise ValueError
 		reference_sequence = group[reference_column].iloc[0]
