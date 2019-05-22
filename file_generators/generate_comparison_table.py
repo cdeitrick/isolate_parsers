@@ -93,7 +93,7 @@ def _get_relevant_columns(by: str) -> Tuple[str, str]:
 
 	return reference_column, alternate_column
 
-def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table:bool = False) -> pandas.DataFrame:
+def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table:bool = False, reference_sample:str = None) -> pandas.DataFrame:
 	"""
 		Generates a table with sample alt sequences represented by columns.
 	Parameters
@@ -102,6 +102,9 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 		The concatenated variant tables for all samples.
 	by: {'base', 'codon', 'amino'}
 		Indicates which reference to use.
+	reference_sample:str
+		Label of the sample to use as a reference. If given, a new column will be added to the table indicating if the reference sample also
+		contained the variant.
 
 	Returns
 	-------
@@ -119,5 +122,9 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 		parse_mutation_group(g, unique_samples, reference_column, alternate_column) for k, g in position_groups
 	]
 	df = pandas.DataFrame(comparison_table)
+
+	# Add a column indicating if the reference sample contained the variant. This only applies if the reference sample is known.
+	if reference_sample and reference_sample in df.columns:
+		df['inReference'] = df[reference_sample] == df[reference_column]
 	return df
 

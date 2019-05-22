@@ -13,7 +13,7 @@ VariantTableColumnMap = {
 	'Sample': 'sample',
 	'annotation': 'annotation',
 	'description': 'description',
-	'freq': 'frequency',
+	'freq %': 'frequency',
 	'gene': 'gene',
 	'mutation': 'mutation',
 	'position': 'position',
@@ -278,10 +278,11 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 			_sequence_id_from_coverage_table = default_seq
 		snp_df['seq id'] = _sequence_id_from_coverage_table
 	# Remove columns that shouldn't be there
-	for col in snp_df.columns:
-		if col not in VariantTableColumnMap:
-			snp_df.pop(col)
-	snp_df.columns = [VariantTableColumnMap[i] for i in snp_df.columns]
+	#for col in snp_df.columns:
+	#	if col not in VariantTableColumnMap:
+	#		print(f"Removing the column '{col}'")
+	#		snp_df.pop(col)
+	snp_df.columns = [VariantTableColumnMap.get(i, i) for i in snp_df.columns]
 	if set_index:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
 		snp_df['position'] = [float(str(i).replace(':', '.').replace(',', '')) for i in snp_df['position']]

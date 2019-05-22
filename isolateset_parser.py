@@ -73,7 +73,7 @@ def _get_program_options(arguments:List[str] = None) -> Union[ProgramOptions, ar
 	return _program_options
 
 
-def _parse_commandline_list(io: Optional[str]) -> List[str]:
+def _parse_commandline_list(io: Union[None,str, List[str]]) -> List[str]:
 	"""
 		Attempts to convert a comma-separated list of options given from the command line.
 	Parameters
@@ -139,23 +139,30 @@ def _parse_sample_map(path: str) -> Dict[str, str]:
 if __name__ == "__main__":
 	from breseqset_parser import parse_breseqset
 	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
+	debug_options = [
+		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pairwise_pipeline/GCA_000014085.1_ASM1408v1_genomic/",
+		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.tsv",
+		"--reference", "A1-21"
+	]
 
-	program_options = _get_program_options()
+	program_options = _get_program_options(debug_options)
+
 	whitelist = _parse_commandline_list(program_options.whitelist)
 	blacklist = _parse_commandline_list(program_options.blacklist)
 	sample_map = _parse_sample_map(program_options.sample_map)
 
 	breseq_run_folder = Path(program_options.folder)
-	breseq_table_filename = breseq_run_folder / "breseq_table.xlsx"
-	fasta_filename_base = breseq_run_folder / "breseq"
+	breseq_table_filename = breseq_run_folder / f"{breseq_run_folder.name}.xlsx"
+	fasta_filename_base = breseq_run_folder / breseq_run_folder.name
+
 	print("Parsing breseqset...")
 	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder, blacklist, whitelist, sample_map, program_options.use_filter)
 	assert 'ref' in variant_df
+
 	print("Generating comparison table...")
-	snp_comparison_df = generate_snp_comparison_table(variant_df, by = 'base', filter_table = program_options.use_filter)
-	amino_comparison_df = generate_snp_comparison_table(variant_df, by = 'amino', filter_table = program_options.use_filter)
-	codon_comparison_df = generate_snp_comparison_table(variant_df, by = 'codon', filter_table = program_options.use_filter)
-	assert 'ref' in variant_df
+	snp_comparison_df = generate_snp_comparison_table(variant_df, by = 'base', filter_table = program_options.use_filter, reference_sample = program_options.reference_label)
+	amino_comparison_df = generate_snp_comparison_table(variant_df, by = 'amino', filter_table = program_options.use_filter, reference_sample = program_options.reference_label)
+	codon_comparison_df = generate_snp_comparison_table(variant_df, by = 'codon', filter_table = program_options.use_filter, reference_sample = program_options.reference_label)
 
 	tables = {
 		'variant comparison': snp_comparison_df,
@@ -165,8 +172,8 @@ if __name__ == "__main__":
 		'coverage':           coverage_df.reset_index(),
 		'junction':           junction_df.reset_index()
 	}
-	print("Saving isolate table...")
-	save_isolate_table(tables, breseq_run_folder / "breseq_table.xlsx")
+	print("Saving isolate table as ", breseq_table_filename)
+	save_isolate_table(tables, breseq_table_filename)
 
 	if program_options.generate_fasta:
 		print("Generating fasta...")
