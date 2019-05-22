@@ -1,7 +1,7 @@
 """ Generates an aligned fasta file with the concatenated SNPs from the variant table."""
 from functools import partial
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 import pandas
 import datatools
@@ -182,7 +182,7 @@ def write_fasta_file(df: pandas.DataFrame, filename: Path) -> Path:
 	return filename
 
 
-def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'base', reference_label:Optional[str] = None) -> pandas.DataFrame:
+def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'base', reference_label:Optional[str] = None, mutation_categories:List[str] = None) -> pandas.DataFrame:
 	"""Converts the variant table generated from the breseqset parser into a fasta file."""
 	variant_table.to_csv("variant_table.tsv", sep = "\t")
 	reference_column, alternate_column = _get_relevant_columns(by)
@@ -192,7 +192,10 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 	table = variant_table.reset_index()
 
 	# We only care about snps.
-	accepted_mutation_categories = ['snp_nonsynonymous']
+	if mutation_categories:
+		accepted_mutation_categories = mutation_categories
+	else:
+		accepted_mutation_categories = ['snp_nonsynonymous', 'snp_synonymous']
 	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
 
 	_validate_variant_table(table, by, reference_column, alternate_column)
