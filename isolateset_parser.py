@@ -145,7 +145,7 @@ if __name__ == "__main__":
 		"--reference", "A1-21"
 	]
 
-	program_options = _get_program_options(debug_options)
+	program_options = _get_program_options()
 
 	whitelist = _parse_commandline_list(program_options.whitelist)
 	blacklist = _parse_commandline_list(program_options.blacklist)
