@@ -66,7 +66,7 @@ def _get_program_options(arguments:List[str] = None) -> Union[ProgramOptions, ar
 		default = None,
 		dest = "reference_label"
 	)
-	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories")
+	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories", default = "")
 	if arguments:
 		_program_options = parser.parse_args(arguments)
 	else:
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
 	whitelist = _parse_commandline_list(program_options.whitelist)
 	blacklist = _parse_commandline_list(program_options.blacklist)
-	fasta_snp_list = _parse_commandline_list(program_options.snp_categories)
+	fasta_snp_list = program_options.snp_categories.split(',')
 	sample_map = _parse_sample_map(program_options.sample_map)
 
 	breseq_run_folder = Path(program_options.folder)
