@@ -77,9 +77,17 @@ def _convert_record_to_dictionary(record: Any) -> Dict[str, str]:
 def _convert_vcf_to_table(vcf_filename: Path) -> List[Dict[str, Any]]:
 	"""Converts all records in a vcf file into a list of dictionaries."""
 	table: List[Dict[str, str]] = list()
+	seen_positions = set()
 	with vcf_filename.open('r') as file1:
 		vcf_reader = vcf.Reader(file1)
-		table += [_convert_record_to_dictionary(record) for record in vcf_reader]
+		for record in vcf_reader:
+			data = _convert_record_to_dictionary(record)
+			#VCF files sometimes record separate mutations as occuring at the same position.
+			# The gd file will instead increment the second mutations position by 1. Do this to maintain compatibility.
+			if (data['seq iq'], data['position']) in seen_positions:
+				data['position'] += 1
+			seen_positions.add((data['seq id'], data['position']))
+			table.append(data)
 	return table
 
 
