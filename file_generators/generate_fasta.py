@@ -2,7 +2,7 @@
 from functools import partial
 from pathlib import Path
 from typing import Tuple, Optional, List
-
+import itertools
 import pandas
 import datatools
 from breseqparser.isolate_parser import IsolateTableColumns
@@ -142,8 +142,9 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 def _validate_variant_table(variant_table: pandas.DataFrame, by: str, ref_col: str, alt_col: str) -> None:
 	""" Raises an error if the variant table has errors."""
 	# Since this only concerns SNPs, make sure the alt and ref sequences are single characters
-	unique_reference_bases = set(variant_table[ref_col].unique())
-	unique_alternate_bases = set(variant_table[alt_col].unique())
+	# Use chaining to account for sequences like 'ACGT' that may be present rather than single characters.
+	unique_reference_bases = set(itertools.chain.from_iterable(variant_table[ref_col].unique()))
+	unique_alternate_bases = set(itertools.chain.from_iterable(variant_table[alt_col].unique()))
 	if by == 'base':
 		try:
 			assert unique_reference_bases <= {'A', 'C', 'T', 'G', 'N'}
