@@ -1,12 +1,11 @@
 import unittest
+from dataclasses import dataclass
 from math import nan
 from typing import Optional
 
-from dataclasses import dataclass
-
-from breseqparser.file_parsers.parse_vcf import *
+from isolateparser.breseqparser.file_parsers.parse_vcf import *
 # Need to also import private functions
-from breseqparser.file_parsers.parse_vcf import _convert_record_to_dictionary, _convert_vcf_to_table, _filter_df
+from isolateparser.breseqparser.file_parsers.parse_vcf import _convert_record_to_dictionary, _convert_vcf_to_table, _filter_df
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 vcf_filename = data_folder / "data" / "output.vcf"

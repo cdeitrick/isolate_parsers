@@ -1,8 +1,9 @@
-import pytest
 from math import nan
 
 import pandas
-from file_generators import generate_comparison_table
+import pytest
+
+from isolateparser.file_generators import generate_comparison_table
 
 
 @pytest.fixture
@@ -152,28 +153,30 @@ def test_parse_mutation_group(mutation_group):
 		'annotation':          "L701M (CTT-ATG)",
 		'description':         "amino acid adenylation protein",
 		'gene':                'BPFJKKCJ_01788 -',
-		'E-01':       "A",
-		'E-02':       "A",
-		'E-05':      "A",
-		'E-06':      "A",
-		'E-07':      "A",
-		'E-10':      "C",
+		'E-01':                "A",
+		'E-02':                "A",
+		'E-05':                "A",
+		'E-06':                "A",
+		'E-07':                "A",
+		'E-10':                "C",
 		'presentIn':           5,
 		'presentInAllSamples': False,
 		'ref':                 'C',
-		'mutationCategory': 	'snp_nonsynonymous'
+		'mutationCategory':    'snp_nonsynonymous'
 	}
 	unique_samples = ['E-01', 'E-02', 'E-05', 'E-06', 'E-07', 'E-10']
 
 	result = generate_comparison_table.parse_mutation_group(mutation_group, unique_samples = unique_samples, ref_col = 'ref', alt_col = 'alt')
-	result.pop('locusTag') # nan cannot be compared against itself.
+	result.pop('locusTag')  # nan cannot be compared against itself.
 	assert result == expected
+
 
 def test_get_relevant_columns():
 	assert ('ref', 'alt') == generate_comparison_table._get_relevant_columns('base')
 
 	assert ('aminoRef', 'aminoAlt') == generate_comparison_table._get_relevant_columns('amino')
 	assert ('codonRef', 'codonAlt') == generate_comparison_table._get_relevant_columns('codon')
+
 
 if __name__ == "__main__":
 	pass

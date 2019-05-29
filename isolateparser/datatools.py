@@ -1,6 +1,7 @@
 import pandas
 
-def variant_count(table: pandas.DataFrame, reference:pandas.Series)->pandas.Series:
+
+def variant_count(table: pandas.DataFrame, reference: pandas.Series) -> pandas.Series:
 	"""
 	Counts the number of samples a specific variant occurs in.
 	Parameters
@@ -19,8 +20,7 @@ def variant_count(table: pandas.DataFrame, reference:pandas.Series)->pandas.Seri
 	return present_df.sum(axis = 1)
 
 
-
-def filter_variants_in_all_samples(df:pandas.DataFrame, reference_label:str)->pandas.DataFrame:
+def filter_variants_in_all_samples(df: pandas.DataFrame, reference_label: str) -> pandas.DataFrame:
 	"""
 	Filters out variant which appear in all samples.
 	Parameters
@@ -28,14 +28,11 @@ def filter_variants_in_all_samples(df:pandas.DataFrame, reference_label:str)->pa
 	df: pandas.DataFrame
 		A Dataframe where columns correspond to samples and rows correspond to unique variants.
 		The table should be indexed by sequence Id and position.
-
-	Returns
-	-------
+	reference_label: str
+		Used to annotate mutations that appear in the reference sample.
 	"""
 
 	reference = df.pop(reference_label)
 	variants = variant_count(df, reference)
 	present_in_all = variants == len(df.columns)
 	return df[~present_in_all]
-
-

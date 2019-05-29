@@ -1,9 +1,12 @@
-import pytest
 import pandas
+import pytest
+
 import dataio
-import datatools
+from isolateparser import datatools
+
+
 @pytest.fixture
-def variant_table()->pandas.DataFrame:
+def variant_table() -> pandas.DataFrame:
 	string = """
 		seq id	position	reference	E-01	E-02	E-04	E-05	E-06	E-07	E-08
 		NODE_1	6397	G	A	A	G	A	A	A	A
@@ -30,29 +33,31 @@ def variant_table()->pandas.DataFrame:
 	table = dataio.import_table(string)
 	return table.set_index(['seq id', 'position'])
 
+
 def test_filter_variants_in_all_samples(variant_table):
 	expected_index = [
-			("NODE_1",	6397),
-			("NODE_1",	8463),
-			("NODE_1",	28954),
-			("NODE_1",	30052),
-			("NODE_1",	30921),
-			("NODE_1",	42817),
-			("NODE_1",	71269),
-			("NODE_1",	72044),
-			("NODE_1",	85276),
-			("NODE_1",	87791),
-			("NODE_1",	90358),
-			("NODE_1",	95837),
-			("NODE_1",	95879),
-			("NODE_1",	96380),
-			("NODE_1",	104532),
-			("NODE_1",	105935),
-			("NODE_1",	107432)
+		("NODE_1", 6397),
+		("NODE_1", 8463),
+		("NODE_1", 28954),
+		("NODE_1", 30052),
+		("NODE_1", 30921),
+		("NODE_1", 42817),
+		("NODE_1", 71269),
+		("NODE_1", 72044),
+		("NODE_1", 85276),
+		("NODE_1", 87791),
+		("NODE_1", 90358),
+		("NODE_1", 95837),
+		("NODE_1", 95879),
+		("NODE_1", 96380),
+		("NODE_1", 104532),
+		("NODE_1", 105935),
+		("NODE_1", 107432)
 	]
 	result = datatools.filter_variants_in_all_samples(variant_table, 'reference')
 
 	assert expected_index == list(result.index)
+
 
 def test_variant_count(variant_table):
 	expected = """

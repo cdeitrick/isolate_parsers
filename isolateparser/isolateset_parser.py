@@ -1,27 +1,17 @@
 import argparse
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
-from dataclasses import dataclass
-
-
-@dataclass
-class ProgramOptions:
-	folder: str
-	generate_fasta: bool = True
-	whitelist: List[str] = ""
-	blacklist: List[str] = ""
-	sample_map: str = ""
-	use_filter: bool = True
-	reference_label: Optional[str] = None
+from loguru import logger
 
 
-def _get_program_options(arguments:List[str] = None) -> Union[ProgramOptions, argparse.Namespace]:
+def _get_program_options(arguments: List[str] = None) -> argparse.Namespace:
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
 		"-i", "--input",
 		help = "The breseq folder to parse.",
-		dest = "folder"
+		dest = "folder",
+		type = Path
 	)
 	parser.add_argument(
 		"--no-fasta",
@@ -66,7 +56,8 @@ def _get_program_options(arguments:List[str] = None) -> Union[ProgramOptions, ar
 		default = None,
 		dest = "reference_label"
 	)
-	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories", default = "")
+	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories",
+		default = "")
 	if arguments:
 		_program_options = parser.parse_args(arguments)
 	else:
@@ -74,7 +65,7 @@ def _get_program_options(arguments:List[str] = None) -> Union[ProgramOptions, ar
 	return _program_options
 
 
-def _parse_commandline_list(io: Union[None,str, List[str]]) -> List[str]:
+def _parse_commandline_list(io: Union[None, str, List[str]]) -> List[str]:
 	"""
 		Attempts to convert a comma-separated list of options given from the command line.
 	Parameters
@@ -137,9 +128,56 @@ def _parse_sample_map(path: str) -> Dict[str, str]:
 	return contents
 
 
+class IsolateSetWorkflow:
+	def __init__(self, arguments: argparse.Namespace):
+		self.whitelist = _parse_commandline_list(arguments.whitelist)
+		self.blacklist = _parse_commandline_list(arguments.blacklist)
+		self.fasta_categories = _parse_commandline_list(arguments.snp_categories)
+		self.use_filter = arguments.use_filter
+		self.generate_fasta = arguments.generate_fasta
+		if arguments.sample_map: self.sample_map = _parse_sample_map(arguments.sample_map)
+		else: self.sample_map = {}
+
+		self.breseqset_parser = BreseqIsolateSetParser(
+			whitelist = self.whitelist,
+			blacklist = self.blacklist,
+			sample_map = self.sample_map,
+			use_filter = self.use_filter
+		)
+
+	def run(self, parent_folder: Path, reference_label: str):
+		prefix = parent_folder.name
+		output_filename_table = parent_folder / f"{prefix}.xlsx"
+		output_filename_fasta = parent_folder / f"{prefix}"
+
+		variant_df, coverage_df, junction_df = self.breseqset_parser.run(parent_folder)
+
+		logger.info("Generating comparison table...")
+		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', self.use_filter, reference_label)
+		amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', self.use_filter, reference_label)
+		codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', self.use_filter, reference_label)
+
+		tables = {
+			'variant comparison': snp_comparison_df,
+			'amino comparison':   amino_comparison_df,
+			'codon comparison':   codon_comparison_df,
+			'variant':            variant_df.reset_index(),
+			'coverage':           coverage_df.reset_index(),
+			'junction':           junction_df.reset_index()
+		}
+		logger.info("Saving isolate table as ", output_filename_table)
+		save_isolate_table(tables, output_filename_table)
+
+		if self.generate_fasta:
+			logger.info("Generating fasta...")
+			fasta_filename_snp = output_filename_fasta.with_suffix(".snp.fasta")
+			generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
+
+
 if __name__ == "__main__":
-	from breseqset_parser import parse_breseqset
-	from file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
+	from isolateparser.breseqset_parser import BreseqIsolateSetParser
+	from isolateparser.file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
+
 	debug_options = [
 		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pairwise_pipeline/GCA_000014085.1_ASM1408v1_genomic/",
 		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.tsv",
@@ -147,41 +185,5 @@ if __name__ == "__main__":
 	]
 
 	program_options = _get_program_options()
-
-	whitelist = _parse_commandline_list(program_options.whitelist)
-	blacklist = _parse_commandline_list(program_options.blacklist)
-	fasta_snp_list = program_options.snp_categories.split(',')
-	sample_map = _parse_sample_map(program_options.sample_map)
-
-	breseq_run_folder = Path(program_options.folder)
-	breseq_table_filename = breseq_run_folder / f"{breseq_run_folder.name}.xlsx"
-	fasta_filename_base = breseq_run_folder / breseq_run_folder.name
-
-	print("Parsing breseqset...")
-	variant_df, coverage_df, junction_df = parse_breseqset(breseq_run_folder, blacklist, whitelist, sample_map, program_options.use_filter)
-	assert 'ref' in variant_df
-
-	print("Generating comparison table...")
-	snp_comparison_df = generate_snp_comparison_table(variant_df, by = 'base', filter_table = program_options.use_filter, reference_sample = program_options.reference_label)
-	amino_comparison_df = generate_snp_comparison_table(variant_df, by = 'amino', filter_table = program_options.use_filter, reference_sample = program_options.reference_label)
-	codon_comparison_df = generate_snp_comparison_table(variant_df, by = 'codon', filter_table = program_options.use_filter, reference_sample = program_options.reference_label)
-
-	tables = {
-		'variant comparison': snp_comparison_df,
-		'amino comparison':   amino_comparison_df,
-		'codon comparison':   codon_comparison_df,
-		'variant':            variant_df.reset_index(),
-		'coverage':           coverage_df.reset_index(),
-		'junction':           junction_df.reset_index()
-	}
-	print("Saving isolate table as ", breseq_table_filename)
-	save_isolate_table(tables, breseq_table_filename)
-
-	if program_options.generate_fasta:
-		print("Generating fasta...")
-		fasta_filename_snp = fasta_filename_base.with_suffix(".snp.fasta")
-		fasta_filename_codon = fasta_filename_base.with_suffix(".codon.fasta")
-		fasta_filename_amino = fasta_filename_base.with_suffix(".amino.fasta")
-		generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
-		#generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = program_options.reference_label)
-		#generate_fasta_file(variant_df, fasta_filename_amino, by = 'amino', reference_label = program_options.reference_label)
+	isolateset_workflow = IsolateSetWorkflow(program_options)
+	isolateset_workflow.run(program_options.folder, program_options.reference)

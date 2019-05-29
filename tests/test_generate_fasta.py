@@ -1,9 +1,12 @@
-import pytest
 from pathlib import Path
-# Need to also import private functions
-from file_generators import generate_fasta
+
 import pandas
+import pytest
+
 import dataio
+# Need to also import private functions
+from isolateparser.file_generators import generate_fasta
+
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 gd_filename = data_folder / 'output' / 'evidence' / 'annotated.gd'
 test_table = [
@@ -12,8 +15,9 @@ test_table = [
 	{'ref': 'G', 'alt': 'A', 'sampleName': 'S1_58BA', 'seq id': 'NC_012660', 'position': 3959631}
 ]
 
+
 @pytest.fixture
-def variant_table()->pandas.DataFrame:
+def variant_table() -> pandas.DataFrame:
 	string = """
 	E-21	E-22	E-23	E-24	ref
 	C	C	C	C	G
@@ -25,6 +29,7 @@ def variant_table()->pandas.DataFrame:
 	"""
 	table = dataio.import_table(string)
 	return table
+
 
 def test_write_fasta_file(variant_table, tmp_path):
 	expected = """
@@ -41,10 +46,11 @@ def test_write_fasta_file(variant_table, tmp_path):
 	"""
 	expected = "\n".join(j for j in [i.strip() for i in expected.split('\n')] if j) + '\n'
 	df = variant_table.transpose()
-	df = df.loc[['ref', 'E-21', 'E-22', 'E-23', 'E-24']] # To make sure the file is ordered correctly.
+	df = df.loc[['ref', 'E-21', 'E-22', 'E-23', 'E-24']]  # To make sure the file is ordered correctly.
 	temporary_file = tmp_path / "temp.fasta"
 	generate_fasta.write_fasta_file(df, temporary_file)
 	assert temporary_file.read_text() == expected
+
 
 def test_filter_variants_in_sample(variant_table):
 	expected = """
@@ -59,6 +65,7 @@ def test_filter_variants_in_sample(variant_table):
 	result.pop('index')
 
 	pandas.testing.assert_frame_equal(expected, result)
+
 
 def test_get_relevant_columns():
 	ref_base, alt_base = generate_fasta._get_relevant_columns('base')
@@ -86,16 +93,6 @@ def test_generate_reference_sequence():
 	test_reference = generate_fasta.generate_reference_sequence(test_df, 'ref')
 
 	pandas.testing.assert_series_equal(truth_reference, test_reference)
-
-
-def test_validate_variant_table():
-	# Make sure the test table passes
-	test_df = pandas.DataFrame(
-		test_table + [{'ref': 'GG', 'alt': 'A', 'sampleName': 'S2_58BA', 'seq id': 'NC_012660', 'position': 3959631}]
-	)
-	generate_fasta._validate_variant_table(test_df[:-1], 'base', 'ref', 'alt')
-	with pytest.raises(ValueError):
-		generate_fasta._validate_variant_table(test_df, 'base', 'ref', 'alt')
 
 
 def test_parse_sample_group():

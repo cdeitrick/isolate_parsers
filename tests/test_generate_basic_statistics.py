@@ -1,9 +1,12 @@
-import pytest
 import pandas
+import pytest
+
 import dataio
-from file_generators import generate_basic_statistics
+from isolateparser.file_generators import generate_basic_statistics
+
+
 @pytest.fixture
-def comparison_table()->pandas.DataFrame:
+def comparison_table() -> pandas.DataFrame:
 	string = """
 		E-21	E-22	E-23	E-24	mutationCategory	position	presentIn	presentInAllSamples	ref	seq id
 		C	C	C	C	snp_nonsynonymous	9463	17	0	G	NODE_10
@@ -16,6 +19,7 @@ def comparison_table()->pandas.DataFrame:
 
 	return dataio.import_table(string)
 
+
 def test_calculate_basic_statistics(comparison_table):
 	expected = """
 		sampleName	small_indel	snp_intergenic	snp_nonsynonymous	dN/dS
@@ -26,6 +30,5 @@ def test_calculate_basic_statistics(comparison_table):
 	"""
 	expected = dataio.import_table(expected)
 	result = generate_basic_statistics.calculate_basic_statistics(comparison_table)
-	#assert list(expected.columns) == list(result.columns)
+	# assert list(expected.columns) == list(result.columns)
 	pandas.testing.assert_frame_equal(expected, result, check_dtype = False)
-

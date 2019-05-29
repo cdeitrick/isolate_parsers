@@ -41,7 +41,7 @@ from typing import NamedTuple, Optional, Tuple
 
 import pandas
 
-from breseqparser.file_parsers import parse_gd, parse_index, parse_vcf
+from isolateparser.breseqparser.file_parsers import parse_gd, parse_index, parse_vcf
 
 DF = pandas.DataFrame
 GDColumns = parse_gd.GDColumns
@@ -62,11 +62,6 @@ class _IsolateTableColumns(NamedTuple):
 	mutation: str = 'mutation'
 	alt: str = VCFColumns.alternate
 	ref: str = VCFColumns.reference
-	# alt:str = 'alt'
-	# ref:str = 'ref'
-	# quality: str = 'quality'
-	# depth: str = 'readDepth'
-	# variant_type: str = 'variantType'
 	alternate_amino: str = GDColumns.alternate_amino
 	reference_amino: str = GDColumns.reference_amino
 	alternate_codon: str = GDColumns.alternate_codon
@@ -94,6 +89,7 @@ def get_sample_name(folder: Path) -> Optional[str]:
 		return [i for i in folder.parts if 'breseq' not in i][-1]
 	return name
 
+
 def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 	""" Filters out variants that occur within 1000bp of each other."""
 	forward: pandas.Series = raw_df[IsolateTableColumns.position].diff().abs()
@@ -104,7 +100,8 @@ def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 
 	return fdf
 
-def _get_file_locations(breseq_folder:Path):
+
+def _get_file_locations(breseq_folder: Path):
 	index_file = parse_index.get_index_filename(breseq_folder)
 	# The VCF file provides the quality and read depth.
 	vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
@@ -112,56 +109,42 @@ def _get_file_locations(breseq_folder:Path):
 
 	return index_file, vcf_file, gd_file
 
-def parse_breseq_isolate(breseq_folder: Path, isolate_id: str, isolate_name: str = None, use_filter:bool = False) -> Tuple[DF, DF, DF]:
-	"""
-		Combines all available information for a single breseq (single sample).
-	Parameters
-	----------
-	breseq_folder: Path
-		Location of the breseq output folder. Should contain an index.html file, gd files, and a vcf file.
-	isolate_id
-	isolate_name
 
-	Returns
-	-------
+class BreseqOutputParser:
+	def __init__(self, use_filter: bool = False):
+		self._set_table_index = True
+		self.use_filter = use_filter
 
-	"""
-	print("parsing ", isolate_id, "\t",breseq_folder)
-	if not isolate_name:
-		isolate_name = isolate_id
+		# We only want a subset of the columns available from the gd file.
+		self.gd_columns = [
+			GDColumns.alternate_amino, GDColumns.reference_amino, GDColumns.alternate_codon,
+			GDColumns.reference_codon, GDColumns.locus_tag, GDColumns.mutation_category,
+		]
 
-	_gd_subset_columns = [
-		GDColumns.alternate_amino, GDColumns.reference_amino, GDColumns.alternate_codon,
-		GDColumns.reference_codon, GDColumns.locus_tag, GDColumns.mutation_category,
-		# GDColumns.alternate_base, GDColumns.reference_base
-		# , GDColumns.position, GDColumns.sequence_id These columns are in the index.
-	]
+	def run(self, breseq_folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Tuple[
+		pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]:
+		"""
+			Runs the workflow.
+		"""
+		sample_name = sample_name if sample_name else sample_id
+		index_file, vcf_file, gd_file = _get_file_locations(breseq_folder)
 
-	# Retrieve the filenames
-	index_file, vcf_file, gd_file = _get_file_locations(breseq_folder)
-	# Generate the tables
-	# They should be indexed by sequence id and position.
-	_set_table_index = True
-	index_df, coverage_df, junction_df = parse_index.parse_index_file(isolate_name, index_file, set_index = _set_table_index)
-	vcf_df: pandas.DataFrame = parse_vcf.parse_vcf_file(vcf_file, set_index = _set_table_index, no_filter = True)
-	gd_df = parse_gd.parse_gd_file(gd_file, set_index = _set_table_index)
+		index_df, coverage_df, junction_df = parse_index.parse_index_file(sample_name, index_file, set_index = self._set_table_index)
+		vcf_df: pandas.DataFrame = parse_vcf.parse_vcf_file(vcf_file, set_index = self._set_table_index, no_filter = True)
+		gd_df = parse_gd.parse_gd_file(gd_file, set_index = self._set_table_index)
+		# TODO: Need to make the vcf and gd files optional.
 
-	gd_subset = gd_df[_gd_subset_columns]
+		# Merge the tables together.
+		if gd_df is not None:
+			variant_df: pandas.DataFrame = index_df.merge(gd_df[self.gd_columns], how = 'left', left_index = True, right_index = True)
+		else:
+			variant_df = index_df
 
-	variant_df: pandas.DataFrame = index_df.merge(gd_subset, how = 'left', left_index = True, right_index = True)
-	variant_df = variant_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
+		if vcf_df is not None:
+			variant_df = variant_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
 
-	assert VCFColumns.alternate in variant_df.columns
-	variant_df.reset_index(inplace = True)
+		variant_df['sampleId'] = sample_id
+		variant_df['sampleName'] = sample_name
+		variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
 
-	variant_df['sampleId'] = isolate_id
-	variant_df['sampleName'] = isolate_name
-	variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
-
-	if use_filter:
-		variant_df = _filter_bp(variant_df)
-
-	variant_df.set_index(keys = ['seq id', 'position'])
-
-	return variant_df, coverage_df, junction_df
-
+		return variant_df, coverage_df, junction_df

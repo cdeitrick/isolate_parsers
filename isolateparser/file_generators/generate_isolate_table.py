@@ -3,7 +3,7 @@ from typing import Dict
 
 import pandas
 
-from breseqparser.isolate_parser import IsolateTableColumns
+from isolateparser.breseqparser import IsolateTableColumns
 
 try:
 	import openpyxl
@@ -30,7 +30,7 @@ def save_isolate_table(tables: Dict[str, pandas.DataFrame], filename: Path) -> P
 	# python 3.5 or 3.6 made all dicts ordered by default, so the sheets will be ordered in the same order they were defined in `tables`
 	for sheet_label, df in tables.items():
 		df.to_excel(writer, sheet_label, index = include_index)
-	writer.save() #otherwise color_table_cells will not be able to load the file
+	writer.save()  # otherwise color_table_cells will not be able to load the file
 	# Color in the spreadsheet cells based on whether the sequence differs from the reference.
 	if openpyxl is not None:
 		try:

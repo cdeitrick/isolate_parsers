@@ -1,10 +1,13 @@
-import pytest
 from pathlib import Path
-from breseqparser.file_parsers import parse_index
+
 import pandas
+import pytest
+
+from isolateparser.breseqparser.file_parsers import parse_index
 
 data_folder = Path(__file__).parent / "data"
 index_folder = data_folder / "index_files"
+
 
 @pytest.mark.parametrize(
 	"filename",
@@ -16,6 +19,7 @@ def test_parser_finishes(filename):
 	assert isinstance(cov_table, pandas.DataFrame)
 	assert isinstance(jun_table, pandas.DataFrame)
 
+
 @pytest.mark.parametrize(
 	"folder,expected",
 	[
@@ -26,6 +30,7 @@ def test_parser_finishes(filename):
 def test_get_index_filename(folder, expected):
 	result = parse_index.get_index_filename(folder)
 	assert result == expected
+
 
 @pytest.mark.parametrize(
 	"number,expected",
@@ -41,8 +46,6 @@ def test_to_integer(number, expected):
 
 
 def test_extract_variant_table_headers():
-
-
 	expected_clone = ["evidence", "seq\xa0id", "position", "mutation", "annotation", "gene", "description"]
 
 	expected_population = ["evidence", "seq\xa0id", "position", "mutation", "freq", "annotation", "gene", "description"]

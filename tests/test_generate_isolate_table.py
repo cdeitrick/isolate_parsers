@@ -1,9 +1,12 @@
-import pytest
 import pandas
+import pytest
+
 import dataio
-from file_generators import generate_isolate_table
+from isolateparser.file_generators import generate_isolate_table
+
+
 @pytest.fixture
-def isolate_table()->pandas.DataFrame:
+def isolate_table() -> pandas.DataFrame:
 	string = """
 	E-21	E-22	E-23	E-24	annotation	description	gene	locusTag	mutationCategory	position	presentIn	presentInAllSamples	ref	seq id
 	C	C	C	C	A312P (GCG-CCG)	BPFJKKCJ_05542 -		snp_nonsynonymous	9463	17	0	G	NODE_10
@@ -14,6 +17,8 @@ def isolate_table()->pandas.DataFrame:
 	T	T	T	T	intergenic (+239/-332)	BPFJKKCJ_05614 - / - BPFJKKCJ_05615	–/–	snp_intergenic	85235	3	0	T	NODE_10
 	"""
 	return dataio.import_table(string)
+
+
 def test_save_tables(isolate_table, tmp_path):
 	excel_file = tmp_path / "test.xlsx"
 	generate_isolate_table.save_isolate_table({'test': isolate_table}, excel_file)

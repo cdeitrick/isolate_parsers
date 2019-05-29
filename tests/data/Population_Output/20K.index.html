@@ -1,850 +1,977 @@
 <!DOCTYPE html
-PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
 <html>
 <head>
-<title>BRESEQ :: Mutation Predictions</title>
-<style type = "text/css">
-body {font-family: sans-serif; font-size: 11pt;}
-th {background-color: rgb(0,0,0); color: rgb(255,255,255);}
-table {background-color: rgb(1,0,0); color: rgb(0,0,0);}
-tr {background-color: rgb(255,255,255);}
-.mutation_in_codon {color:red; text-decoration : underline;}
-.mutation_header_row {background-color: rgb(0,130,0);}
-.read_alignment_header_row {background-color: rgb(255,0,0);}
-.missing_coverage_header_row {background-color: rgb(0,100,100);}
-.new_junction_header_row {background-color: rgb(0,0,155);}
-.copy_number_header_row {background-color: rgb(153,102,0);}
-.alternate_table_row_0 {background-color: rgb(255,255,255);}
-.alternate_table_row_1 {background-color: rgb(235,235,235);}
-.gray_table_row {background-color: rgb(230,230,245);}
-.polymorphism_table_row {background-color: rgb(160,255,160);}
-.highlight_table_row {background-color: rgb(192,255,255);}
-.reject_table_row {background-color: rgb(255,200,165);}
-.information_table_row {background-color: rgb(200,255,255);}
-.junction_repeat {background-color: rgb(255,165,0)}
-.junction_gene {}
-.hidden { display: none; }
-.unhidden { display: block; }
+    <title>BRESEQ :: Mutation Predictions</title>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            font-size: 11pt;
+        }
 
-</style>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<script type="text/javascript">
-  function hideTog(divID) {
-    var item = document.getElementById(divID);
-    if (item) {
-      item.className=(item.className=='hidden')?'unhidden':'hidden';
-    }
-  }
-  function showTog(butID) {
-    var button = document.getElementById(butID);
-    if (button) {
-      button.value=(button.value=='Show')?'Hide':'Show';
-    }
-  }
-</script>
+        th {
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+        }
+
+        table {
+            background-color: rgb(1, 0, 0);
+            color: rgb(0, 0, 0);
+        }
+
+        tr {
+            background-color: rgb(255, 255, 255);
+        }
+
+        .mutation_in_codon {
+            color: red;
+            text-decoration: underline;
+        }
+
+        .mutation_header_row {
+            background-color: rgb(0, 130, 0);
+        }
+
+        .read_alignment_header_row {
+            background-color: rgb(255, 0, 0);
+        }
+
+        .missing_coverage_header_row {
+            background-color: rgb(0, 100, 100);
+        }
+
+        .new_junction_header_row {
+            background-color: rgb(0, 0, 155);
+        }
+
+        .copy_number_header_row {
+            background-color: rgb(153, 102, 0);
+        }
+
+        .alternate_table_row_0 {
+            background-color: rgb(255, 255, 255);
+        }
+
+        .alternate_table_row_1 {
+            background-color: rgb(235, 235, 235);
+        }
+
+        .gray_table_row {
+            background-color: rgb(230, 230, 245);
+        }
+
+        .polymorphism_table_row {
+            background-color: rgb(160, 255, 160);
+        }
+
+        .highlight_table_row {
+            background-color: rgb(192, 255, 255);
+        }
+
+        .reject_table_row {
+            background-color: rgb(255, 200, 165);
+        }
+
+        .information_table_row {
+            background-color: rgb(200, 255, 255);
+        }
+
+        .junction_repeat {
+            background-color: rgb(255, 165, 0)
+        }
+
+        .junction_gene {
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .unhidden {
+            display: block;
+        }
+
+    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <script type="text/javascript">
+        function hideTog(divID) {
+            var item = document.getElementById(divID);
+            if (item) {
+                item.className = (item.className == 'hidden') ? 'unhidden' : 'hidden';
+            }
+        }
+
+        function showTog(butID) {
+            var button = document.getElementById(butID);
+            if (button) {
+                button.value = (button.value == 'Show') ? 'Hide' : 'Show';
+            }
+        }
+    </script>
 
 </head>
 <body>
 <table width="100%" border="0" cellspacing="0" cellpadding="3">
-<tr>
-<td><a href="http://barricklab.org/breseq"><img src="evidence/breseq_small.png" /></a></td>
-<td width="100%">
-<b><i>breseq</i></b>&nbsp;&nbsp;version 0.24&nbsp;&nbsp;revision cd15a9d216e1
-<br><a href="index.html">mutation predictions</a> | 
-<a href="marginal.html">marginal predictions</a> | 
-<a href="summary.html">summary statistics</a> | 
-<a href="output.gd">genome diff</a> | 
-<a href="log.txt">command line log</a>
-</td></tr></table>
+    <tr>
+        <td><a href="http://barricklab.org/breseq"><img src="evidence/breseq_small.png"/></a></td>
+        <td width="100%">
+            <b><i>breseq</i></b>&nbsp;&nbsp;version 0.24&nbsp;&nbsp;revision cd15a9d216e1
+            <br><a href="index.html">mutation predictions</a> |
+            <a href="marginal.html">marginal predictions</a> |
+            <a href="summary.html">summary statistics</a> |
+            <a href="output.gd">genome diff</a> |
+            <a href="log.txt">command line log</a>
+        </td>
+    </tr>
+</table>
 
 <p>
-<!--Mutation Predictions -->
+    <!--Mutation Predictions -->
 <p>
-<!--Output Html_Mutation_Table_String-->
+    <!--Output Html_Mutation_Table_String-->
 <table border="0" cellspacing="1" cellpadding="3">
-<tr><th colspan="7" align="left" class="mutation_header_row">Predicted mutations</th></tr><tr>
-<th>evidence</th>
-<th>position</th>
-<th>mutation</th>
-<th>freq</th>
-<th>annotation</th>
-<th>gene</th>
-<th width="100%">description</th>
-</tr>
+    <tr>
+        <th colspan="7" align="left" class="mutation_header_row">Predicted mutations</th>
+    </tr>
+    <tr>
+        <th>evidence</th>
+        <th>position</th>
+        <th>mutation</th>
+        <th>freq</th>
+        <th>annotation</th>
+        <th>gene</th>
+        <th width="100%">description</th>
+    </tr>
 
-<!-- Item Lines -->
+    <!-- Item Lines -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/SNP_1.html">RA</a></td><!-- Evidence -->
-<td align="right">15,395</td><!-- Position -->
-<td align="center">G&rarr;A</td><!-- Cell Mutation -->
-<td align="right"> 6.0%</td>
-<td align="center">intergenic&nbsp;(+99/&#8209;48)</td>
-<td align="center"><i>dnaJ</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>insL&#8209;1</i></td>
-<td align="left">chaperone Hsp40, co&#8209;chaperone with DnaK/IS186 hypothetical protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/SNP_1.html">RA</a></td><!-- Evidence -->
+        <td align="right">15,395</td><!-- Position -->
+        <td align="center">G&rarr;A</td><!-- Cell Mutation -->
+        <td align="right"> 6.0%</td>
+        <td align="center">intergenic&nbsp;(+99/&#8209;48)</td>
+        <td align="center"><i>dnaJ</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>insL&#8209;1</i></td>
+        <td align="left">chaperone Hsp40, co&#8209;chaperone with DnaK/IS186 hypothetical protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/JC_1919.html">JC</a>&nbsp;<a href="evidence/JC_1920.html">JC</a></td><!-- Evidence -->
-<td align="right">16,972</td><!-- Position -->
-<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(&#8209;14/&#8209;514)</td>
-<td align="center"><i>mokC</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>nhaA</i></td>
-<td align="left">regulatory protein for HokC, overlaps CDS of hokC/pH&#8209;dependent sodium/proton antiporter</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/JC_1919.html">JC</a>&nbsp;<a href="evidence/JC_1920.html">JC</a></td><!-- Evidence -->
+        <td align="right">16,972</td><!-- Position -->
+        <td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(&#8209;14/&#8209;514)</td>
+        <td align="center"><i>mokC</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>nhaA</i></td>
+        <td align="left">regulatory protein for HokC, overlaps CDS of hokC/pH&#8209;dependent sodium/proton antiporter</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_3.html">RA</a></td><!-- Evidence -->
-<td align="right">161,041</td><!-- Position -->
-<td align="center">T&rarr;G</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">N302H&nbsp;(<font class="mutation_in_codon">A</font>AC&rarr;<font class="mutation_in_codon">C</font>AC)&nbsp;</td>
-<td align="center"><i>pcnB</i>&nbsp;&larr;</td>
-<td align="left">poly(A) polymerase I</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_3.html">RA</a></td><!-- Evidence -->
+        <td align="right">161,041</td><!-- Position -->
+        <td align="center">T&rarr;G</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">N302H&nbsp;(<font class="mutation_in_codon">A</font>AC&rarr;<font class="mutation_in_codon">C</font>AC)&nbsp;</td>
+        <td align="center"><i>pcnB</i>&nbsp;&larr;</td>
+        <td align="left">poly(A) polymerase I</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_4.html">RA</a></td><!-- Evidence -->
-<td align="right">380,188</td><!-- Position -->
-<td align="center">A&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">F239L&nbsp;(TT<font class="mutation_in_codon">T</font>&rarr;TT<font class="mutation_in_codon">G</font>)&nbsp;</td>
-<td align="center"><i>araJ</i>&nbsp;&larr;</td>
-<td align="left">predicted transporter</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_4.html">RA</a></td><!-- Evidence -->
+        <td align="right">380,188</td><!-- Position -->
+        <td align="center">A&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">F239L&nbsp;(TT<font class="mutation_in_codon">T</font>&rarr;TT<font class="mutation_in_codon">G</font>)&nbsp;</td>
+        <td align="center"><i>araJ</i>&nbsp;&larr;</td>
+        <td align="left">predicted transporter</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_5.html">RA</a></td><!-- Evidence -->
-<td align="right">430,835</td><!-- Position -->
-<td align="center">C&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(&#8209;48/&#8209;108)</td>
-<td align="center"><i>insL&#8209;2</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>lon</i></td>
-<td align="left">putative transposase insL for insertion sequence IS186/DNA&#8209;binding ATP&#8209;dependent protease La</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_5.html">RA</a></td><!-- Evidence -->
+        <td align="right">430,835</td><!-- Position -->
+        <td align="center">C&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(&#8209;48/&#8209;108)</td>
+        <td align="center"><i>insL&#8209;2</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>lon</i></td>
+        <td align="left">putative transposase insL for insertion sequence IS186/DNA&#8209;binding ATP&#8209;dependent protease La</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/INS_6.html">RA</a></td><!-- Evidence -->
-<td align="right">475,288</td><!-- Position -->
-<td align="center">+G</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">coding&nbsp;(18/1677&nbsp;nt)</td>
-<td align="center"><i>ybaL</i>&nbsp;&larr;</td>
-<td align="left">predicted transporter with NAD(P)&#8209;binding Rossmann&#8209;fold domain</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/INS_6.html">RA</a></td><!-- Evidence -->
+        <td align="right">475,288</td><!-- Position -->
+        <td align="center">+G</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">coding&nbsp;(18/1677&nbsp;nt)</td>
+        <td align="center"><i>ybaL</i>&nbsp;&larr;</td>
+        <td align="left">predicted transporter with NAD(P)&#8209;binding Rossmann&#8209;fold domain</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/MC_PLOT_1908.html">MC</a>&nbsp;<a href="evidence/JC_1923.html">JC</a></td><!-- Evidence -->
-<td align="right">547,700</td><!-- Position -->
-<td align="center">&Delta;8,224&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">IS<i>1</i>&#8209;mediated</td>
-<td align="center"><i>[nmpC]</i>&#8211;<i>[ECB_00513]</i></td>
-<td align="left"><i>[nmpC], ybcR, ybcS, ybcT, ybcU, ECB_00510, nohB, ECB_00512, [ECB_00513]</i></td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/MC_PLOT_1908.html">MC</a>&nbsp;<a href="evidence/JC_1923.html">JC</a></td><!-- Evidence -->
+        <td align="right">547,700</td><!-- Position -->
+        <td align="center">&Delta;8,224&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">IS<i>1</i>&#8209;mediated</td>
+        <td align="center"><i>[nmpC]</i>&#8211;<i>[ECB_00513]</i></td>
+        <td align="left"><i>[nmpC], ybcR, ybcS, ybcT, ybcU, ECB_00510, nohB, ECB_00512, [ECB_00513]</i></td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_8.html">RA</a></td><!-- Evidence -->
-<td align="right">649,391</td><!-- Position -->
-<td align="center">T&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">I471F&nbsp;(<font class="mutation_in_codon">A</font>TC&rarr;<font class="mutation_in_codon">T</font>TC)&nbsp;</td>
-<td align="center"><i>mrdA</i>&nbsp;&larr;</td>
-<td align="left">transpeptidase involved in peptidoglycan synthesis (penicillin&#8209;binding protein 2)</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_8.html">RA</a></td><!-- Evidence -->
+        <td align="right">649,391</td><!-- Position -->
+        <td align="center">T&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">I471F&nbsp;(<font class="mutation_in_codon">A</font>TC&rarr;<font class="mutation_in_codon">T</font>TC)&nbsp;</td>
+        <td align="center"><i>mrdA</i>&nbsp;&larr;</td>
+        <td align="left">transpeptidase involved in peptidoglycan synthesis (penicillin&#8209;binding protein 2)</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_9.html">RA</a></td><!-- Evidence -->
-<td align="right">668,787</td><!-- Position -->
-<td align="center">A&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">Y65D&nbsp;(<font class="mutation_in_codon">T</font>AC&rarr;<font class="mutation_in_codon">G</font>AC)&nbsp;</td>
-<td align="center"><i>gltI</i>&nbsp;&larr;</td>
-<td align="left">glutamate and aspartate transporter subunit</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_9.html">RA</a></td><!-- Evidence -->
+        <td align="right">668,787</td><!-- Position -->
+        <td align="center">A&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">Y65D&nbsp;(<font class="mutation_in_codon">T</font>AC&rarr;<font class="mutation_in_codon">G</font>AC)&nbsp;</td>
+        <td align="center"><i>gltI</i>&nbsp;&larr;</td>
+        <td align="left">glutamate and aspartate transporter subunit</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_10.html">RA</a></td><!-- Evidence -->
-<td align="right">683,496</td><!-- Position -->
-<td align="center">A&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">V65G&nbsp;(G<font class="mutation_in_codon">T</font>T&rarr;G<font class="mutation_in_codon">G</font>T)&nbsp;</td>
-<td align="center"><i>nagC</i>&nbsp;&larr;</td>
-<td align="left">DNA&#8209;binding transcriptional dual regulator, repressor of N&#8209;acetylglucosamine</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_10.html">RA</a></td><!-- Evidence -->
+        <td align="right">683,496</td><!-- Position -->
+        <td align="center">A&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">V65G&nbsp;(G<font class="mutation_in_codon">T</font>T&rarr;G<font class="mutation_in_codon">G</font>T)&nbsp;</td>
+        <td align="center"><i>nagC</i>&nbsp;&larr;</td>
+        <td align="left">DNA&#8209;binding transcriptional dual regulator, repressor of N&#8209;acetylglucosamine</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_11.html">RA</a></td><!-- Evidence -->
-<td align="right">910,316</td><!-- Position -->
-<td align="center">T&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(+176/&#8209;175)</td>
-<td align="center"><i>ybjN</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>potF</i></td>
-<td align="left">predicted oxidoreductase/putrescine transporter subunit: periplasmic&#8209;binding component of ABC superfamily</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_11.html">RA</a></td><!-- Evidence -->
+        <td align="right">910,316</td><!-- Position -->
+        <td align="center">T&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(+176/&#8209;175)</td>
+        <td align="center"><i>ybjN</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>potF</i></td>
+        <td align="left">predicted oxidoreductase/putrescine transporter subunit: periplasmic&#8209;binding component of ABC superfamily</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_12.html">RA</a></td><!-- Evidence -->
-<td align="right">1,004,251</td><!-- Position -->
-<td align="center">T&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(&#8209;177/+425)</td>
-<td align="center"><i>ompF</i>&nbsp;&larr;&nbsp;/&nbsp;&larr;&nbsp;<i>asnS</i></td>
-<td align="left">outer membrane porin 1a (Ia;b;F)/asparaginyl&#8209;tRNA synthetase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_12.html">RA</a></td><!-- Evidence -->
+        <td align="right">1,004,251</td><!-- Position -->
+        <td align="center">T&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(&#8209;177/+425)</td>
+        <td align="center"><i>ompF</i>&nbsp;&larr;&nbsp;/&nbsp;&larr;&nbsp;<i>asnS</i></td>
+        <td align="left">outer membrane porin 1a (Ia;b;F)/asparaginyl&#8209;tRNA synthetase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_13.html">RA</a></td><!-- Evidence -->
-<td align="right">1,248,380</td><!-- Position -->
-<td align="center">A&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">D295E&nbsp;(GA<font class="mutation_in_codon">T</font>&rarr;GA<font class="mutation_in_codon">G</font>)&nbsp;</td>
-<td align="center"><i>dhaM</i>&nbsp;&larr;</td>
-<td align="left">fused predicted dihydroxyacetone&#8209;specific PTS enzymes: HPr component/EI component</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_13.html">RA</a></td><!-- Evidence -->
+        <td align="right">1,248,380</td><!-- Position -->
+        <td align="center">A&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">D295E&nbsp;(GA<font class="mutation_in_codon">T</font>&rarr;GA<font class="mutation_in_codon">G</font>)&nbsp;</td>
+        <td align="center"><i>dhaM</i>&nbsp;&larr;</td>
+        <td align="left">fused predicted dihydroxyacetone&#8209;specific PTS enzymes: HPr component/EI component</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_14.html">RA</a></td><!-- Evidence -->
-<td align="right">1,286,699</td><!-- Position -->
-<td align="center">C&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(+23/&#8209;160)</td>
-<td align="center"><i>narI</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>ECB_01206</i></td>
-<td align="left">nitrate reductase 1, gamma (cytochrome b(NR)) subunit/hypothetical protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_14.html">RA</a></td><!-- Evidence -->
+        <td align="right">1,286,699</td><!-- Position -->
+        <td align="center">C&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(+23/&#8209;160)</td>
+        <td align="center"><i>narI</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>ECB_01206</i></td>
+        <td align="left">nitrate reductase 1, gamma (cytochrome b(NR)) subunit/hypothetical protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_15.html">RA</a></td><!-- Evidence -->
-<td align="right">1,329,516</td><!-- Position -->
-<td align="center">C&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">H33Y&nbsp;(<font class="mutation_in_codon">C</font>AC&rarr;<font class="mutation_in_codon">T</font>AC)&nbsp;</td>
-<td align="center"><i>topA</i>&nbsp;&rarr;</td>
-<td align="left">DNA topoisomerase I</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_15.html">RA</a></td><!-- Evidence -->
+        <td align="right">1,329,516</td><!-- Position -->
+        <td align="center">C&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">H33Y&nbsp;(<font class="mutation_in_codon">C</font>AC&rarr;<font class="mutation_in_codon">T</font>AC)&nbsp;</td>
+        <td align="center"><i>topA</i>&nbsp;&rarr;</td>
+        <td align="left">DNA topoisomerase I</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/JC_1926.html">JC</a>&nbsp;<a href="evidence/JC_1929.html">JC</a></td><!-- Evidence -->
-<td align="right">1,733,647</td><!-- Position -->
-<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">coding&nbsp;(683&#8209;685/1413&nbsp;nt)</td>
-<td align="center"><i>pykF</i>&nbsp;&rarr;</td>
-<td align="left">pyruvate kinase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/JC_1926.html">JC</a>&nbsp;<a href="evidence/JC_1929.html">JC</a></td><!-- Evidence -->
+        <td align="right">1,733,647</td><!-- Position -->
+        <td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">coding&nbsp;(683&#8209;685/1413&nbsp;nt)</td>
+        <td align="center"><i>pykF</i>&nbsp;&rarr;</td>
+        <td align="left">pyruvate kinase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/JC_1927.html">JC</a>&nbsp;<a href="evidence/JC_1933.html">JC</a></td><!-- Evidence -->
-<td align="right">1,821,525</td><!-- Position -->
-<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">coding&nbsp;(573&#8209;575/1041&nbsp;nt)</td>
-<td align="center"><i>ynjI</i>&nbsp;&larr;</td>
-<td align="left">predicted inner membrane protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/JC_1927.html">JC</a>&nbsp;<a href="evidence/JC_1933.html">JC</a></td><!-- Evidence -->
+        <td align="right">1,821,525</td><!-- Position -->
+        <td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+3&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">coding&nbsp;(573&#8209;575/1041&nbsp;nt)</td>
+        <td align="center"><i>ynjI</i>&nbsp;&larr;</td>
+        <td align="left">predicted inner membrane protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_18.html">RA</a></td><!-- Evidence -->
-<td align="right">1,976,879</td><!-- Position -->
-<td align="center">T&rarr;G</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(&#8209;57/&#8209;76)</td>
-<td align="center"><i>yedW</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>yedX</i></td>
-<td align="left">predicted DNA&#8209;binding response regulator in two&#8209;component system with YedV/hypothetical protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_18.html">RA</a></td><!-- Evidence -->
+        <td align="right">1,976,879</td><!-- Position -->
+        <td align="center">T&rarr;G</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(&#8209;57/&#8209;76)</td>
+        <td align="center"><i>yedW</i>&nbsp;&larr;&nbsp;/&nbsp;&rarr;&nbsp;<i>yedX</i></td>
+        <td align="left">predicted DNA&#8209;binding response regulator in two&#8209;component system with YedV/hypothetical protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_19.html">RA</a></td><!-- Evidence -->
-<td align="right">2,082,685</td><!-- Position -->
-<td align="center">G&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">A494V&nbsp;(G<font class="mutation_in_codon">C</font>T&rarr;G<font class="mutation_in_codon">T</font>T)&nbsp;</td>
-<td align="center"><i>yegI</i>&nbsp;&larr;</td>
-<td align="left">hypothetical protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_19.html">RA</a></td><!-- Evidence -->
+        <td align="right">2,082,685</td><!-- Position -->
+        <td align="center">G&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">A494V&nbsp;(G<font class="mutation_in_codon">C</font>T&rarr;G<font class="mutation_in_codon">T</font>T)&nbsp;</td>
+        <td align="center"><i>yegI</i>&nbsp;&larr;</td>
+        <td align="left">hypothetical protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/SNP_20.html">RA</a></td><!-- Evidence -->
-<td align="right">2,732,014</td><!-- Position -->
-<td align="center">C&rarr;A</td><!-- Cell Mutation -->
-<td align="right">34.6%</td>
-<td align="center">R91L&nbsp;(C<font class="mutation_in_codon">G</font>C&rarr;C<font class="mutation_in_codon">T</font>C)&nbsp;</td>
-<td align="center"><i>hypF</i>&nbsp;&larr;</td>
-<td align="left">carbamoyl phosphate phosphatase and maturation protein for [NiFe] hydrogenases</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/SNP_20.html">RA</a></td><!-- Evidence -->
+        <td align="right">2,732,014</td><!-- Position -->
+        <td align="center">C&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">34.6%</td>
+        <td align="center">R91L&nbsp;(C<font class="mutation_in_codon">G</font>C&rarr;C<font class="mutation_in_codon">T</font>C)&nbsp;</td>
+        <td align="center"><i>hypF</i>&nbsp;&larr;</td>
+        <td align="left">carbamoyl phosphate phosphatase and maturation protein for [NiFe] hydrogenases</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/JC_1924.html">JC</a>&nbsp;<a href="evidence/JC_1935.html">JC</a></td><!-- Evidence -->
-<td align="right">3,015,771</td><!-- Position -->
-<td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+4&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">98.3%</td>
-<td align="center">coding&nbsp;(1192&#8209;1195/1677&nbsp;nt)</td>
-<td align="center"><i>ECB_02816</i>&nbsp;&rarr;</td>
-<td align="left">KpsD protein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/JC_1924.html">JC</a>&nbsp;<a href="evidence/JC_1935.html">JC</a></td><!-- Evidence -->
+        <td align="right">3,015,771</td><!-- Position -->
+        <td align="center">IS<i>150</i>&nbsp;(&#8211;)&nbsp;+4&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">98.3%</td>
+        <td align="center">coding&nbsp;(1192&#8209;1195/1677&nbsp;nt)</td>
+        <td align="center"><i>ECB_02816</i>&nbsp;&rarr;</td>
+        <td align="left">KpsD protein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_22.html">RA</a></td><!-- Evidence -->
-<td align="right">3,045,069</td><!-- Position -->
-<td align="center">G&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">T312N&nbsp;(A<font class="mutation_in_codon">C</font>C&rarr;A<font class="mutation_in_codon">A</font>C)&nbsp;</td>
-<td align="center"><i>yghJ</i>&nbsp;&larr;</td>
-<td align="left">predicted inner membrane lipoprotein</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_22.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,045,069</td><!-- Position -->
+        <td align="center">G&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">T312N&nbsp;(A<font class="mutation_in_codon">C</font>C&rarr;A<font class="mutation_in_codon">A</font>C)&nbsp;</td>
+        <td align="center"><i>yghJ</i>&nbsp;&larr;</td>
+        <td align="left">predicted inner membrane lipoprotein</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_23.html">RA</a></td><!-- Evidence -->
-<td align="right">3,155,168</td><!-- Position -->
-<td align="center">G&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">G296S&nbsp;(<font class="mutation_in_codon">G</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
-<td align="center"><i>ebgR</i>&nbsp;&rarr;</td>
-<td align="left">DNA&#8209;binding transcriptional repressor</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_23.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,155,168</td><!-- Position -->
+        <td align="center">G&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">G296S&nbsp;(<font class="mutation_in_codon">G</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
+        <td align="center"><i>ebgR</i>&nbsp;&rarr;</td>
+        <td align="left">DNA&#8209;binding transcriptional repressor</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_24.html">RA</a></td><!-- Evidence -->
-<td align="right">3,248,957</td><!-- Position -->
-<td align="center">A&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">D764E&nbsp;(GA<font class="mutation_in_codon">T</font>&rarr;GA<font class="mutation_in_codon">A</font>)&nbsp;</td>
-<td align="center"><i>infB</i>&nbsp;&larr;</td>
-<td align="left">translation initiation factor IF&#8209;2</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_24.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,248,957</td><!-- Position -->
+        <td align="center">A&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">D764E&nbsp;(GA<font class="mutation_in_codon">T</font>&rarr;GA<font class="mutation_in_codon">A</font>)&nbsp;</td>
+        <td align="center"><i>infB</i>&nbsp;&larr;</td>
+        <td align="left">translation initiation factor IF&#8209;2</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_25.html">RA</a></td><!-- Evidence -->
-<td align="right">3,288,092</td><!-- Position -->
-<td align="center">G&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">R57C&nbsp;(<font class="mutation_in_codon">C</font>GT&rarr;<font class="mutation_in_codon">T</font>GT)&nbsp;</td>
-<td align="center"><i>arcB</i>&nbsp;&larr;</td>
-<td align="left">hybrid sensory histidine kinase in two&#8209;component regulatory system with ArcA</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_25.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,288,092</td><!-- Position -->
+        <td align="center">G&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">R57C&nbsp;(<font class="mutation_in_codon">C</font>GT&rarr;<font class="mutation_in_codon">T</font>GT)&nbsp;</td>
+        <td align="center"><i>arcB</i>&nbsp;&larr;</td>
+        <td align="left">hybrid sensory histidine kinase in two&#8209;component regulatory system with ArcA</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/MC_PLOT_1912.html">MC</a>&nbsp;<a href="evidence/JC_1936.html">JC</a></td><!-- Evidence -->
-<td align="right">3,289,962</td><!-- Position -->
-<td align="center">&Delta;16&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">coding&nbsp;(96&#8209;111/4554&nbsp;nt)</td>
-<td align="center"><i>gltB</i>&nbsp;&rarr;</td>
-<td align="left">glutamate synthase, large subunit</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/MC_PLOT_1912.html">MC</a>&nbsp;<a href="evidence/JC_1936.html">JC</a></td><!-- Evidence -->
+        <td align="right">3,289,962</td><!-- Position -->
+        <td align="center">&Delta;16&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">coding&nbsp;(96&#8209;111/4554&nbsp;nt)</td>
+        <td align="center"><i>gltB</i>&nbsp;&rarr;</td>
+        <td align="left">glutamate synthase, large subunit</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_27.html">RA</a></td><!-- Evidence -->
-<td align="right">3,339,158</td><!-- Position -->
-<td align="center">A&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(+22/&#8209;4)</td>
-<td align="center"><i>yhdG</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>fis</i></td>
-<td align="left">tRNA&#8209;dihydrouridine synthase B/DNA&#8209;binding protein Fis</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_27.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,339,158</td><!-- Position -->
+        <td align="center">A&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(+22/&#8209;4)</td>
+        <td align="center"><i>yhdG</i>&nbsp;&rarr;&nbsp;/&nbsp;&rarr;&nbsp;<i>fis</i></td>
+        <td align="left">tRNA&#8209;dihydrouridine synthase B/DNA&#8209;binding protein Fis</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_28.html">RA</a></td><!-- Evidence -->
-<td align="right">3,369,432</td><!-- Position -->
-<td align="center">T&rarr;C</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">D50G&nbsp;(G<font class="mutation_in_codon">A</font>C&rarr;G<font class="mutation_in_codon">G</font>C)&nbsp;</td>
-<td align="center"><i>rpsD</i>&nbsp;&larr;</td>
-<td align="left">30S ribosomal protein S4</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_28.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,369,432</td><!-- Position -->
+        <td align="center">T&rarr;C</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">D50G&nbsp;(G<font class="mutation_in_codon">A</font>C&rarr;G<font class="mutation_in_codon">G</font>C)&nbsp;</td>
+        <td align="center"><i>rpsD</i>&nbsp;&larr;</td>
+        <td align="left">30S ribosomal protein S4</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_29.html">RA</a></td><!-- Evidence -->
-<td align="right">3,370,027</td><!-- Position -->
-<td align="center">T&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">K117M&nbsp;(A<font class="mutation_in_codon">A</font>G&rarr;A<font class="mutation_in_codon">T</font>G)&nbsp;</td>
-<td align="center"><i>rpsM</i>&nbsp;&larr;</td>
-<td align="left">30S ribosomal protein S13</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_29.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,370,027</td><!-- Position -->
+        <td align="center">T&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">K117M&nbsp;(A<font class="mutation_in_codon">A</font>G&rarr;A<font class="mutation_in_codon">T</font>G)&nbsp;</td>
+        <td align="center"><i>rpsM</i>&nbsp;&larr;</td>
+        <td align="left">30S ribosomal protein S13</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_30.html">RA</a></td><!-- Evidence -->
-<td align="right">3,483,047</td><!-- Position -->
-<td align="center">C&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">R455S&nbsp;(<font class="mutation_in_codon">C</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
-<td align="center"><i>malT</i>&nbsp;&rarr;</td>
-<td align="left">transcriptional regulator MalT</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_30.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,483,047</td><!-- Position -->
+        <td align="center">C&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">R455S&nbsp;(<font class="mutation_in_codon">C</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
+        <td align="center"><i>malT</i>&nbsp;&rarr;</td>
+        <td align="left">transcriptional regulator MalT</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_31.html">RA</a></td><!-- Evidence -->
-<td align="right">3,490,112</td><!-- Position -->
-<td align="center">C&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">A105T&nbsp;(<font class="mutation_in_codon">G</font>CG&rarr;<font class="mutation_in_codon">A</font>CG)&nbsp;</td>
-<td align="center"><i>glpE</i>&nbsp;&larr;</td>
-<td align="left">thiosulfate sulfurtransferase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_31.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,490,112</td><!-- Position -->
+        <td align="center">C&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">A105T&nbsp;(<font class="mutation_in_codon">G</font>CG&rarr;<font class="mutation_in_codon">A</font>CG)&nbsp;</td>
+        <td align="center"><i>glpE</i>&nbsp;&larr;</td>
+        <td align="left">thiosulfate sulfurtransferase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_32.html">RA</a></td><!-- Evidence -->
-<td align="right">3,762,741</td><!-- Position -->
-<td align="center">A&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">K662I&nbsp;(A<font class="mutation_in_codon">A</font>A&rarr;A<font class="mutation_in_codon">T</font>A)&nbsp;</td>
-<td align="center"><i>spoT</i>&nbsp;&rarr;</td>
-<td align="left">bifunctional (p)ppGpp synthetase II/ guanosine&#8209;3',5'&#8209;bis pyrophosphate 3'&#8209;pyrophosphohydrolase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_32.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,762,741</td><!-- Position -->
+        <td align="center">A&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">K662I&nbsp;(A<font class="mutation_in_codon">A</font>A&rarr;A<font class="mutation_in_codon">T</font>A)&nbsp;</td>
+        <td align="center"><i>spoT</i>&nbsp;&rarr;</td>
+        <td align="left">bifunctional (p)ppGpp synthetase II/ guanosine&#8209;3',5'&#8209;bis pyrophosphate 3'&#8209;pyrophosphohydrolase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/INS_33.html">RA</a></td><!-- Evidence -->
-<td align="right">3,875,625</td><!-- Position -->
-<td align="center">+T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">intergenic&nbsp;(&#8209;59/+294)</td>
-<td align="center"><i>glmU</i>&nbsp;&larr;&nbsp;/&nbsp;&larr;&nbsp;<i>atpC</i></td>
-<td align="left">bifunctional N&#8209;acetylglucosamine&#8209;1&#8209;phosphate uridyltransferase/glucosamine&#8209;1&#8209;phosphate acetyltransferase/F0F1 ATP synthase subunit epsilon</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/INS_33.html">RA</a></td><!-- Evidence -->
+        <td align="right">3,875,625</td><!-- Position -->
+        <td align="center">+T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">intergenic&nbsp;(&#8209;59/+294)</td>
+        <td align="center"><i>glmU</i>&nbsp;&larr;&nbsp;/&nbsp;&larr;&nbsp;<i>atpC</i></td>
+        <td align="left">bifunctional N&#8209;acetylglucosamine&#8209;1&#8209;phosphate uridyltransferase/glucosamine&#8209;1&#8209;phosphate
+            acetyltransferase/F0F1 ATP synthase subunit epsilon
+        </td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/MC_PLOT_1913.html">MC</a>&nbsp;<a href="evidence/JC_1938.html">JC</a></td><!-- Evidence -->
-<td align="right">3,894,997</td><!-- Position -->
-<td align="center">&Delta;6,934&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">IS<i>150</i>&#8209;mediated</td>
-<td align="center"><i>rbsD</i>&#8211;<i>[yieO]</i></td>
-<td align="left"><i>rbsD, rbsA, rbsC, rbsB, rbsK, rbsR, [yieO]</i></td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/MC_PLOT_1913.html">MC</a>&nbsp;<a href="evidence/JC_1938.html">JC</a></td><!-- Evidence -->
+        <td align="right">3,894,997</td><!-- Position -->
+        <td align="center">&Delta;6,934&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">IS<i>150</i>&#8209;mediated</td>
+        <td align="center"><i>rbsD</i>&#8211;<i>[yieO]</i></td>
+        <td align="left"><i>rbsD, rbsA, rbsC, rbsB, rbsK, rbsR, [yieO]</i></td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_35.html">RA</a></td><!-- Evidence -->
-<td align="right">4,100,655</td><!-- Position -->
-<td align="center">C&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">M192I&nbsp;(AT<font class="mutation_in_codon">G</font>&rarr;AT<font class="mutation_in_codon">A</font>)&nbsp;</td>
-<td align="center"><i>hslU</i>&nbsp;&larr;</td>
-<td align="left">ATP&#8209;dependent protease ATP&#8209;binding subunit</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_35.html">RA</a></td><!-- Evidence -->
+        <td align="right">4,100,655</td><!-- Position -->
+        <td align="center">C&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">M192I&nbsp;(AT<font class="mutation_in_codon">G</font>&rarr;AT<font class="mutation_in_codon">A</font>)&nbsp;</td>
+        <td align="center"><i>hslU</i>&nbsp;&larr;</td>
+        <td align="left">ATP&#8209;dependent protease ATP&#8209;binding subunit</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/DEL_36.html">RA</a></td><!-- Evidence -->
-<td align="right">4,126,699</td><!-- Position -->
-<td align="center">&Delta;1&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">coding&nbsp;(335/879&nbsp;nt)</td>
-<td align="center"><i>pflC</i>&nbsp;&rarr;</td>
-<td align="left">pyruvate formate lyase II activase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/DEL_36.html">RA</a></td><!-- Evidence -->
+        <td align="right">4,126,699</td><!-- Position -->
+        <td align="center">&Delta;1&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">coding&nbsp;(335/879&nbsp;nt)</td>
+        <td align="center"><i>pflC</i>&nbsp;&rarr;</td>
+        <td align="left">pyruvate formate lyase II activase</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_37.html">RA</a></td><!-- Evidence -->
-<td align="right">4,201,911</td><!-- Position -->
-<td align="center">C&rarr;T</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">A217T&nbsp;(<font class="mutation_in_codon">G</font>CG&rarr;<font class="mutation_in_codon">A</font>CG)&nbsp;</td>
-<td align="center"><i>iclR</i>&nbsp;&larr;</td>
-<td align="left">DNA&#8209;binding transcriptional repressor</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_37.html">RA</a></td><!-- Evidence -->
+        <td align="right">4,201,911</td><!-- Position -->
+        <td align="center">C&rarr;T</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">A217T&nbsp;(<font class="mutation_in_codon">G</font>CG&rarr;<font class="mutation_in_codon">A</font>CG)&nbsp;</td>
+        <td align="center"><i>iclR</i>&nbsp;&larr;</td>
+        <td align="left">DNA&#8209;binding transcriptional repressor</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="polymorphism_table_row">
-<td align="center"><a href="evidence/JC_1915.html">JC</a>&nbsp;<a href="evidence/JC_1916.html">JC</a></td><!-- Evidence -->
-<td align="right">4,524,522</td><!-- Position -->
-<td align="center">IS<i>186</i>&nbsp;(+)&nbsp;+6&nbsp;bp</td><!-- Cell Mutation -->
-<td align="right">98.5%</td>
-<td align="center">coding&nbsp;(494&#8209;499/549&nbsp;nt)</td>
-<td align="center"><i>fimA</i>&nbsp;&rarr;</td>
-<td align="left">major type 1 subunit fimbrin (pilin)</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="polymorphism_table_row">
+        <td align="center"><a href="evidence/JC_1915.html">JC</a>&nbsp;<a href="evidence/JC_1916.html">JC</a></td><!-- Evidence -->
+        <td align="right">4,524,522</td><!-- Position -->
+        <td align="center">IS<i>186</i>&nbsp;(+)&nbsp;+6&nbsp;bp</td><!-- Cell Mutation -->
+        <td align="right">98.5%</td>
+        <td align="center">coding&nbsp;(494&#8209;499/549&nbsp;nt)</td>
+        <td align="center"><i>fimA</i>&nbsp;&rarr;</td>
+        <td align="left">major type 1 subunit fimbrin (pilin)</td>
+    </tr>
+    <!-- End Table Row -->
 
-<!-- Print The Table Row -->
-<tr class="normal_table_row">
-<td align="center"><a href="evidence/SNP_39.html">RA</a></td><!-- Evidence -->
-<td align="right">4,616,396</td><!-- Position -->
-<td align="center">G&rarr;A</td><!-- Cell Mutation -->
-<td align="right">100%</td>
-<td align="center">G290S&nbsp;(<font class="mutation_in_codon">G</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
-<td align="center"><i>nadR</i>&nbsp;&rarr;</td>
-<td align="left">nicotinamide&#8209;nucleotide adenylyltransferase</td>
-</tr>
-<!-- End Table Row -->
+    <!-- Print The Table Row -->
+    <tr class="normal_table_row">
+        <td align="center"><a href="evidence/SNP_39.html">RA</a></td><!-- Evidence -->
+        <td align="right">4,616,396</td><!-- Position -->
+        <td align="center">G&rarr;A</td><!-- Cell Mutation -->
+        <td align="right">100%</td>
+        <td align="center">G290S&nbsp;(<font class="mutation_in_codon">G</font>GC&rarr;<font class="mutation_in_codon">A</font>GC)&nbsp;</td>
+        <td align="center"><i>nadR</i>&nbsp;&rarr;</td>
+        <td align="left">nicotinamide&#8209;nucleotide adenylyltransferase</td>
+    </tr>
+    <!-- End Table Row -->
 </table>
 <p>
 <table border="0" cellspacing="1" cellpadding="3" width="100%">
-<tr><th colspan="11" align="left" class="missing_coverage_header_row">Unassigned missing coverage evidence</th></tr>
-<tr><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>seq&nbsp;id</th>
-<th>start</th>
-<th>end</th>
-<th>size</th>
-<th>&larr;reads</th>
-<th>reads&rarr;</th>
-<th>gene</th>
-<th width="100%">description</th>
-</tr>
-<tr>
-<td><a href="evidence/MC_SIDE_1_1909.html">*</a></td>
-<td><a href="evidence/MC_SIDE_2_1909.html">*</a></td>
-<td><a href="evidence/MC_PLOT_1909.html">&divide;</a></td>
-<td>REL606</td>
-<td align="right">558866</td>
-<td align="right">558913</td>
-<td align="right">48</td>
-<td align="center">8&nbsp;[7]</td>
-<td align="center">[6]&nbsp;8</td>
-<td align="center"><i>ECB_00517/appY</i></td>
-<td align="left">conserved hypothetical protein/DNA&#8209;binding transcriptional activator</td>
-</tr>
-<tr>
-<td><a href="evidence/MC_SIDE_1_1910.html">*</a></td>
-<td><a href="evidence/MC_SIDE_2_1910.html">*</a></td>
-<td><a href="evidence/MC_PLOT_1910.html">&divide;</a></td>
-<td>REL606</td>
-<td align="right">2031681&#8211;2031702</td>
-<td align="right">2035058&#8211;2034324</td>
-<td align="right">2623&#8211;3378</td>
-<td align="center">8&nbsp;[7]</td>
-<td align="center">[0]&nbsp;14</td>
-<td align="center"><i>[manB]&#8211;insA&#8209;14</i></td>
-<td align="left">[manB], manC, insB&#8209;14, insA&#8209;14</td>
-</tr>
-<tr>
-<td><a href="evidence/MC_SIDE_1_1911.html">*</a></td>
-<td><a href="evidence/MC_SIDE_2_1911.html">*</a></td>
-<td><a href="evidence/MC_PLOT_1911.html">&divide;</a></td>
-<td>REL606</td>
-<td align="right">2035094</td>
-<td align="right">2054966&#8211;2054946</td>
-<td align="right">19853&#8211;19873</td>
-<td align="center">64&nbsp;[0]</td>
-<td align="center">[7]&nbsp;10</td>
-<td align="center"><i>[wbbD]&#8211;[cpsG]</i></td>
-<td align="left"><i><b>19 genes</b><BR>[wbbD], wbbC, wzy, wbbB, wbbA, vioB, vioA, wzx, rmlC, rfbA, rfbD, rfbB, galF, wcaM, wcaL, wcaK, wzxC, wcaJ, [cpsG]</i></td>
-</tr>
+    <tr>
+        <th colspan="11" align="left" class="missing_coverage_header_row">Unassigned missing coverage evidence</th>
+    </tr>
+    <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>seq&nbsp;id</th>
+        <th>start</th>
+        <th>end</th>
+        <th>size</th>
+        <th>&larr;reads</th>
+        <th>reads&rarr;</th>
+        <th>gene</th>
+        <th width="100%">description</th>
+    </tr>
+    <tr>
+        <td><a href="evidence/MC_SIDE_1_1909.html">*</a></td>
+        <td><a href="evidence/MC_SIDE_2_1909.html">*</a></td>
+        <td><a href="evidence/MC_PLOT_1909.html">&divide;</a></td>
+        <td>REL606</td>
+        <td align="right">558866</td>
+        <td align="right">558913</td>
+        <td align="right">48</td>
+        <td align="center">8&nbsp;[7]</td>
+        <td align="center">[6]&nbsp;8</td>
+        <td align="center"><i>ECB_00517/appY</i></td>
+        <td align="left">conserved hypothetical protein/DNA&#8209;binding transcriptional activator</td>
+    </tr>
+    <tr>
+        <td><a href="evidence/MC_SIDE_1_1910.html">*</a></td>
+        <td><a href="evidence/MC_SIDE_2_1910.html">*</a></td>
+        <td><a href="evidence/MC_PLOT_1910.html">&divide;</a></td>
+        <td>REL606</td>
+        <td align="right">2031681&#8211;2031702</td>
+        <td align="right">2035058&#8211;2034324</td>
+        <td align="right">2623&#8211;3378</td>
+        <td align="center">8&nbsp;[7]</td>
+        <td align="center">[0]&nbsp;14</td>
+        <td align="center"><i>[manB]&#8211;insA&#8209;14</i></td>
+        <td align="left">[manB], manC, insB&#8209;14, insA&#8209;14</td>
+    </tr>
+    <tr>
+        <td><a href="evidence/MC_SIDE_1_1911.html">*</a></td>
+        <td><a href="evidence/MC_SIDE_2_1911.html">*</a></td>
+        <td><a href="evidence/MC_PLOT_1911.html">&divide;</a></td>
+        <td>REL606</td>
+        <td align="right">2035094</td>
+        <td align="right">2054966&#8211;2054946</td>
+        <td align="right">19853&#8211;19873</td>
+        <td align="center">64&nbsp;[0]</td>
+        <td align="center">[7]&nbsp;10</td>
+        <td align="center"><i>[wbbD]&#8211;[cpsG]</i></td>
+        <td align="left"><i><b>19 genes</b><BR>[wbbD], wbbC, wzy, wbbB, wbbA, vioB, vioA, wzx, rmlC, rfbA, rfbD, rfbB, galF, wcaM, wcaL, wcaK, wzxC,
+            wcaJ, [cpsG]</i></td>
+    </tr>
 </table>
 <p>
 <table border="0" cellspacing="1" cellpadding="3">
-<tr><th colspan="12" align="left" class="new_junction_header_row">Unassigned new junction evidence...</th></tr>
-<!-- Header Lines for New Junction -->
-<tr>
-<th colspan="2">&nbsp;</th>
-<th>seq&nbsp;id</th>
-<th>position</th>
-<th>reads&nbsp;(cov)</th>
-<th>reads&nbsp;(cov)</th>
-<th>score</th>
-<th>skew</th>
-<th>freq</th>
-<th>annotation</th>
-<th>gene</th>
-<th width="100%">product</th>
-</tr>
+    <tr>
+        <th colspan="12" align="left" class="new_junction_header_row">Unassigned new junction evidence...</th>
+    </tr>
+    <!-- Header Lines for New Junction -->
+    <tr>
+        <th colspan="2">&nbsp;</th>
+        <th>seq&nbsp;id</th>
+        <th>position</th>
+        <th>reads&nbsp;(cov)</th>
+        <th>reads&nbsp;(cov)</th>
+        <th>score</th>
+        <th>skew</th>
+        <th>freq</th>
+        <th>annotation</th>
+        <th>gene</th>
+        <th width="100%">product</th>
+    </tr>
 
-<!-- Item Lines for New Junction -->
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_1917.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1917.html">?</a></td>
-<td rowspan="1" class="junction_repeat">REL606</td>
-<td align="center" class="junction_repeat">=&nbsp;16728</td><td align="center" class="junction_repeat">NA (NA)</td><td rowspan="2" align="center">26 (0.680)</td>
-<td rowspan="2" align="center">19/60</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">78.8%</td>
-<td align="center" class="junction_repeat">noncoding&nbsp;(1343/1343&nbsp;nt)</td>
-<td align="center" class="junction_repeat"><i>IS186</i></td>
-<td class="junction_repeat">repeat region</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1917.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">2713428&nbsp;=</td>
-<td align="center" class="junction_gene">7 (0.160)</td><td align="center" class="junction_gene">noncoding&nbsp;(77/93&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>serV</i></td>
-<td class="junction_gene">tRNA&#8209;Ser</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_1918.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1918.html">?</a></td>
-<td rowspan="1" class="junction_repeat">REL606</td>
-<td align="center" class="junction_repeat">=&nbsp;16728</td><td align="center" class="junction_repeat">NA (NA)</td><td rowspan="2" align="center">4 (0.100)</td>
-<td rowspan="2" align="center">4/60</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">14.3%</td>
-<td align="center" class="junction_repeat">noncoding&nbsp;(1343/1343&nbsp;nt)</td>
-<td align="center" class="junction_repeat"><i>IS186</i></td>
-<td class="junction_repeat">repeat region</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1918.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">2448493&nbsp;=</td>
-<td align="center" class="junction_gene">24 (0.530)</td><td align="center" class="junction_gene">intergenic&nbsp;(+24/+26)</td>
-<td align="center" class="junction_gene"><i>nupC/yfeA</i></td>
-<td class="junction_gene">nucleoside (except guanosine) transporter/predicted diguanylate cyclase</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_1921.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1921.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;23727</td><td align="center" class="junction_gene">0 (0.000)</td><td rowspan="2" align="center">36 (0.880)</td>
-<td rowspan="2" align="center">24/64</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">100%</td>
-<td align="center" class="junction_gene">noncoding&nbsp;(437/768&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>IS1</i></td>
-<td class="junction_gene">repeat region</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1921.html">?</a></td><td rowspan="1" class="junction_repeat">REL606</td>
-<td align="center" class="junction_repeat">=&nbsp;666130</td>
-<td align="center" class="junction_repeat">NA (NA)</td><td align="center" class="junction_repeat">noncoding&nbsp;(1443/1443&nbsp;nt)</td>
-<td align="center" class="junction_repeat"><i>IS150</i></td>
-<td class="junction_repeat">repeat region</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_1922.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1922.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">241691&nbsp;=</td><td align="center" class="junction_gene">0 (0.000)</td><td rowspan="2" align="center">46 (1.090)</td>
-<td rowspan="2" align="center">29/66</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">100%</td>
-<td align="center" class="junction_gene">noncoding&nbsp;(435/768&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>IS1</i></td>
-<td class="junction_gene">repeat region</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1922.html">?</a></td><td rowspan="1" class="junction_repeat">REL606</td>
-<td align="center" class="junction_repeat">3893554&nbsp;=</td>
-<td align="center" class="junction_repeat">NA (NA)</td><td align="center" class="junction_repeat">noncoding&nbsp;(1/1443&nbsp;nt)</td>
-<td align="center" class="junction_repeat"><i>IS150</i></td>
-<td class="junction_repeat">repeat region</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_1925.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1925.html">?</a></td>
-<td rowspan="1" class="junction_repeat">REL606</td>
-<td align="center" class="junction_repeat">588495&nbsp;=</td><td align="center" class="junction_repeat">NA (NA)</td><td rowspan="2" align="center">40 (0.940)</td>
-<td rowspan="2" align="center">30/66</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">100%</td>
-<td align="center" class="junction_repeat">noncoding&nbsp;(1/1977&nbsp;nt)</td>
-<td align="center" class="junction_repeat"><i>IS150</i></td>
-<td class="junction_repeat">repeat region</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1925.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">1270660&nbsp;=</td>
-<td align="center" class="junction_gene">0 (0.000)</td><td align="center" class="junction_gene">intergenic&nbsp;(&#8209;167/+238)</td>
-<td align="center" class="junction_gene"><i>ldrC/chaA</i></td>
-<td class="junction_gene">toxic polypeptide, small/calcium/sodium:proton antiporter</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_1928.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1928.html">?</a></td>
-<td rowspan="1" class="junction_repeat">REL606</td>
-<td align="center" class="junction_repeat">=&nbsp;590471</td><td align="center" class="junction_repeat">NA (NA)</td><td rowspan="2" align="center">26 (0.610)</td>
-<td rowspan="2" align="center">20/66</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">81.2%</td>
-<td align="center" class="junction_repeat">noncoding&nbsp;(1977/1977&nbsp;nt)</td>
-<td align="center" class="junction_repeat"><i>IS150</i></td>
-<td class="junction_repeat">repeat region</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1928.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;3630716</td>
-<td align="center" class="junction_gene">6 (0.130)</td><td align="center" class="junction_gene">intergenic&nbsp;(&#8209;171/&#8209;305)</td>
-<td align="center" class="junction_gene"><i>ldrD/yhjV</i></td>
-<td class="junction_gene">toxic polypeptide, small/predicted transporter</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_1930.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1930.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;701447</td><td align="center" class="junction_gene">39 (1.050)</td><td rowspan="2" align="center">8 (0.220)</td>
-<td rowspan="2" align="center">4/58</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">19.3%</td>
-<td align="center" class="junction_gene">coding&nbsp;(1109/2199&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>speF</i></td>
-<td class="junction_gene">ornithine decarboxylase isozyme, inducible</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1930.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">3424883&nbsp;=</td>
-<td align="center" class="junction_gene">28 (0.620)</td><td align="center" class="junction_gene">intergenic&nbsp;(+101/&#8209;25)</td>
-<td align="center" class="junction_gene"><i>nirD/nirC</i></td>
-<td class="junction_gene">nitrite reductase small subunit/nitrite transporter</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_1931.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1931.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">1286706&nbsp;=</td><td align="center" class="junction_gene">15 (0.400)</td><td rowspan="2" align="center">9 (0.240)</td>
-<td rowspan="2" align="center">4/58</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">32.7%</td>
-<td align="center" class="junction_gene">intergenic&nbsp;(+30/&#8209;153)</td>
-<td align="center" class="junction_gene"><i>narI/ECB_01206</i></td>
-<td class="junction_gene">nitrate reductase 1, gamma (cytochrome b(NR)) subunit/hypothetical protein</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1931.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;2780684</td>
-<td align="center" class="junction_gene">22 (0.490)</td><td align="center" class="junction_gene">intergenic&nbsp;(&#8209;286/&#8209;30)</td>
-<td align="center" class="junction_gene"><i>cysJ/ygcM</i></td>
-<td class="junction_gene">sulfite reductase, alpha subunit, flavoprotein/6&#8209;pyruvoyl tetrahydrobiopterin synthase (PTPS)</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_1932.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1932.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">1290519&nbsp;=</td><td align="center" class="junction_gene">16 (0.450)</td><td rowspan="2" align="center">5 (0.140)</td>
-<td rowspan="2" align="center">3/56</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">29.4%</td>
-<td align="center" class="junction_gene">coding&nbsp;(484/1014&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>hnr</i></td>
-<td class="junction_gene">response regulator of RpoS</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1932.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;1977651</td>
-<td align="center" class="junction_gene">8 (0.180)</td><td align="center" class="junction_gene">coding&nbsp;(175/1005&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>yedY</i></td>
-<td class="junction_gene">hypothetical protein</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="2"><a href="evidence/JC_1934.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1934.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;1977658</td><td align="center" class="junction_gene">9 (0.250)</td><td rowspan="2" align="center">6 (0.170)</td>
-<td rowspan="2" align="center">4/56</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">24.0%</td>
-<td align="center" class="junction_gene">coding&nbsp;(182/1005&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>yedY</i></td>
-<td class="junction_gene">hypothetical protein</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_1">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1934.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">3323381&nbsp;=</td>
-<td align="center" class="junction_gene">29 (0.650)</td><td align="center" class="junction_gene">coding&nbsp;(769/3801&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>yhdP</i></td>
-<td class="junction_gene">conserved membrane protein, predicted transporter</td>
-</tr>
-<!-- Side 1 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="2"><a href="evidence/JC_1937.html">*</a></td>
-<td rowspan="1"><a href="evidence/JC_SIDE_1_1937.html">?</a></td>
-<td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">=&nbsp;3571666</td><td align="center" class="junction_gene">23 (0.600)</td><td rowspan="2" align="center">4 (0.100)</td>
-<td rowspan="2" align="center">4/60</td>
-<td rowspan="2" align="center">NT</td>
-<td rowspan="2" align="center">16.0%</td>
-<td align="center" class="junction_gene">coding&nbsp;(115/1470&nbsp;nt)</td>
-<td align="center" class="junction_gene"><i>yhiP</i></td>
-<td class="junction_gene">predicted transporter</td>
-</tr>
-<!-- Side 2 Item Lines for New Junction -->
-<tr class="mutation_table_row_0">
-<td rowspan="1"><a href="evidence/JC_SIDE_2_1937.html">?</a></td><td rowspan="1" class="junction_gene">REL606</td>
-<td align="center" class="junction_gene">3944634&nbsp;=</td>
-<td align="center" class="junction_gene">19 (0.420)</td><td align="center" class="junction_gene">intergenic&nbsp;(+23/&#8209;124)</td>
-<td align="center" class="junction_gene"><i>proM/aslB</i></td>
-<td class="junction_gene">tRNA&#8209;Pro/predicted regulator of arylsulfatase activity</td>
-</tr>
+    <!-- Item Lines for New Junction -->
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_1917.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1917.html">?</a></td>
+        <td rowspan="1" class="junction_repeat">REL606</td>
+        <td align="center" class="junction_repeat">=&nbsp;16728</td>
+        <td align="center" class="junction_repeat">NA (NA)</td>
+        <td rowspan="2" align="center">26 (0.680)</td>
+        <td rowspan="2" align="center">19/60</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">78.8%</td>
+        <td align="center" class="junction_repeat">noncoding&nbsp;(1343/1343&nbsp;nt)</td>
+        <td align="center" class="junction_repeat"><i>IS186</i></td>
+        <td class="junction_repeat">repeat region</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1917.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">2713428&nbsp;=</td>
+        <td align="center" class="junction_gene">7 (0.160)</td>
+        <td align="center" class="junction_gene">noncoding&nbsp;(77/93&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>serV</i></td>
+        <td class="junction_gene">tRNA&#8209;Ser</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_1918.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1918.html">?</a></td>
+        <td rowspan="1" class="junction_repeat">REL606</td>
+        <td align="center" class="junction_repeat">=&nbsp;16728</td>
+        <td align="center" class="junction_repeat">NA (NA)</td>
+        <td rowspan="2" align="center">4 (0.100)</td>
+        <td rowspan="2" align="center">4/60</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">14.3%</td>
+        <td align="center" class="junction_repeat">noncoding&nbsp;(1343/1343&nbsp;nt)</td>
+        <td align="center" class="junction_repeat"><i>IS186</i></td>
+        <td class="junction_repeat">repeat region</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1918.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">2448493&nbsp;=</td>
+        <td align="center" class="junction_gene">24 (0.530)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+24/+26)</td>
+        <td align="center" class="junction_gene"><i>nupC/yfeA</i></td>
+        <td class="junction_gene">nucleoside (except guanosine) transporter/predicted diguanylate cyclase</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_1921.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1921.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;23727</td>
+        <td align="center" class="junction_gene">0 (0.000)</td>
+        <td rowspan="2" align="center">36 (0.880)</td>
+        <td rowspan="2" align="center">24/64</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">100%</td>
+        <td align="center" class="junction_gene">noncoding&nbsp;(437/768&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>IS1</i></td>
+        <td class="junction_gene">repeat region</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1921.html">?</a></td>
+        <td rowspan="1" class="junction_repeat">REL606</td>
+        <td align="center" class="junction_repeat">=&nbsp;666130</td>
+        <td align="center" class="junction_repeat">NA (NA)</td>
+        <td align="center" class="junction_repeat">noncoding&nbsp;(1443/1443&nbsp;nt)</td>
+        <td align="center" class="junction_repeat"><i>IS150</i></td>
+        <td class="junction_repeat">repeat region</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_1922.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1922.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">241691&nbsp;=</td>
+        <td align="center" class="junction_gene">0 (0.000)</td>
+        <td rowspan="2" align="center">46 (1.090)</td>
+        <td rowspan="2" align="center">29/66</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">100%</td>
+        <td align="center" class="junction_gene">noncoding&nbsp;(435/768&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>IS1</i></td>
+        <td class="junction_gene">repeat region</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1922.html">?</a></td>
+        <td rowspan="1" class="junction_repeat">REL606</td>
+        <td align="center" class="junction_repeat">3893554&nbsp;=</td>
+        <td align="center" class="junction_repeat">NA (NA)</td>
+        <td align="center" class="junction_repeat">noncoding&nbsp;(1/1443&nbsp;nt)</td>
+        <td align="center" class="junction_repeat"><i>IS150</i></td>
+        <td class="junction_repeat">repeat region</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_1925.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1925.html">?</a></td>
+        <td rowspan="1" class="junction_repeat">REL606</td>
+        <td align="center" class="junction_repeat">588495&nbsp;=</td>
+        <td align="center" class="junction_repeat">NA (NA)</td>
+        <td rowspan="2" align="center">40 (0.940)</td>
+        <td rowspan="2" align="center">30/66</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">100%</td>
+        <td align="center" class="junction_repeat">noncoding&nbsp;(1/1977&nbsp;nt)</td>
+        <td align="center" class="junction_repeat"><i>IS150</i></td>
+        <td class="junction_repeat">repeat region</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1925.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">1270660&nbsp;=</td>
+        <td align="center" class="junction_gene">0 (0.000)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;167/+238)</td>
+        <td align="center" class="junction_gene"><i>ldrC/chaA</i></td>
+        <td class="junction_gene">toxic polypeptide, small/calcium/sodium:proton antiporter</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_1928.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1928.html">?</a></td>
+        <td rowspan="1" class="junction_repeat">REL606</td>
+        <td align="center" class="junction_repeat">=&nbsp;590471</td>
+        <td align="center" class="junction_repeat">NA (NA)</td>
+        <td rowspan="2" align="center">26 (0.610)</td>
+        <td rowspan="2" align="center">20/66</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">81.2%</td>
+        <td align="center" class="junction_repeat">noncoding&nbsp;(1977/1977&nbsp;nt)</td>
+        <td align="center" class="junction_repeat"><i>IS150</i></td>
+        <td class="junction_repeat">repeat region</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1928.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;3630716</td>
+        <td align="center" class="junction_gene">6 (0.130)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;171/&#8209;305)</td>
+        <td align="center" class="junction_gene"><i>ldrD/yhjV</i></td>
+        <td class="junction_gene">toxic polypeptide, small/predicted transporter</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_1930.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1930.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;701447</td>
+        <td align="center" class="junction_gene">39 (1.050)</td>
+        <td rowspan="2" align="center">8 (0.220)</td>
+        <td rowspan="2" align="center">4/58</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">19.3%</td>
+        <td align="center" class="junction_gene">coding&nbsp;(1109/2199&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>speF</i></td>
+        <td class="junction_gene">ornithine decarboxylase isozyme, inducible</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1930.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">3424883&nbsp;=</td>
+        <td align="center" class="junction_gene">28 (0.620)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+101/&#8209;25)</td>
+        <td align="center" class="junction_gene"><i>nirD/nirC</i></td>
+        <td class="junction_gene">nitrite reductase small subunit/nitrite transporter</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_1931.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1931.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">1286706&nbsp;=</td>
+        <td align="center" class="junction_gene">15 (0.400)</td>
+        <td rowspan="2" align="center">9 (0.240)</td>
+        <td rowspan="2" align="center">4/58</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">32.7%</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+30/&#8209;153)</td>
+        <td align="center" class="junction_gene"><i>narI/ECB_01206</i></td>
+        <td class="junction_gene">nitrate reductase 1, gamma (cytochrome b(NR)) subunit/hypothetical protein</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1931.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;2780684</td>
+        <td align="center" class="junction_gene">22 (0.490)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(&#8209;286/&#8209;30)</td>
+        <td align="center" class="junction_gene"><i>cysJ/ygcM</i></td>
+        <td class="junction_gene">sulfite reductase, alpha subunit, flavoprotein/6&#8209;pyruvoyl tetrahydrobiopterin synthase (PTPS)</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_1932.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1932.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">1290519&nbsp;=</td>
+        <td align="center" class="junction_gene">16 (0.450)</td>
+        <td rowspan="2" align="center">5 (0.140)</td>
+        <td rowspan="2" align="center">3/56</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">29.4%</td>
+        <td align="center" class="junction_gene">coding&nbsp;(484/1014&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>hnr</i></td>
+        <td class="junction_gene">response regulator of RpoS</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1932.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;1977651</td>
+        <td align="center" class="junction_gene">8 (0.180)</td>
+        <td align="center" class="junction_gene">coding&nbsp;(175/1005&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>yedY</i></td>
+        <td class="junction_gene">hypothetical protein</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="2"><a href="evidence/JC_1934.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1934.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;1977658</td>
+        <td align="center" class="junction_gene">9 (0.250)</td>
+        <td rowspan="2" align="center">6 (0.170)</td>
+        <td rowspan="2" align="center">4/56</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">24.0%</td>
+        <td align="center" class="junction_gene">coding&nbsp;(182/1005&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>yedY</i></td>
+        <td class="junction_gene">hypothetical protein</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_1">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1934.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">3323381&nbsp;=</td>
+        <td align="center" class="junction_gene">29 (0.650)</td>
+        <td align="center" class="junction_gene">coding&nbsp;(769/3801&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>yhdP</i></td>
+        <td class="junction_gene">conserved membrane protein, predicted transporter</td>
+    </tr>
+    <!-- Side 1 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="2"><a href="evidence/JC_1937.html">*</a></td>
+        <td rowspan="1"><a href="evidence/JC_SIDE_1_1937.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">=&nbsp;3571666</td>
+        <td align="center" class="junction_gene">23 (0.600)</td>
+        <td rowspan="2" align="center">4 (0.100)</td>
+        <td rowspan="2" align="center">4/60</td>
+        <td rowspan="2" align="center">NT</td>
+        <td rowspan="2" align="center">16.0%</td>
+        <td align="center" class="junction_gene">coding&nbsp;(115/1470&nbsp;nt)</td>
+        <td align="center" class="junction_gene"><i>yhiP</i></td>
+        <td class="junction_gene">predicted transporter</td>
+    </tr>
+    <!-- Side 2 Item Lines for New Junction -->
+    <tr class="mutation_table_row_0">
+        <td rowspan="1"><a href="evidence/JC_SIDE_2_1937.html">?</a></td>
+        <td rowspan="1" class="junction_gene">REL606</td>
+        <td align="center" class="junction_gene">3944634&nbsp;=</td>
+        <td align="center" class="junction_gene">19 (0.420)</td>
+        <td align="center" class="junction_gene">intergenic&nbsp;(+23/&#8209;124)</td>
+        <td align="center" class="junction_gene"><i>proM/aslB</i></td>
+        <td class="junction_gene">tRNA&#8209;Pro/predicted regulator of arylsulfatase activity</td>
+    </tr>
 </table>
-</body></html>
+</body>
+</html>

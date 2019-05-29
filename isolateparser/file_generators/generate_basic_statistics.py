@@ -1,6 +1,7 @@
-import pandas
 from pathlib import Path
 from typing import Union
+
+import pandas
 
 
 def calculate_basic_statistics(comparison_table: pandas.DataFrame):

@@ -1,8 +1,8 @@
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Tuple, Union
 
 import pandas
-from dataclasses import dataclass, field
 
 
 class _GDColumns(NamedTuple):

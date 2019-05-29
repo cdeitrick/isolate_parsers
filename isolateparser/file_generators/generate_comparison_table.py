@@ -1,8 +1,8 @@
-
 from typing import Dict, List, Tuple, Union
+
 import pandas
 
-from breseqparser.isolate_parser import IsolateTableColumns
+from isolateparser.breseqparser import IsolateTableColumns
 
 
 def _calculate_average_value(values: List[str]) -> float:
@@ -15,9 +15,7 @@ def _calculate_average_value(values: List[str]) -> float:
 	return average
 
 
-
-
-def _extract_string_from_group(group:pandas.DataFrame, column:str)->str:
+def _extract_string_from_group(group: pandas.DataFrame, column: str) -> str:
 	"""
 		Essentially concatenates the annotations for each of the samples in the group. This will typically be the same for all variants,
 		but is assumed otherwise just in case.
@@ -36,6 +34,7 @@ def _extract_string_from_group(group:pandas.DataFrame, column:str)->str:
 	annotation_string = "|".join(annotation_set)
 	return annotation_string
 
+
 def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref_col: str, alt_col: str) -> Dict[str, Union[int, float, str]]:
 	# Get a list of all columns that should be identical throughout the mutational group.
 	static_columns = [
@@ -43,7 +42,7 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 		IsolateTableColumns.locus_tag,
 		IsolateTableColumns.gene, IsolateTableColumns.mutation_category
 	]
-	#_validate_mutation_group(group, static_columns)
+	# _validate_mutation_group(group, static_columns)
 	# Annotation depends on the 'alt' sequence.
 
 	# Retrieve the values for the static columns from the first row.
@@ -73,7 +72,7 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 
 	static_data['presentInAllSamples'] = len(group) == len(unique_samples)
 	static_data['presentIn'] = len(group)
-	#static_data[IsolateTableColumns]
+	# static_data[IsolateTableColumns]
 
 	return static_data
 
@@ -93,7 +92,9 @@ def _get_relevant_columns(by: str) -> Tuple[str, str]:
 
 	return reference_column, alternate_column
 
-def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table:bool = False, reference_sample:str = None) -> pandas.DataFrame:
+
+def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table: bool = False,
+		reference_sample: str = None) -> pandas.DataFrame:
 	"""
 		Generates a table with sample alt sequences represented by columns.
 	Parameters
@@ -102,6 +103,9 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 		The concatenated variant tables for all samples.
 	by: {'base', 'codon', 'amino'}
 		Indicates which reference to use.
+	filter_table: bool
+		Indicates whether to filter out mutations which fail certain filters.
+
 	reference_sample:str
 		Label of the sample to use as a reference. If given, a new column will be added to the table indicating if the reference sample also
 		contained the variant.
@@ -127,4 +131,3 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 	if reference_sample and reference_sample in df.columns:
 		df['inReference'] = df[reference_sample] != df[reference_column]
 	return df
-

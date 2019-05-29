@@ -1,6 +1,7 @@
+import math
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas
 from bs4 import BeautifulSoup
@@ -10,26 +11,26 @@ TableType = List[Dict[str, Any]]
 DFType = pandas.DataFrame
 
 VariantTableColumnMap = {
-	'Sample': 'sample',
-	'annotation': 'annotation',
+	'Sample':      'sample',
+	'annotation':  'annotation',
 	'description': 'description',
-	'freq %': 'frequency',
-	'gene': 'gene',
-	'mutation': 'mutation',
-	'position': 'position',
-	'seq id': 'seq id'
+	'freq %':      'frequency',
+	'gene':        'gene',
+	'mutation':    'mutation',
+	'position':    'position',
+	'seq id':      'seq id'
 }
 
-def extract_sample_name(filename: Path, sample_name:Optional[str] = None):
+
+def extract_sample_name(filename: Path, sample_name: Optional[str] = None):
 	# Attempts to infer the sample name from the filename of the index file.
 	if sample_name: return sample_name
-
 
 
 def to_integer(string: str) -> int:
 	""" Converts a string to a number"""
 	try:
-		string =int(float(string.replace(',', '')))
+		string = int(float(string.replace(',', '')))
 	except ValueError:
 		pass
 	return string
@@ -116,7 +117,8 @@ def _extract_index_tables(soup: BeautifulSoup) -> Tuple[
 
 	return snp_header_soup, snp_table, coverage_soup, junction_soup
 
-def _parse_html_row(row:Dict[str,str])->Dict[str,str]:
+
+def _parse_html_row(row: Dict[str, str]) -> Dict[str, str]:
 	"""
 		Converts an individual row in one of the html tables to a dictionary.
 	Parameters
@@ -278,15 +280,14 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 			_sequence_id_from_coverage_table = default_seq
 		snp_df['seq id'] = _sequence_id_from_coverage_table
 	# Remove columns that shouldn't be there
-	#for col in snp_df.columns:
+	# for col in snp_df.columns:
 	#	if col not in VariantTableColumnMap:
 	#		print(f"Removing the column '{col}'")
 	#		snp_df.pop(col)
 	snp_df.columns = [VariantTableColumnMap.get(i, i) for i in snp_df.columns]
+	if 'freq' not in snp_df: snp_df['freq'] = [math.nan for i in snp_df.index]
 	if set_index:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
 		snp_df['position'] = [float(str(i).replace(':', '.').replace(',', '')) for i in snp_df['position']]
 		snp_df.set_index(keys = ['seq id', 'position'], inplace = True)
 	return snp_df, coverage_df, junction_df
-
-

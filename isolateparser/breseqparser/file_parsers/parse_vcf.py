@@ -82,7 +82,7 @@ def _convert_vcf_to_table(vcf_filename: Path) -> List[Dict[str, Any]]:
 		vcf_reader = vcf.Reader(file1)
 		for record in vcf_reader:
 			data = _convert_record_to_dictionary(record)
-			#VCF files sometimes record separate mutations as occuring at the same position.
+			# VCF files sometimes record separate mutations as occuring at the same position.
 			# The gd file will instead increment the second mutations position by 1. Do this to maintain compatibility.
 			if (data['seq id'], data['position']) in seen_positions:
 				data['position'] += 1
