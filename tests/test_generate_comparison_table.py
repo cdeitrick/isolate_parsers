@@ -3,6 +3,7 @@ from math import nan
 import pandas
 import pytest
 
+from dataio import import_table
 from isolateparser.file_generators import generate_comparison_table
 
 
@@ -31,6 +32,19 @@ def snp_group() -> pandas.DataFrame:
 		}
 	)
 	return test_snp_group
+
+@pytest.fixture
+def mutation_group() -> pandas.DataFrame:
+	string = """
+		alt	aminoAlt	aminoRef	annotation	codonAlt	codonRef	description	evidence	gene	locusTag	mutation	mutationCategory	position	ref	sampleId	sampleName	seq id
+		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1581	E-01	NODE_2
+		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1836	E-02	NODE_2
+		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU4381	E-05	NODE_2
+		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU4993	E-06	NODE_2
+		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU5341	E-07	NODE_2
+	"""
+	t = import_table(string, index = ["seq id", "position"])
+	return t
 
 
 @pytest.fixture
@@ -123,21 +137,6 @@ def test_parse_mutation_group_large_deletion(deletion_group):
 	assert output == expected_output
 
 
-from dataio import import_table
-
-
-@pytest.fixture
-def mutation_group() -> pandas.DataFrame:
-	string = """
-		alt	aminoAlt	aminoRef	annotation	codonAlt	codonRef	description	evidence	gene	locusTag	mutation	mutationCategory	position	ref	sampleId	sampleName	seq id
-		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1581	E-01	NODE_2
-		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1836	E-02	NODE_2
-		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU4381	E-05	NODE_2
-		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU4993	E-06	NODE_2
-		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU5341	E-07	NODE_2
-	"""
-	t = import_table(string, index = ["seq id", "position"])
-	return t
 
 
 def test_extract_string_from_group(mutation_group):

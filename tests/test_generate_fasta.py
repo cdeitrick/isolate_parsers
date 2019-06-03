@@ -9,15 +9,20 @@ from isolateparser.file_generators import generate_fasta
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 gd_filename = data_folder / 'output' / 'evidence' / 'annotated.gd'
-test_table = [
-	{'ref': 'G', 'alt': 'A', 'sampleName': 'S2_58BA', 'seq id': 'NC_012660', 'position': 3959631},
-	{'ref': 'A', 'alt': 'C', 'sampleName': 'SC_58SM', 'seq id': 'NC_012660', 'position': 4173231},
-	{'ref': 'G', 'alt': 'A', 'sampleName': 'S1_58BA', 'seq id': 'NC_012660', 'position': 3959631}
-]
 
 
 @pytest.fixture
-def variant_table() -> pandas.DataFrame:
+def variant_table():
+	test_table = [
+		{'ref': 'G', 'alt': 'A', 'sampleName': 'S2_58BA', 'seq id': 'NC_012660', 'position': 3959631},
+		{'ref': 'A', 'alt': 'C', 'sampleName': 'SC_58SM', 'seq id': 'NC_012660', 'position': 4173231},
+		{'ref': 'G', 'alt': 'A', 'sampleName': 'S1_58BA', 'seq id': 'NC_012660', 'position': 3959631}
+	]
+	return pandas.DataFrame(test_table)
+
+
+@pytest.fixture
+def small_table() -> pandas.DataFrame:
 	string = """
 	E-21	E-22	E-23	E-24	ref
 	C	C	C	C	G
@@ -81,8 +86,8 @@ def test_get_relevant_columns():
 	assert alt_amino == 'aminoAlt'
 
 
-def test_generate_reference_sequence():
-	test_df = pandas.DataFrame(test_table)
+def test_generate_reference_sequence(variant_table):
+	test_df = pandas.DataFrame(variant_table)
 	truth_reference: pandas.Series = pandas.DataFrame(
 		[
 			{'seq id': 'NC_012660', 'position': 3959631, 'reference': 'G'},

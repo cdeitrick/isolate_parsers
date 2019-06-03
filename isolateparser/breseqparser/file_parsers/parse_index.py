@@ -252,6 +252,7 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	- Index -> ()
 	- Values-> ()
 	"""
+	#TODO make junction/coverage tables optional
 	filename = get_index_filename(filename)
 	file_contents = _load_index_file(filename)
 
