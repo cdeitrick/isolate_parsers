@@ -186,4 +186,4 @@ if __name__ == "__main__":
 
 	program_options = _get_program_options()
 	isolateset_workflow = IsolateSetWorkflow(program_options)
-	isolateset_workflow.run(program_options.folder, program_options.reference)
+	isolateset_workflow.run(program_options.folder, program_options.reference_label)
