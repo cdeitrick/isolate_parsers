@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from isolateparser.isolateset_parser import _parse_commandline_list, _parse_sample_map
+from isolateset_parser import _parse_commandline_list, _parse_sample_map
 
 data_folder = Path(__file__).with_name('data')
 
