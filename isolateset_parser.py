@@ -129,6 +129,7 @@ def _parse_sample_map(path: str) -> Dict[str, str]:
 
 
 class IsolateSetWorkflow:
+	__version__ = "0.1.0"
 	def __init__(self, arguments: argparse.Namespace):
 		self.whitelist = _parse_commandline_list(arguments.whitelist)
 		self.blacklist = _parse_commandline_list(arguments.blacklist)
