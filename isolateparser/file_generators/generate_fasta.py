@@ -124,7 +124,6 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	pandas.DataFrame
 		A table with rows corresponding to a single sample and columns corresponding to (`seq id`, `position`) indicies.
 	"""
-	snp_table.to_csv("snp_table.tsv", sep = "\t")
 	partial_parse_sample = partial(
 		_parse_sample_group,
 		reference_sequence = reference_sequence,
