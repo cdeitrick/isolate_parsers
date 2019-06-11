@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas
 import pytest
-
+from loguru import logger
 import dataio
 # Need to also import private functions
 from isolateparser.file_generators import generate_fasta
@@ -64,6 +64,7 @@ def test_filter_variants_in_sample(variant_table):
 		G	G	GG	G	G
 	"""
 	expected = dataio.import_table(expected)
+	logger.info(f"{variant_table.columns}")
 
 	result = generate_fasta._filter_variants_in_sample(variant_table, 'E-24', 'ref')
 	result = result.reset_index()

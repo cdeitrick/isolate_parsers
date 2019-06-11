@@ -75,7 +75,7 @@ IsolateTableColumns = _IsolateTableColumns()
 
 def get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
-	return [i for i in folder.parts if 'breseq_output' not in i][-1]
+	return [i for i in folder.parts if 'breseq' not in i][-1]
 
 
 def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
