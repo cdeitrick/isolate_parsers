@@ -220,10 +220,10 @@ def get_index_filename(path: Path) -> Path:
 	path = Path(path)
 	if path.suffix == '.html':
 		return path
-	index_file = path / "output" / "index.html"
+	expected_index_file = path / "output" / "index.html"
 
-	if not index_file.exists():
-		candidates = list(path.glob("**/index.html"))
+	if not expected_index_file.exists():
+		candidates = list(path.glob("**/*index.html"))
 		if not candidates:
 			message = f"Cannot find the index file for folder {path}"
 			raise FileNotFoundError(message)
@@ -231,6 +231,8 @@ def get_index_filename(path: Path) -> Path:
 			message = f"Found multiple index files for folder {path}"
 			raise FileNotFoundError(message)
 		index_file = candidates[0]
+	else:
+		index_file = expected_index_file
 	return index_file
 
 
