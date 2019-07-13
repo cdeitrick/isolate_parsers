@@ -35,7 +35,6 @@
 
 """
 
-import re
 from pathlib import Path
 from typing import NamedTuple, Optional, Tuple
 
@@ -77,8 +76,13 @@ def get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
 	return [i for i in folder.parts if 'breseq' not in i][-1]
 
+def string_is_date(value:str)->bool:
+	length = len(value)
+	result = length > 8 and len([i for i in value if i.isdigit()])> (len(value)/2)
+	return result
 
 def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
+	# TODO: This should only be done for sequences on the same chrom.
 	""" Filters out variants that occur within 1000bp of each other."""
 	forward: pandas.Series = raw_df[IsolateTableColumns.position].diff().abs()
 	reverse: pandas.Series = raw_df[IsolateTableColumns.position][::-1].diff()[::-1].abs()
@@ -89,50 +93,78 @@ def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 	return fdf
 
 
-def _get_file_locations(breseq_folder: Path):
-	index_file = parse_index.get_index_filename(breseq_folder)
-	# The VCF file provides the quality and read depth.
-	vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
-	gd_file = parse_gd.get_gd_filename(breseq_folder)
-
-	return index_file, vcf_file, gd_file
-
-
 class BreseqOutputParser:
 	def __init__(self, use_filter: bool = False):
 		self._set_table_index = True
 		self.use_filter = use_filter
 
+		self.index_columns = []
 		# We only want a subset of the columns available from the gd file.
 		self.gd_columns = [
 			GDColumns.alternate_amino, GDColumns.reference_amino, GDColumns.alternate_codon,
 			GDColumns.reference_codon, GDColumns.locus_tag, GDColumns.mutation_category,
 		]
+		self.vcf_columns = []
 
 	def run(self, breseq_folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Tuple[
 		pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]:
 		"""
 			Runs the workflow.
 		"""
-		sample_name = sample_name if sample_name else sample_id
-		index_file, vcf_file, gd_file = _get_file_locations(breseq_folder)
+		if not sample_name:
+			name_from_path = get_sample_name(breseq_folder)
+			# Test if the found name is just the sequencing date.
+			if string_is_date(name_from_path):
+				sample_name = sample_id
+
+		index_file, vcf_file, gd_file = self.get_file_locations(breseq_folder)
 
 		index_df, coverage_df, junction_df = parse_index.parse_index_file(sample_name, index_file, set_index = self._set_table_index)
-		vcf_df: pandas.DataFrame = parse_vcf.parse_vcf_file(vcf_file, set_index = self._set_table_index, no_filter = True)
+		vcf_df = parse_vcf.parse_vcf_file(vcf_file, set_index = self._set_table_index, no_filter = True)
 		gd_df = parse_gd.parse_gd_file(gd_file, set_index = self._set_table_index)
-		# TODO: Need to make the vcf and gd files optional.
 
 		# Merge the tables together.
-		if gd_df is not None:
-			variant_df: pandas.DataFrame = index_df.merge(gd_df[self.gd_columns], how = 'left', left_index = True, right_index = True)
-		else:
-			variant_df = index_df
+		variant_df = self.merge_tables(index_df, gd_df, vcf_df)
 
-		if vcf_df is not None:
-			variant_df = variant_df.merge(vcf_df, how = 'left', left_index = True, right_index = True)
-
+		# Add the `sampleId` and `sampleName`
 		variant_df['sampleId'] = sample_id
 		variant_df['sampleName'] = sample_name
 		variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
 
 		return variant_df, coverage_df, junction_df
+
+	def merge_tables(self, index: pandas.DataFrame, gd: Optional[pandas.DataFrame], vcf: Optional[pandas.DataFrame]) -> pandas.DataFrame:
+		"""
+			Merges the three tables that contain mutational information.
+		Parameters
+		----------
+		index: pandas.DataFrane
+			The dataframe representing the index.html file.
+		gd: Optional[pandas.DataFrame]
+			The converted form of the gd file, if available. If the data cannot be found, this will not be merged.
+		vcf: Optional[pandsa.DataFrame]
+			Same as for the gd file.
+
+		Returns
+		-------
+		pandas.DataFrame
+			A dataframe that contains data from all three given tables.
+		"""
+		if gd is not None:
+			variant_df: pandas.DataFrame = index.merge(gd[self.gd_columns], how = 'left', left_index = True, right_index = True)
+		else:
+			variant_df = index
+
+		if vcf is not None:
+			variant_df = variant_df.merge(vcf, how = 'left', left_index = True, right_index = True)
+
+		return variant_df
+
+	@staticmethod
+	def get_file_locations(breseq_folder: Path) -> Tuple[Path, Path, Path]:
+		index_file = parse_index.get_index_filename(breseq_folder)
+		gd_file = parse_gd.get_gd_filename(breseq_folder)
+		# The VCF file provides the quality and read depth.
+		vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
+
+		return index_file, vcf_file, gd_file

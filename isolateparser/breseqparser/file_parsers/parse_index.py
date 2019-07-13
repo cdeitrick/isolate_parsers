@@ -1,7 +1,7 @@
 import math
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import pandas
 from bs4 import BeautifulSoup
@@ -22,10 +22,7 @@ VariantTableColumnMap = {
 }
 
 
-def extract_sample_name(filename: Path, sample_name: Optional[str] = None):
-	# Attempts to infer the sample name from the filename of the index file.
-	if sample_name: return sample_name
-
+# General Utilities
 
 def to_integer(string: str) -> int:
 	""" Converts a string to a number"""
@@ -36,16 +33,7 @@ def to_integer(string: str) -> int:
 	return string
 
 
-def convert_to_dataframe(table: TableType) -> pandas.DataFrame:
-	""" Some of the column names may be encoded differently than expected. This method fixes them."""
-	table = pandas.DataFrame(table)
-	if 'seq\xa0id' in table.columns:
-		table['seq id'] = table['seq\xa0id']
-		del table['seq\xa0id']
-	return table
-
-
-def _load_index_file(filename: Path) -> BeautifulSoup:
+def _read_index_file(filename: Path) -> BeautifulSoup:
 	"""Loads the index file."""
 	filename = Path(filename)
 	# Use read_bytes to avoid encoding errors.
@@ -53,6 +41,35 @@ def _load_index_file(filename: Path) -> BeautifulSoup:
 	return soup
 
 
+def get_index_filename(path: Path) -> Path:
+	path = Path(path)
+	if path.suffix == '.html':
+		return path
+	expected_index_file = path / "output" / "index.html"
+
+	if not expected_index_file.exists():
+		candidates = list(path.glob("**/*index.html"))
+		if not candidates:
+			message = f"Cannot find the index file for folder {path}"
+			raise FileNotFoundError(message)
+		elif len(candidates) != 1:
+			message = f"Found multiple index files for folder {path}"
+			raise ValueError(message)
+		index_file = candidates[0]
+	else:
+		index_file = expected_index_file
+	return index_file
+
+###################################################################################################################################################
+########################################################## General Table Parsing Methods ##########################################################
+###################################################################################################################################################
+def _fix_html_fieldnames(columns: Iterable[str]) -> List[str]:
+	""" The `seq id` field is encoded weirdly due to html, so need to fix it. """
+	return [(i if i != 'seq\xa0id' else 'seq id') for i in columns]
+
+###################################################################################################################################################
+################################################################ SNP Table parsing ################################################################
+###################################################################################################################################################
 def _extract_variant_table_headers(text: str) -> List[str]:
 	begin_snp_header_string = r'<th>evidence</th>'
 	end_snp_header_string = '<!-- Item Lines -->'
@@ -61,64 +78,13 @@ def _extract_variant_table_headers(text: str) -> List[str]:
 	end_snp_header = text.find(end_snp_header_string)
 
 	snp_header_full = text[begin_snp_header:end_snp_header]
-	# snp_header = snp_header_full[end_snp_header:]
 
 	snp_header_soup = BeautifulSoup(snp_header_full, 'lxml')
 	snp_header_soup = [i.text for i in snp_header_soup.find_all('th')]
 	return snp_header_soup
 
 
-def _extract_coverage_and_junction_tables(alph_soup: str) -> Tuple[BeautifulSoup, BeautifulSoup]:
-	"""
-		Extracts the headers for the snp table, the junction table, and the coverage table.
-	Parameters
-	----------
-	alph_soup: BeautifulSoup
-		Equivilent to BeautifulSoup(index.html)
-
-	Returns
-	-------
-		snp_header, coverage_table, junction_table
-
-	"""
-
-	begin_umc = alph_soup.find(
-		'<tr><th align="left" class="missing_coverage_header_row" colspan="11">Unassigned missing coverage evidence</th></tr>')
-	end_umc = alph_soup.find(
-		'<th align="left" class="new_junction_header_row" colspan="12">Unassigned new junction evidence</th>')
-	coverage_string = alph_soup[begin_umc:end_umc]
-	junction_string = alph_soup[end_umc:]
-	coverage_soup = BeautifulSoup(coverage_string, 'lxml')
-	junction_soup = BeautifulSoup(junction_string, 'lxml')
-	return coverage_soup, junction_soup
-
-
-def _extract_index_tables(soup: BeautifulSoup) -> Tuple[
-	List[str], BeautifulSoup, BeautifulSoup, BeautifulSoup]:
-	"""
-		Extracts the relevant tables from the index table.
-	Parameters
-	----------
-	soup: BeautifulSoup
-		A BeautifulSoup-parsed version of the index file.
-
-	Returns
-	-------
-		snp_header, snp_table, coverage_soup, junction_soup
-	"""
-	soup_text = str(soup)
-	snp_header_soup = _extract_variant_table_headers(soup_text)
-
-	normal_table = soup.find_all(attrs = {'class': 'normal_table_row'})
-	poly_table = soup.find_all(attrs = {'class': 'polymorphism_table_row'})
-	snp_table = normal_table + poly_table
-
-	coverage_soup, junction_soup = _extract_coverage_and_junction_tables(soup_text)
-
-	return snp_header_soup, snp_table, coverage_soup, junction_soup
-
-
-def _parse_html_row(row: Dict[str, str]) -> Dict[str, str]:
+def _parse_variant_table_html_row(row: Dict[str, str]) -> Dict[str, str]:
 	"""
 		Converts an individual row in one of the html tables to a dictionary.
 	Parameters
@@ -147,13 +113,11 @@ def _parse_html_row(row: Dict[str, str]) -> Dict[str, str]:
 	return row
 
 
-def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) -> TableType:
+def _parse_snp_table(headers: List[str], rows: List[BeautifulSoup]) -> TableType:
 	"""
 		Parses the SNP table.
 	Parameters
 	----------
-	sample_name: str
-		The name of the sample. Usually extracted from the name of the analysis folder.
 	headers: List[str]
 		Column names for the snp table.
 	rows: List
@@ -168,81 +132,127 @@ def _parse_snp_table(sample_name: str, headers: List[str], rows: BeautifulSoup) 
 		values = [v.text for v in tag.find_all('td')]
 		if len(values) > 1:
 			row = {k: unidecode(v).strip() for k, v in zip(headers, values)}
-			row['Sample'] = sample_name
-			parsed_row = _parse_html_row(row)
+			parsed_row = _parse_variant_table_html_row(row)
 			converted_table.append(parsed_row)
 	return converted_table
 
 
-def _parse_coverage(sample_name: str, coverage: BeautifulSoup) -> TableType:
-	coverage_table = list()
+def _extract_snp_table(soup: BeautifulSoup) -> List[BeautifulSoup]:
+	normal_table = soup.find_all(attrs = {'class': 'normal_table_row'})
+	poly_table = soup.find_all(attrs = {'class': 'polymorphism_table_row'})
+	snp_table = normal_table + poly_table
+
+	return snp_table
+
+
+def add_missing_columns(snp_df: pandas.DataFrame, coverage_df: pandas.DataFrame, default_seq: str, sample_name) -> pandas.DataFrame:
+	# Sometimes `seq id` is not in the snp table, so it needs to be added manually for compatibility with other scripts.
+	if 'seq id' not in snp_df.columns:
+		try:
+			_sequence_id_from_coverage_table = coverage_df.iloc[0]['seq id']
+		except (IndexError, KeyError):
+			_sequence_id_from_coverage_table = default_seq
+		snp_df['seq id'] = _sequence_id_from_coverage_table
+
+	if 'freq' not in snp_df: snp_df['freq'] = math.nan  # Should unpack into a sequence automatically
+
+	snp_df['sampleName'] = sample_name
+
+	return snp_df
+
+###################################################################################################################################################
+####################################################### Coverage and Junction Table Parsing #######################################################
+###################################################################################################################################################
+
+def _extract_coverage_and_junction_tables(alph_soup: str) -> Tuple[BeautifulSoup, BeautifulSoup]:
+	"""
+		Extracts the headers for the snp table, the junction table, and the coverage table.
+	Parameters
+	----------
+	alph_soup: str
+
+	Returns
+	-------
+		snp_header, coverage_table, junction_table
+
+	"""
+
+	begin_umc = alph_soup.find(
+		'<tr><th align="left" class="missing_coverage_header_row" colspan="11">Unassigned missing coverage evidence</th></tr>')
+	end_umc = alph_soup.find(
+		'<th align="left" class="new_junction_header_row" colspan="12">Unassigned new junction evidence</th>')
+	coverage_string = alph_soup[begin_umc:end_umc]
+	junction_string = alph_soup[end_umc:]
+	coverage_soup = BeautifulSoup(coverage_string, 'lxml')
+	junction_soup = BeautifulSoup(junction_string, 'lxml')
+	return coverage_soup, junction_soup
+
+
+def _parse_coverage_table_row(tag: BeautifulSoup, column_names: List[str]) -> Optional[Dict[str, str]]:
+	""" Converts a single row in the coverage table into a dictionary."""
+	values = tag.find_all('td')
+
+	if len(values) > 1:
+		row = [(k, v.get_text()) for k, v in zip(column_names, values)]
+		row = OrderedDict(row)
+
+		row['start'] = to_integer(row['start'])
+		row['end'] = to_integer(row['end'])
+		row['size'] = to_integer(row['size'])
+		return row
+
+
+def _parse_coverage_soup(coverage: BeautifulSoup) -> TableType:
 	rows = coverage.find_all('tr')
 	if len(rows) == 0:
-		return coverage_table
+		return []
 	column_names = [i.text for i in rows[1].find_all('th')]
-
+	coverage_table = list()
 	for index, tag in enumerate(rows[2:]):
-		values = tag.find_all('td')
-
-		if len(values) > 1:
-			row = [('Sample', sample_name)] + [(k, v.get_text()) for k, v in zip(column_names, values)]
-			row = OrderedDict(row)
-
-			row['start'] = to_integer(row['start'])
-			row['end'] = to_integer(row['end'])
-			row['size'] = to_integer(row['size'])
+		row = _parse_coverage_table_row(tag, column_names)
+		if row:
 			coverage_table.append(row)
 
 	return coverage_table
 
 
-def _parse_junctions(sample_name: str, junctions: BeautifulSoup) -> TableType:
-	rows = junctions.find_all('tr')
-	column_names_a = ['0', '1'] + [unidecode(i.get_text()) for i in rows.pop(0).find_all('th')][1:]
+def _parse_junction_table_row_pair(first: BeautifulSoup, second: BeautifulSoup, names_first, names_second) -> Tuple[Dict[str, str], Dict[str, str]]:
+	a_values = [unidecode(i.get_text()) for i in first.find_all('td')]
+	b_values = [unidecode(i.get_text()) for i in second.find_all('td')]
 
+	a_row = {unidecode(k): v for k, v in zip(names_first, a_values)}
+	b_row = {unidecode(k): v for k, v in zip(names_second, b_values)}
+
+	return a_row, b_row
+
+
+def _parse_junction_soup(junctions: BeautifulSoup) -> TableType:
+	rows = junctions.find_all('tr')
+	if not len(rows): return []
+
+	# Extract the column names from the junction table.
+	column_names_a = ['0', '1'] + [unidecode(i.get_text()) for i in rows.pop(0).find_all('th')][1:]
 	column_names_a[4] = '{} ({})'.format(column_names_a[4], 'single')
 	column_names_b = [i for i in column_names_a if i not in ['reads (cov)', 'score', 'skew', 'freq', '0']]
+
 	junction_table = list()
 	for a_row, b_row in zip(rows[::2], rows[1::2]):
-		a_values = [unidecode(i.get_text()) for i in a_row.find_all('td')]
-		b_values = [unidecode(i.get_text()) for i in b_row.find_all('td')]
+		parsed_row_a, parsed_row_b = _parse_junction_table_row_pair(a_row, b_row, column_names_a, column_names_b)
+		junction_table += [parsed_row_a, parsed_row_b]
 
-		a_row = {unidecode(k): v for k, v in zip(column_names_a, a_values)}
-		b_row = {unidecode(k): v for k, v in zip(column_names_b, b_values)}
-		a_row['Sample'] = sample_name
-		b_row['Sample'] = sample_name
-		junction_table.append(a_row)
-		junction_table.append(b_row)
 	return junction_table
 
-
-def get_index_filename(path: Path) -> Path:
-	path = Path(path)
-	if path.suffix == '.html':
-		return path
-	expected_index_file = path / "output" / "index.html"
-
-	if not expected_index_file.exists():
-		candidates = list(path.glob("**/*index.html"))
-		if not candidates:
-			message = f"Cannot find the index file for folder {path}"
-			raise FileNotFoundError(message)
-		elif len(candidates) != 1:
-			message = f"Found multiple index files for folder {path}"
-			raise FileNotFoundError(message)
-		index_file = candidates[0]
-	else:
-		index_file = expected_index_file
-	return index_file
-
-
+###################################################################################################################################################
+################################################################ Main Parser ######################################################################
+###################################################################################################################################################
 def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bool = True, default_seq = 'chrom1') -> Tuple[DFType, DFType, DFType]:
 	"""
 		Extracts information on each of the tables from the index file.
 	Parameters
 	----------
 	sample_name:
-	filename
+	filename: Path
+		Path to the index.html file. Assume this links to the file itself and delegate file finding to another process.
 	set_index:bool; default True
 		Whether to set the index of the dataframe.
 	default_seq: str; default 'chrom1'
@@ -254,43 +264,51 @@ def parse_index_file(sample_name: str, filename: Union[str, Path], set_index: bo
 	- Index -> ()
 	- Values-> ()
 	"""
-	#TODO make junction/coverage tables optional
-	filename = get_index_filename(filename)
-	file_contents = _load_index_file(filename)
+	file_soup = _read_index_file(filename)
+	file_contents = str(file_soup)
 
-	snp_table_headers, snp_soup, coverage_soup, junction_soup = _extract_index_tables(file_contents)
+	snp_table_headers = _extract_variant_table_headers(file_contents)
+	snp_soup = _extract_snp_table(file_soup)
+	coverage_soup, junction_soup = _extract_coverage_and_junction_tables(file_contents)
 
-	snp_table = _parse_snp_table(sample_name, snp_table_headers, snp_soup)
+	snp_table = _parse_snp_table(snp_table_headers, snp_soup)
 
 	try:
-		coverage_table = _parse_coverage(sample_name, coverage_soup)
+		coverage_table = _parse_coverage_soup(coverage_soup)
 	# If the snp_table does not include a sequence id column, get it from the coverage table.
 	except (ValueError, TypeError): coverage_table = []
 
 	try:
-		junction_table = _parse_junctions(sample_name, junction_soup)
+		junction_table = _parse_junction_soup(junction_soup)
 	except (ValueError, TypeError, IndexError):
 		junction_table = []
 
-	snp_df = convert_to_dataframe(snp_table)
-	coverage_df = convert_to_dataframe(coverage_table)
-	junction_df = convert_to_dataframe(junction_table)
+	# convert each table to a DataFrame
+	snp_df = pandas.DataFrame(snp_table)
+	coverage_df = pandas.DataFrame(coverage_table)
+	junction_df = pandas.DataFrame(junction_table)
 
-	if 'seq id' not in snp_df.columns:
-		try:
-			_sequence_id_from_coverage_table = coverage_df.iloc[0]['seq id']
-		except (IndexError, KeyError):
-			_sequence_id_from_coverage_table = default_seq
-		snp_df['seq id'] = _sequence_id_from_coverage_table
-	# Remove columns that shouldn't be there
-	# for col in snp_df.columns:
-	#	if col not in VariantTableColumnMap:
-	#		print(f"Removing the column '{col}'")
-	#		snp_df.pop(col)
+	# The `seq id` fieldname is encoded weirdly in the html file, so need ot fix it.
+	snp_df.columns = _fix_html_fieldnames(snp_df.columns)
+	coverage_df.columns = _fix_html_fieldnames(coverage_df.columns)
+	junction_df.columns = _fix_html_fieldnames(junction_df.columns)
+
+	# Remap the column names to something a little more readable.
 	snp_df.columns = [VariantTableColumnMap.get(i, i) for i in snp_df.columns]
-	if 'freq' not in snp_df: snp_df['freq'] = [math.nan for i in snp_df.index]
+
+	# Add missing columns for compatibility.
+	snp_df = add_missing_columns(snp_df, coverage_df, default_seq, sample_name)
+	coverage_df['sampleName'] = sample_name
+	junction_df['sampleName'] = sample_name
+
 	if set_index:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
 		snp_df['position'] = [float(str(i).replace(':', '.').replace(',', '')) for i in snp_df['position']]
 		snp_df.set_index(keys = ['seq id', 'position'], inplace = True)
+
 	return snp_df, coverage_df, junction_df
+
+
+class IndexFileParser:
+	def __init__(self, sample_name: str):
+		self.sample_name = sample_name

@@ -9,6 +9,7 @@ data_folder = Path(__file__).parent / "data"
 index_folder = data_folder / "index_files"
 
 
+
 @pytest.mark.parametrize(
 	"filename",
 	list(data_folder.joinpath("index_files").iterdir())

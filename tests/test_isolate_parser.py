@@ -28,12 +28,12 @@ def test_get_sample_name():
 	assert result == 'Clonal_Output'
 
 
-def test_get_file_ocations(breseq_clone):
+def test_get_file_locations(breseq_clone):
 	expected_index = breseq_clone / "output" / "index.html"
 	expected_vcf = breseq_clone / "data" / "output.vcf"
 	expected_gd = breseq_clone / "output" / "evidence" / "annotated.gd"
 
-	index, vcf, gd = isolate_parser._get_file_locations(breseq_clone)
+	index, vcf, gd = isolate_parser.BreseqOutputParser.get_file_locations(breseq_clone)
 
 	assert index == expected_index
 	assert vcf == expected_vcf

@@ -37,6 +37,8 @@ class BreseqIsolateSetParser:
 			else:
 				# Assume it is a folder of sample folders, each containing a `breseq_output` folder.
 				f = subfolder / "breseq_output"
+				if not f.exists():
+					f = subfolder / "breseq"
 				breseq_folders.append(f)
 
 		return breseq_folders
