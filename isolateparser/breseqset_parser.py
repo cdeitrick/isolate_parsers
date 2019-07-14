@@ -9,6 +9,7 @@ from loguru import logger
 from isolateparser.breseqparser import BreseqOutputParser, get_sample_name
 
 
+
 class BreseqIsolateSetParser:
 	""" Parses a series of breseq calls for multiple isolates."""
 

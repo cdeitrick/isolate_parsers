@@ -180,11 +180,11 @@ if __name__ == "__main__":
 	from isolateparser.file_generators import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
 	debug_options = [
-		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pairwise_pipeline/GCA_000014085.1_ASM1408v1_genomic/",
-		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.tsv",
-		"--reference", "A1-21"
+		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline/SC1360/",
+		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.old.tsv",
+		"--reference", "A0-01"
 	]
 
-	program_options = _get_program_options()
+	program_options = _get_program_options(debug_options)
 	isolateset_workflow = IsolateSetWorkflow(program_options)
 	isolateset_workflow.run(program_options.folder, program_options.reference_label)

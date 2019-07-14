@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Tuple, Union
-
+from loguru import logger
 import pandas
 
 
@@ -173,7 +173,18 @@ def parse_annotated_gd_file_row(row: List[str]) -> Union[Mutation, Evidence]:
 	row_type = row_type.lower()
 
 	position_map = _get_row_position_and_sequence(row_type, other)
-	keyword_values = dict([i.split('=') for i in other if '=' in i])
+
+	# Not a list comprehension to help with debugging
+	keyword_values = dict()
+	for i in other:
+		if '=' not in i: continue
+		try:
+			a,b = i.split('=')
+		except ValueError:
+			# The 'value' portion contains '='
+			a,_,b = i.partition('=')
+		keyword_values[a] = b
+	#keyword_values = dict([i.split('=') for i in other if '=' in i])
 
 	if row_type in MUTATION_KEYS:
 		r = Mutation(
@@ -267,7 +278,9 @@ def parse_gd_file(io: Union[str, Path], set_index: bool = True) -> pandas.DataFr
 		filename = get_gd_filename(io)
 	except (TypeError, OSError):
 		filename = io
+
 	gd_data = parse_annotated_gd_file(filename)
+
 	mutations = _extract_mutations(gd_data)
 	gd_df = generate_mutation_table(mutations)
 	if set_index:

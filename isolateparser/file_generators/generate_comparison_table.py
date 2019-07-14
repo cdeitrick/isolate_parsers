@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Iterable
 
 import pandas
 
@@ -92,6 +92,36 @@ def _get_relevant_columns(by: str) -> Tuple[str, str]:
 
 	return reference_column, alternate_column
 
+def apply_cds_annotations(df:pandas.DataFrame)->pandas.DataFrame:
+	""" Genomes downloaded from the ncbi website include a translated_cds file, which can be used to annotated a denovo assembly.
+		The resulting annotations (saved in the 'description' field) include a lot of useful metadata in the form of [`key`=`value`].
+	"""
+	import re
+
+	def _apply(pattern:str, sequence:Iterable)->List[str]:
+		result = list()
+		for element in sequence:
+
+			match = re.search(pattern, element)
+
+			if match:
+				result.append(match.group(1))
+			else:
+				result.append(element)
+		return result
+
+	locus_tag_pattern = "locus_tag=([^\]]+)"
+	gene_pattern = "protein=(.+?)\]"
+
+	new_locus_tags = _apply(locus_tag_pattern, df['description'].tolist())
+	new_genes = _apply(gene_pattern, df['description'].tolist())
+
+	df['locusTag'] = new_locus_tags
+	df['gene'] = new_genes
+
+	return df
+
+
 
 def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table: bool = False,
 		reference_sample: str = None) -> pandas.DataFrame:
@@ -130,4 +160,9 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 	# Add a column indicating if the reference sample contained the variant. This only applies if the reference sample is known.
 	if reference_sample and reference_sample in df.columns:
 		df['inReference'] = df[reference_sample] != df[reference_column]
+	# Check if the description field came from a translated cds file.
+
+	df = apply_cds_annotations(df)
+
+
 	return df
