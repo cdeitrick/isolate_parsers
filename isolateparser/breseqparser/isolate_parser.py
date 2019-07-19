@@ -40,8 +40,8 @@ from typing import NamedTuple, Optional, Tuple
 
 import pandas
 
-from isolateparser.breseqparser.file_parsers import parse_gd, parse_index, parse_vcf
-
+from isolateparser.breseqparser.file_parsers import parse_gd, parse_index, parse_vcf, parse_summary
+from typing import Dict, Any
 DF = pandas.DataFrame
 GDColumns = parse_gd.GDColumns
 VCFColumns = parse_vcf.VCFColumns
@@ -168,3 +168,6 @@ class BreseqOutputParser:
 		vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
 
 		return index_file, vcf_file, gd_file
+	@staticmethod
+	def get_summary(folder:Path, sample_id:str, sample_name:Optional[str] = None)->Dict[str,Any]:
+		return parse_summary.parse_summary_file(folder, sample_id, sample_name)

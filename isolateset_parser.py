@@ -151,20 +151,22 @@ class IsolateSetWorkflow:
 		output_filename_table = parent_folder / f"{prefix}.xlsx"
 		output_filename_fasta = parent_folder / f"{prefix}"
 
-		variant_df, coverage_df, junction_df = self.breseqset_parser.run(parent_folder)
+		variant_df, coverage_df, junction_df, summary_df = self.breseqset_parser.run(parent_folder)
+
 
 		logger.info("Generating comparison table...")
 		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', self.use_filter, reference_label)
-		amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', self.use_filter, reference_label)
-		codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', self.use_filter, reference_label)
+		#amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', self.use_filter, reference_label)
+		#codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', self.use_filter, reference_label)
 
 		tables = {
 			'variant comparison': snp_comparison_df,
-			'amino comparison':   amino_comparison_df,
-			'codon comparison':   codon_comparison_df,
+			#'amino comparison':   amino_comparison_df,
+			#'codon comparison':   codon_comparison_df,
 			'variant':            variant_df.reset_index(),
 			'coverage':           coverage_df.reset_index(),
-			'junction':           junction_df.reset_index()
+			'junction':           junction_df.reset_index(),
+			'summary': summary_df
 		}
 		logger.info("Saving isolate table as ", output_filename_table)
 		save_isolate_table(tables, output_filename_table)

@@ -147,7 +147,7 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 	logger.debug(f"Generating comparison table")
 	logger.debug(f"\t by = {by}")
 	logger.debug(f"\t filter_table = {filter_table}")
-	logger.debug(f"reference = {reference_sample}")
+	logger.debug(f"\treference = {reference_sample}")
 	unique_samples = list(breseq_table[IsolateTableColumns.sample_name].unique())
 	reference_column, alternate_column = _get_relevant_columns(by)
 	if filter_table:

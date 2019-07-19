@@ -24,6 +24,7 @@ class BreseqIsolateSetParser:
 		self.variant_tables = list()
 		self.coverage_tables = list()
 		self.junction_table = list()
+		self.summaries = list()
 
 	@staticmethod
 	def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
@@ -60,7 +61,8 @@ class BreseqIsolateSetParser:
 		coverage_dataframe_full = pandas.concat(self.coverage_tables, sort = True)
 		junction_dataframe_full = pandas.concat(self.junction_table, sort = True)
 
-		return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full
+		summary = pandas.DataFrame(self.summaries)
+		return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full, summary
 
 	def update_tables(self, folder: Path):
 		isolate_id = get_sample_name(folder)
@@ -73,9 +75,13 @@ class BreseqIsolateSetParser:
 		try:
 			breseq_output = BreseqOutputParser(self.use_filter)
 			snp_df, coverage_df, junction_df = breseq_output.run(folder, isolate_id, isolate_name)
+			summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
 			self.variant_tables.append(snp_df)
 			self.coverage_tables.append(coverage_df)
 			self.junction_table.append(junction_df)
+			self.summaries.append(summary)
 		except FileNotFoundError as _missing_file_error:
 			logger.warning(f"{_missing_file_error}")
 			return None
+
+
