@@ -40,7 +40,7 @@ from typing import NamedTuple, Optional, Tuple
 
 import pandas
 
-from isolateparser.breseqparser.file_parsers import parse_gd, parse_index, parse_vcf, parse_summary
+from isolateparser.breseqoutputparser.file_parsers import parse_gd, parse_index, parse_vcf, parse_summary
 from typing import Dict, Any
 DF = pandas.DataFrame
 GDColumns = parse_gd.GDColumns

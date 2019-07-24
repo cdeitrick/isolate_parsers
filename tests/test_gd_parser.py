@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas
 import pytest
 
-from isolateparser.breseqparser import file_parsers
+from isolateparser.breseqoutputparser import file_parsers
 
 
 @pytest.fixture

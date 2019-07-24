@@ -3,7 +3,7 @@ from typing import Dict
 
 import pandas
 
-from isolateparser.breseqparser import IsolateTableColumns
+from isolateparser.breseqoutputparser import IsolateTableColumns
 
 try:
 	import openpyxl

@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas
 import pytest
 
-from isolateparser.breseqparser.file_parsers import parse_index
+from isolateparser.breseqoutputparser.file_parsers import parse_index
 
 data_folder = Path(__file__).parent / "data"
 index_folder = data_folder / "index_files"

@@ -5,7 +5,7 @@ import pytest
 from loguru import logger
 import dataio
 # Need to also import private functions
-from isolateparser.file_generators import generate_fasta
+from isolateparser.generate import generate_fasta
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 gd_filename = data_folder / 'output' / 'evidence' / 'annotated.gd'

@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from loguru import logger
 
-from isolateparser.breseqparser import isolate_parser
+from isolateparser.breseqoutputparser import breseq_output_parser
 
 data_folder = Path(__file__).parent / 'data'
 
@@ -16,15 +16,15 @@ def breseq_clone() -> Path:
 
 
 @pytest.fixture
-def breseq_isolate_parser() -> isolate_parser.BreseqOutputParser:
-	return isolate_parser.BreseqOutputParser(use_filter = False)
+def breseq_isolate_parser() -> breseq_output_parser.BreseqOutputParser:
+	return breseq_output_parser.BreseqOutputParser(use_filter = False)
 
 
 def test_get_sample_name():
-	result = isolate_parser.get_sample_name(Path("Clonal_Output"))
+	result = breseq_output_parser.get_sample_name(Path("Clonal_Output"))
 	assert result == 'Clonal_Output'
 
-	result = isolate_parser.get_sample_name(Path("Clonal_Output") / "breseq output")
+	result = breseq_output_parser.get_sample_name(Path("Clonal_Output") / "breseq output")
 	assert result == 'Clonal_Output'
 
 
@@ -33,7 +33,7 @@ def test_get_file_locations(breseq_clone):
 	expected_vcf = breseq_clone / "data" / "output.vcf"
 	expected_gd = breseq_clone / "output" / "evidence" / "annotated.gd"
 
-	index, vcf, gd = isolate_parser.BreseqOutputParser.get_file_locations(breseq_clone)
+	index, vcf, gd = breseq_output_parser.BreseqOutputParser.get_file_locations(breseq_clone)
 
 	assert index == expected_index
 	assert vcf == expected_vcf
@@ -43,5 +43,5 @@ def test_get_file_locations(breseq_clone):
 def test_parse_breseq_isolate(breseq_clone, breseq_isolate_parser):
 	variant_table, coverage_table, junction_table = breseq_isolate_parser.run(breseq_clone, sample_id = 'testIsolate')
 	logger.info(list(variant_table.columns))
-	logger.info(list(isolate_parser.IsolateTableColumns))
-	assert list(variant_table.columns) == list(i for i in isolate_parser.IsolateTableColumns if i not in {'seq id', 'position'})
+	logger.info(list(breseq_output_parser.IsolateTableColumns))
+	assert list(variant_table.columns) == list(i for i in breseq_output_parser.IsolateTableColumns if i not in {'seq id', 'position'})

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 import pandas
 import pytest
 
-from isolateparser.breseqparser.file_parsers import parse_vcf
+from isolateparser.breseqoutputparser.file_parsers import parse_vcf
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 vcf_filename_real = data_folder / "data" / "output.vcf"

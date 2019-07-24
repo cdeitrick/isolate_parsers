@@ -8,7 +8,7 @@ import pandas
 from loguru import logger
 
 from isolateparser import datatools
-from isolateparser.breseqparser import IsolateTableColumns
+from isolateparser.breseqoutputparser import IsolateTableColumns
 
 SEQUENCE_ID_COLUMN = IsolateTableColumns.sequence_id
 POSITION_COLUMN = IsolateTableColumns.position

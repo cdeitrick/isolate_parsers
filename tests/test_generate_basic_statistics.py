@@ -2,7 +2,7 @@ import pandas
 import pytest
 
 import dataio
-from isolateparser.file_generators import generate_basic_statistics
+from isolateparser.generate import generate_basic_statistics
 
 
 @pytest.fixture

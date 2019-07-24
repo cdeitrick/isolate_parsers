@@ -6,11 +6,11 @@ from typing import Container, List, Mapping
 import pandas
 from loguru import logger
 
-from isolateparser.breseqparser import BreseqOutputParser, get_sample_name
+from isolateparser.breseqoutputparser import BreseqOutputParser, get_sample_name
 
 
 
-class BreseqIsolateSetParser:
+class BreseqCallSetParser:
 	""" Parses a series of breseq calls for multiple isolates."""
 
 	def __init__(self, whitelist: Container[str] = None, blacklist: Container[str] = None, sample_map: Mapping[str, str] = None,
@@ -46,7 +46,7 @@ class BreseqIsolateSetParser:
 		return breseq_folders
 
 	def run(self, parent_folder: Path):
-		""" Expects a folder of breseq runs for a set ofisolates.
+		""" Expects a folder of breseq runs for a set of isolates.
 			Parameters
 			----------
 			parent_folder:Path

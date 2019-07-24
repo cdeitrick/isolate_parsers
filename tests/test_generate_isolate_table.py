@@ -2,7 +2,7 @@ import pandas
 import pytest
 
 import dataio
-from isolateparser.file_generators import generate_isolate_table
+from isolateparser.generate import generate_isolate_table
 
 
 @pytest.fixture

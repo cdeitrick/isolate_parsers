@@ -4,7 +4,7 @@ import pandas
 import pytest
 
 from dataio import import_table
-from isolateparser.file_generators import generate_comparison_table
+from isolateparser.generate import generate_comparison_table
 
 
 @pytest.fixture
