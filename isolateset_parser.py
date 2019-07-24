@@ -1,8 +1,11 @@
 import argparse
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Container, Dict, List, Union
 
+import pandas
 from loguru import logger
+
+from isolateparser.breseqoutputparser import BreseqOutputParser, get_sample_name
 
 
 def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
@@ -66,31 +69,49 @@ def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
 
 
 class IsolateSetWorkflow:
+	"""
+		Parses a folder containing numerious breseq call folders. The directory structure should
+		look like this:
+		parent_folder
+			sampleId
+				breseq
+					data
+					output
+			sampleId
+				breseq
+					data
+					output
+	"""
 	__version__ = "0.1.0"
 
-	def __init__(self, arguments: argparse.Namespace):
-		self.whitelist = self._parse_commandline_list(arguments.whitelist)
-		self.blacklist = self._parse_commandline_list(arguments.blacklist)
-		self.fasta_categories = self._parse_commandline_list(arguments.snp_categories)
-		self.use_filter = arguments.use_filter
-		self.generate_fasta = arguments.generate_fasta
+	def __init__(self, whitelist: Union[None, str, List[str]], blacklist: Union[None, str, List[str]], sample_map: Path = None,
+			sample_regex: str = None,
+			use_filter: bool = False, snp_categories: Container[str] = None, generate_fasta: bool = True):
+		self.whitelist = self._parse_commandline_list(whitelist)
+		self.blacklist = self._parse_commandline_list(blacklist)
+		self.fasta_categories = self._parse_commandline_list(snp_categories)
 
-		if arguments.sample_map: self.sample_map = self._parse_sample_map(arguments.sample_map)
+		self.use_filter = use_filter
+		self.generate_fasta = generate_fasta
+		self.sample_regex = sample_regex
+
+		# This decides which categories of mutations are used to generate the aligned fasta file.
+		self.snp_categories = snp_categories if snp_categories else ["snp_synonymous", "snp_nonsynonymous"]
+
+		if sample_map: self.sample_map = self._parse_sample_map(sample_map)
 		else: self.sample_map = {}
 
-		self.breseq_callset_parser = BreseqCallSetParser(
-			whitelist = self.whitelist,
-			blacklist = self.blacklist,
-			sample_map = self.sample_map,
-			use_filter = self.use_filter
-		)
+		self.variant_tables = list()
+		self.coverage_tables = list()
+		self.junction_table = list()
+		self.summaries = list()
 
 	def run(self, parent_folder: Path, reference_label: str):
 		prefix = parent_folder.name
 		output_filename_table = parent_folder / f"{prefix}.xlsx"
 		output_filename_fasta = parent_folder / f"{prefix}"
 
-		variant_df, coverage_df, junction_df, summary_df = self.breseq_callset_parser.run(parent_folder)
+		variant_df, coverage_df, junction_df, summary_df = self.concatenate_callset_tables(parent_folder)
 
 		logger.info("Generating comparison table...")
 		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', self.use_filter, reference_label)
@@ -113,6 +134,44 @@ class IsolateSetWorkflow:
 			logger.info("Generating fasta...")
 			fasta_filename_snp = output_filename_fasta.with_suffix(".snp.fasta")
 			generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
+
+	def concatenate_callset_tables(self, parent_folder: Path):
+		""" Expects a folder of breseq runs for a set of isolates.
+			Parameters
+			----------
+			parent_folder:Path
+				The folder of breseq output folders.
+		"""
+		breseq_folders = self._get_breseq_folder_paths(parent_folder)
+
+		for folder in breseq_folders:
+			self.update_tables(folder)
+
+		snp_dataframe_full = pandas.concat(self.variant_tables, sort = True)
+		coverage_dataframe_full = pandas.concat(self.coverage_tables, sort = True)
+		junction_dataframe_full = pandas.concat(self.junction_table, sort = True)
+
+		summary = pandas.DataFrame(self.summaries)
+		return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full, summary
+
+	@staticmethod
+	def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
+		""" Attempts to find all folders corresponding to a breseq run."""
+		breseq_folders = list()
+		for subfolder in base_folder.iterdir():
+			if subfolder.is_file(): continue
+			folder_contents = list(i.name for i in subfolder.iterdir())
+			if 'output' in folder_contents and 'data' in folder_contents:
+				# The provided folder is a folder of breseq runs.
+				breseq_folders.append(subfolder)
+			else:
+				# Assume it is a folder of sample folders, each containing a `breseq_output` folder.
+				f = subfolder / "breseq_output"
+				if not f.exists():
+					f = subfolder / "breseq"
+				breseq_folders.append(f)
+
+		return breseq_folders
 
 	@staticmethod
 	def _parse_commandline_list(io: Union[None, str, List[str]]) -> List[str]:
@@ -140,7 +199,7 @@ class IsolateSetWorkflow:
 		return contents
 
 	@staticmethod
-	def _parse_sample_map(path: str) -> Dict[str, str]:
+	def _parse_sample_map(path: Union[None,str,Path]) -> Dict[str, str]:
 		"""
 			Converts a file mapping sample ids to sample names into a usable dictionary.
 		Parameters
@@ -153,7 +212,6 @@ class IsolateSetWorkflow:
 		Maps sample ids to sample names.
 		"""
 		if not path: return {}
-
 		try:
 			filename = Path(path)
 
@@ -168,7 +226,7 @@ class IsolateSetWorkflow:
 			contents = {}
 		except ValueError:
 			message = "The sample map file is not formatted correctly. Make sure all lines contain exactly two values: the sample id and sample name."
-			print(message)
+			logger.warning(message)
 			contents = {}
 
 		if 'sampleId' in contents:
@@ -177,9 +235,28 @@ class IsolateSetWorkflow:
 			contents.pop('sampleId')
 		return contents
 
+	def update_tables(self, folder: Path):
+		isolate_id = get_sample_name(folder)
+		isolate_name = self.sample_map.get(isolate_id, isolate_id)
+		in_whitelist = not self.whitelist or isolate_name in self.whitelist or isolate_id in self.whitelist
+		in_blacklist = bool(self.blacklist) and (isolate_name in self.blacklist or isolate_id in self.blacklist)
+
+		if in_blacklist or not in_whitelist: return None
+
+		try:
+			breseq_output = BreseqOutputParser(self.use_filter)
+			snp_df, coverage_df, junction_df = breseq_output.run(folder, isolate_id, isolate_name)
+			summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
+			self.variant_tables.append(snp_df)
+			self.coverage_tables.append(coverage_df)
+			self.junction_table.append(junction_df)
+			self.summaries.append(summary)
+		except FileNotFoundError as _missing_file_error:
+			logger.warning(f"{_missing_file_error}")
+			return None
+
 
 if __name__ == "__main__":
-	from isolateparser.breseq_callset_parser import BreseqCallSetParser
 	from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
 	debug_options = [
@@ -189,5 +266,13 @@ if __name__ == "__main__":
 	]
 
 	program_options = load_program_options()
-	isolateset_workflow = IsolateSetWorkflow(program_options)
+	isolateset_workflow = IsolateSetWorkflow(
+		whitelist = program_options.whitelist,
+		blacklist = program_options.blacklist,
+		sample_map = program_options.sample_map,
+		sample_regex = program_options.regex,
+		use_filter = program_options.use_filter,
+		snp_categories = program_options.categories,
+		generate_fasta = program_options.generate_fasta
+	)
 	isolateset_workflow.run(program_options.folder, program_options.reference_label)

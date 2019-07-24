@@ -99,7 +99,7 @@ def _filter_variants_in_sample(variant_table: pandas.DataFrame, sample_label: st
 	sample_label: str
 		The label of the sample to use as the reference. Variants found in this sample will be filtered out.
 	reference_label: str
-		The label of the sample to use as a filter. Varaints seen in this sample would be filtered out.
+		The label of the sample to use as a filter. Variants seen in this sample would be filtered out.
 
 	Returns
 	-------

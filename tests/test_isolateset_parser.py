@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from isolateset_parser import _parse_commandline_list, _parse_sample_map
+from isolateset_parser import IsolateSetWorkflow
 
 data_folder = Path(__file__).with_name('data')
 
@@ -14,10 +14,10 @@ def test_parse_sample_map():
 		'sample3': 'sampleC',
 		'sample4': '123'
 	}
-	test_data = _parse_sample_map(sample_map_file)
+	test_data = IsolateSetWorkflow._parse_sample_map(sample_map_file)
 	assert test_data == truth_data
 
 
 def test_parse_commandline_list():
 	teststring = "a,b,c"
-	assert teststring.split(',') == _parse_commandline_list(teststring)
+	assert teststring.split(',') == IsolateSetWorkflow._parse_commandline_list(teststring)

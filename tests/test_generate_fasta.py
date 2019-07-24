@@ -36,7 +36,7 @@ def small_table() -> pandas.DataFrame:
 	return table
 
 
-def test_write_fasta_file(variant_table, tmp_path):
+def test_write_fasta_file(small_table, tmp_path):
 	expected = """
 	>ref
 	GGTGCG
@@ -50,23 +50,23 @@ def test_write_fasta_file(variant_table, tmp_path):
 	CGGGAT
 	"""
 	expected = "\n".join(j for j in [i.strip() for i in expected.split('\n')] if j) + '\n'
-	df = variant_table.transpose()
+	df = small_table.transpose()
 	df = df.loc[['ref', 'E-21', 'E-22', 'E-23', 'E-24']]  # To make sure the file is ordered correctly.
 	temporary_file = tmp_path / "temp.fasta"
 	generate_fasta.write_fasta_file(df, temporary_file)
 	assert temporary_file.read_text() == expected
 
 
-def test_filter_variants_in_sample(variant_table):
+def test_filter_variants_in_sample(small_table):
 	expected = """
 		E-21	E-22	E-23	E-24	ref
 		G	G	G	G	G
 		G	G	GG	G	G
 	"""
 	expected = dataio.import_table(expected)
-	logger.info(f"{variant_table.columns}")
+	logger.info(f"{small_table.columns}")
 
-	result = generate_fasta._filter_variants_in_sample(variant_table, 'E-24', 'ref')
+	result = generate_fasta._filter_variants_in_sample(small_table, 'E-24', 'ref')
 	result = result.reset_index()
 	result.pop('index')
 
