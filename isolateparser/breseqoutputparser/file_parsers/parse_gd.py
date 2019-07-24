@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Tuple, Union
-from loguru import logger
+
 import pandas
 
 
@@ -119,7 +119,7 @@ class Evidence:
 		return self.seqId, self.position
 
 
-def _sort_gd_file_rows(io: Union[str, Path]) -> Tuple[List[List[str]], List[List[str]]]:
+def _sort_gd_file_rows(content: str) -> Tuple[List[List[str]], List[List[str]]]:
 	""" Reads a gd file and separates it into mutation and evidence tables.
 		Parameters
 		----------
@@ -130,10 +130,7 @@ def _sort_gd_file_rows(io: Union[str, Path]) -> Tuple[List[List[str]], List[List
 		-------
 		mutations, evidence
 	"""
-	if isinstance(io, str):
-		reader = io.split('\n')
-	else:
-		reader = io.read_text().split("\n")
+	reader = content.split('\n')
 	lines = [line.split('\t') for line in reader if line]  # ignore empty lines.
 	mutation = filter(lambda s: s[0].lower() in MUTATION_KEYS, lines)
 	evidence = filter(lambda s: s[0].lower() in EVIDENCE_KEYS, lines)
@@ -179,12 +176,12 @@ def parse_annotated_gd_file_row(row: List[str]) -> Union[Mutation, Evidence]:
 	for i in other:
 		if '=' not in i: continue
 		try:
-			a,b = i.split('=')
+			a, b = i.split('=')
 		except ValueError:
 			# The 'value' portion contains '='
-			a,_,b = i.partition('=')
+			a, _, b = i.partition('=')
 		keyword_values[a] = b
-	#keyword_values = dict([i.split('=') for i in other if '=' in i])
+	# keyword_values = dict([i.split('=') for i in other if '=' in i])
 
 	if row_type in MUTATION_KEYS:
 		r = Mutation(
@@ -202,9 +199,9 @@ def parse_annotated_gd_file_row(row: List[str]) -> Union[Mutation, Evidence]:
 	return r
 
 
-def parse_annotated_gd_file(path: Union[str, Path]) -> List[Union[Mutation, Evidence]]:
+def parse_annotated_gd_file(content: str) -> List[Union[Mutation, Evidence]]:
 	""" Extracts information from the annotated gd file or file contents."""
-	gd_table_mutations, gd_table_evidence = _sort_gd_file_rows(path)
+	gd_table_mutations, gd_table_evidence = _sort_gd_file_rows(content)
 	gd_table = gd_table_mutations + gd_table_evidence
 	gd_data = map(parse_annotated_gd_file_row, gd_table)
 	return list(gd_data)
@@ -255,31 +252,18 @@ def _extract_mutations(data: List[Union[Evidence, Mutation]]) -> List[Mutation]:
 	return [i for i in data if isinstance(i, Mutation)]
 
 
-def get_gd_filename(path: Path) -> Path:
-	path = Path(path)
-	if path.is_dir():
-		result = path / "output" / "evidence" / "annotated.vcf"
-		if not result.exists():
-			candidates = list(path.glob("**/annotated.gd"))
-			if len(candidates) != 1:
-				message = f"Invalid vcf file path: {path}"
-				raise FileNotFoundError(message)
-			result = candidates[0]
-	elif path.suffix == '.gd':
-		result = path
-	else:
-		message = f"Invalid GD path: {path}"
-		raise ValueError(message)
-	return result
-
-
 def parse_gd_file(io: Union[str, Path], set_index: bool = True) -> pandas.DataFrame:
-	try:
-		filename = get_gd_filename(io)
-	except (TypeError, OSError):
-		filename = io
+	# Test if the `filename` argument is actually a string of the file contents.
+	if isinstance(io, Path):
+		content = io.read_text()
+	else:
+		try:
+			Path(io).exists()  # If it is too long, it will throw an OSError
+			content = Path(io).read_text()
+		except OSError:
+			content = io  # Probably the contents of the file.
 
-	gd_data = parse_annotated_gd_file(filename)
+	gd_data = parse_annotated_gd_file(content)
 
 	mutations = _extract_mutations(gd_data)
 	gd_df = generate_mutation_table(mutations)

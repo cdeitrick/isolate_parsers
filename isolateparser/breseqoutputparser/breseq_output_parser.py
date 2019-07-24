@@ -36,12 +36,12 @@
 """
 
 from pathlib import Path
-from typing import NamedTuple, Optional, Tuple
+from typing import Any, Dict, NamedTuple, Optional, Tuple
 
 import pandas
 
-from isolateparser.breseqoutputparser.file_parsers import parse_gd, parse_index, parse_vcf, parse_summary
-from typing import Dict, Any
+from isolateparser.breseqoutputparser.file_parsers import locations, parse_gd, parse_index, parse_summary, parse_vcf
+
 DF = pandas.DataFrame
 GDColumns = parse_gd.GDColumns
 VCFColumns = parse_vcf.VCFColumns
@@ -76,10 +76,12 @@ def get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
 	return [i for i in folder.parts if 'breseq' not in i][-1]
 
-def string_is_date(value:str)->bool:
+
+def string_is_date(value: str) -> bool:
 	length = len(value)
-	result = length > 8 and len([i for i in value if i.isdigit()])> (len(value)/2)
+	result = length > 8 and len([i for i in value if i.isdigit()]) > (len(value) / 2)
 	return result
+
 
 def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 	# TODO: This should only be done for sequences on the same chrom.
@@ -91,6 +93,17 @@ def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 	fdf: pandas.DataFrame = raw_df[(forward > 1000) & (reverse > 1000) | (forward.isna() | reverse.isna())]
 
 	return fdf
+
+
+def get_file_locations(folder: Path) -> Tuple[Path, Optional[Path], Optional[Path], Optional[Path]]:
+	index_file = locations.get_index_filename(folder)
+	gd_file = locations.get_gd_filename(folder)
+	# The VCF file provides the quality and read depth.
+	vcf_file = locations.get_vcf_filename(folder)
+
+	summary_file = parse_summary.get_summary_filename(folder)
+
+	return index_file, vcf_file, gd_file, summary_file
 
 
 class BreseqOutputParser:
@@ -106,23 +119,31 @@ class BreseqOutputParser:
 		]
 		self.vcf_columns = []
 
-	def run(self, breseq_folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Tuple[
+	def run(self, sample_id: str, indexpath: Path, vcfpath: Optional[Path] = None, gdpath: Optional[Path] = None,
+			sample_name: Optional[str] = None) -> Tuple[
 		pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]:
 		"""
 			Runs the workflow.
+			Parameters
+			----------
+				sample_id:str
+				indexpath: Path
+				vcfpath: Optional[Path]
+				gdpath: Optional[Path]
+				sample_name: Optional[str]
 		"""
 		if not sample_name:
-			name_from_path = get_sample_name(breseq_folder)
-			# Test if the found name is just the sequencing date.
-			if string_is_date(name_from_path):
-				sample_name = sample_id
+			sample_name = sample_id
 
-		index_file, vcf_file, gd_file = self.get_file_locations(breseq_folder)
-
-		index_df, coverage_df, junction_df = parse_index.parse_index_file(sample_name, index_file, set_index = self._set_table_index)
-		vcf_df = parse_vcf.parse_vcf_file(vcf_file, set_index = self._set_table_index, no_filter = True)
-		gd_df = parse_gd.parse_gd_file(gd_file, set_index = self._set_table_index)
-
+		index_df, coverage_df, junction_df = parse_index.parse_index_file(sample_name, indexpath, set_index = self._set_table_index)
+		if vcfpath:
+			vcf_df = parse_vcf.parse_vcf_file(vcfpath, set_index = self._set_table_index, no_filter = True)
+		else:
+			vcf_df = None
+		if gdpath:
+			gd_df = parse_gd.parse_gd_file(gdpath, set_index = self._set_table_index)
+		else:
+			gd_df = None
 		# Merge the tables together.
 		variant_df = self.merge_tables(index_df, gd_df, vcf_df)
 
@@ -161,13 +182,5 @@ class BreseqOutputParser:
 		return variant_df
 
 	@staticmethod
-	def get_file_locations(breseq_folder: Path) -> Tuple[Path, Path, Path]:
-		index_file = parse_index.get_index_filename(breseq_folder)
-		gd_file = parse_gd.get_gd_filename(breseq_folder)
-		# The VCF file provides the quality and read depth.
-		vcf_file = parse_vcf.get_vcf_filename(breseq_folder)
-
-		return index_file, vcf_file, gd_file
-	@staticmethod
-	def get_summary(folder:Path, sample_id:str, sample_name:Optional[str] = None)->Dict[str,Any]:
+	def get_summary(folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Dict[str, Any]:
 		return parse_summary.parse_summary_file(folder, sample_id, sample_name)

@@ -40,10 +40,6 @@ data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 gd_filename = data_folder / 'output' / 'evidence' / 'annotated.gd'
 
 
-def test_get_gd_filename():
-	assert gd_filename == file_parsers.parse_gd.get_gd_filename(gd_filename)
-
-
 def test_sort_gd_file_rows():
 	string = "SNP	12	66	REL606	1286699	A\n" \
 			 "SNP	13	68	REL606	1329516	T\n" \

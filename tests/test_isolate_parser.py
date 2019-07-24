@@ -28,20 +28,15 @@ def test_get_sample_name():
 	assert result == 'Clonal_Output'
 
 
-def test_get_file_locations(breseq_clone):
-	expected_index = breseq_clone / "output" / "index.html"
-	expected_vcf = breseq_clone / "data" / "output.vcf"
-	expected_gd = breseq_clone / "output" / "evidence" / "annotated.gd"
-
-	index, vcf, gd = breseq_output_parser.BreseqOutputParser.get_file_locations(breseq_clone)
-
-	assert index == expected_index
-	assert vcf == expected_vcf
-	assert gd == expected_gd
-
-
-def test_parse_breseq_isolate(breseq_clone, breseq_isolate_parser):
-	variant_table, coverage_table, junction_table = breseq_isolate_parser.run(breseq_clone, sample_id = 'testIsolate')
+def test_parse_breseq_isolate_with_only_index_path(breseq_clone, breseq_isolate_parser):
+	# TODO: refactor this so it doesn't read from IsolateTableColumns
+	# TODO: test different combinations of index,vcf,gd paths.
+	variant_table, coverage_table, junction_table = breseq_isolate_parser.run('testIsolate', breseq_clone / "output" / "index.html")
 	logger.info(list(variant_table.columns))
 	logger.info(list(breseq_output_parser.IsolateTableColumns))
+
+	# Since the workflow was only provided the index file, it is missing the additional columns added from the vcf and gd files.
+
+	# TODO: This test currently fails because the 'alt', 'ref', 'locustag', and 'mutationCategory' columns are missing due to the
+	# missing vcf and gd files. Refactor the code so that these columns are parsed form the index file instead.
 	assert list(variant_table.columns) == list(i for i in breseq_output_parser.IsolateTableColumns if i not in {'seq id', 'position'})

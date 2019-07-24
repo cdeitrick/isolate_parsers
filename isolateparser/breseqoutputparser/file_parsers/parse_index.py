@@ -41,31 +41,13 @@ def _read_index_file(filename: Path) -> BeautifulSoup:
 	return soup
 
 
-def get_index_filename(path: Path) -> Path:
-	path = Path(path)
-	if path.suffix == '.html':
-		return path
-	expected_index_file = path / "output" / "index.html"
-
-	if not expected_index_file.exists():
-		candidates = list(path.glob("**/*index.html"))
-		if not candidates:
-			message = f"Cannot find the index file for folder {path}"
-			raise FileNotFoundError(message)
-		elif len(candidates) != 1:
-			message = f"Found multiple index files for folder {path}"
-			raise ValueError(message)
-		index_file = candidates[0]
-	else:
-		index_file = expected_index_file
-	return index_file
-
 ###################################################################################################################################################
 ########################################################## General Table Parsing Methods ##########################################################
 ###################################################################################################################################################
 def _fix_html_fieldnames(columns: Iterable[str]) -> List[str]:
 	""" The `seq id` field is encoded weirdly due to html, so need to fix it. """
 	return [(i if i != 'seq\xa0id' else 'seq id') for i in columns]
+
 
 ###################################################################################################################################################
 ################################################################ SNP Table parsing ################################################################
@@ -160,6 +142,7 @@ def add_missing_columns(snp_df: pandas.DataFrame, coverage_df: pandas.DataFrame,
 
 	return snp_df
 
+
 ###################################################################################################################################################
 ####################################################### Coverage and Junction Table Parsing #######################################################
 ###################################################################################################################################################
@@ -241,6 +224,7 @@ def _parse_junction_soup(junctions: BeautifulSoup) -> TableType:
 		junction_table += [parsed_row_a, parsed_row_b]
 
 	return junction_table
+
 
 ###################################################################################################################################################
 ################################################################ Main Parser ######################################################################

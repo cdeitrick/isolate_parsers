@@ -21,17 +21,6 @@ def test_parser_finishes(filename):
 	assert isinstance(jun_table, pandas.DataFrame)
 
 
-@pytest.mark.parametrize(
-	"folder,expected",
-	[
-		(data_folder / "index_files" / "index.html", data_folder / "index_files" / "index.html"),
-		(data_folder / "index_files" / "index (1).html", data_folder / "index_files" / "index (1).html")
-	]
-)
-def test_get_index_filename(folder, expected):
-	result = parse_index.get_index_filename(folder)
-	assert result == expected
-
 
 @pytest.mark.parametrize(
 	"number,expected",

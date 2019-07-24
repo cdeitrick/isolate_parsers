@@ -199,7 +199,7 @@ class IsolateSetWorkflow:
 		return contents
 
 	@staticmethod
-	def _parse_sample_map(path: Union[None,str,Path]) -> Dict[str, str]:
+	def _parse_sample_map(path: Union[None, str, Path]) -> Dict[str, str]:
 		"""
 			Converts a file mapping sample ids to sample names into a usable dictionary.
 		Parameters
@@ -245,7 +245,16 @@ class IsolateSetWorkflow:
 
 		try:
 			breseq_output = BreseqOutputParser(self.use_filter)
-			snp_df, coverage_df, junction_df = breseq_output.run(folder, isolate_id, isolate_name)
+
+			indexpath, gdpath, vcfpath, summarypath = self.get_file_locations(folder)
+
+			snp_df, coverage_df, junction_df = breseq_output.run(
+				indexpath = indexpath,
+				gdpath = gdpath,
+				vcfpath = vcfpath,
+				sample_id = isolate_id,
+				sample_name = isolate_name
+			)
 			summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
 			self.variant_tables.append(snp_df)
 			self.coverage_tables.append(coverage_df)
