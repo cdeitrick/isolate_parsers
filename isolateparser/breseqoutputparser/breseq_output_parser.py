@@ -43,7 +43,6 @@ import pandas
 from isolateparser.breseqoutputparser.file_parsers import locations, parse_gd, parse_index, parse_summary, parse_vcf
 
 DF = pandas.DataFrame
-GDColumns = parse_gd.GDColumns
 VCFColumns = parse_vcf.VCFColumns
 
 
@@ -61,10 +60,10 @@ class _IsolateTableColumns(NamedTuple):
 	mutation: str = 'mutation'
 	alt: str = VCFColumns.alternate
 	ref: str = VCFColumns.reference
-	alternate_amino: str = GDColumns.alternate_amino
-	reference_amino: str = GDColumns.reference_amino
-	alternate_codon: str = GDColumns.alternate_codon
-	reference_codon: str = GDColumns.reference_codon
+	alternate_amino: str = 'aminoAlt'
+	reference_amino: str ='aminoRef'
+	alternate_codon: str = 'codonAlt'
+	reference_codon: str = 'codonRef'
 	locus_tag: str = 'locusTag'
 	mutation_category: str = 'mutationCategory'
 
@@ -113,11 +112,7 @@ class BreseqOutputParser:
 
 		self.index_columns = []
 		# We only want a subset of the columns available from the gd file.
-		self.gd_columns = [
-			GDColumns.alternate_amino, GDColumns.reference_amino, GDColumns.alternate_codon,
-			GDColumns.reference_codon, GDColumns.locus_tag, GDColumns.mutation_category,
-		]
-		self.vcf_columns = []
+		self.vcf_columns = [VCFColumns.alternate, VCFColumns.reference]
 
 	def run(self, sample_id: str, indexpath: Path, vcfpath: Optional[Path] = None, gdpath: Optional[Path] = None,
 			sample_name: Optional[str] = None) -> Tuple[
@@ -136,13 +131,19 @@ class BreseqOutputParser:
 			sample_name = sample_id
 
 		index_df, coverage_df, junction_df = parse_index.parse_index_file(sample_name, indexpath, set_index = self._set_table_index)
+
 		if vcfpath:
 			vcf_df = parse_vcf.parse_vcf_file(vcfpath, set_index = self._set_table_index, no_filter = True)
 		else:
+			# TODO: Need to add the missing columns
+			# These would be the 'alt' and 'ref' columns
 			vcf_df = None
+
 		if gdpath:
 			gd_df = parse_gd.parse_gd_file(gdpath, set_index = self._set_table_index)
 		else:
+			# TODO: Need to add the missing columns
+			# These would be 'locusTag' and 'mutationCategory'.
 			gd_df = None
 		# Merge the tables together.
 		variant_df = self.merge_tables(index_df, gd_df, vcf_df)
@@ -184,3 +185,6 @@ class BreseqOutputParser:
 	@staticmethod
 	def get_summary(folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Dict[str, Any]:
 		return parse_summary.parse_summary_file(folder, sample_id, sample_name)
+
+	def get_alt_from_gd(self):
+		pass

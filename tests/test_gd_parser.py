@@ -106,7 +106,7 @@ def test_parse_annotated_gd_file_row_indel(mutation_indel):
 	}
 
 	expected_mutation = file_parsers.parse_gd.Mutation('ins', '5', '51', seqId = 'REL606', position = 475292, details = expected_details)
-	test_mutation = file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_indel.split('\t'))
+	test_mutation = file_parsers.parse_gd.parse_gd_row(mutation_indel.split('\t'))
 
 	assert test_mutation == expected_mutation
 
@@ -147,7 +147,7 @@ def test_parse_annotated_gd_file_row_evidence(evidence_ra):
 		'transl_table':          '11'
 	}
 	expected_evidence = file_parsers.parse_gd.Evidence('ra', '81', '.', details = expected_details)
-	truth_evidence = file_parsers.parse_gd.parse_annotated_gd_file_row(evidence_ra.split('\t'))
+	truth_evidence = file_parsers.parse_gd.parse_gd_row(evidence_ra.split('\t'))
 	assert truth_evidence == expected_evidence
 
 
@@ -175,7 +175,7 @@ def test_parse_annotated_gd_file_row_snp(mutation_snp):
 		'snp_type':               'nonsynonymous',
 		'transl_table':           '11'
 	}
-	result = file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_snp.split('\t'))
+	result = file_parsers.parse_gd.parse_gd_row(mutation_snp.split('\t'))
 
 	assert isinstance(result, file_parsers.parse_gd.Mutation)
 
@@ -212,9 +212,9 @@ def test_parse_annotated_gd_file(mutation_snp, mutation_indel, evidence_ra):
 	gd_data = file_parsers.parse_gd.parse_annotated_gd_file(string)
 
 	expected_data = [
-		file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_snp.split('\t')),
-		file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_indel.split('\t')),
-		file_parsers.parse_gd.parse_annotated_gd_file_row(evidence_ra.split('\t'))
+		file_parsers.parse_gd.parse_gd_row(mutation_snp.split('\t')),
+		file_parsers.parse_gd.parse_gd_row(mutation_indel.split('\t')),
+		file_parsers.parse_gd.parse_gd_row(evidence_ra.split('\t'))
 	]
 	assert gd_data == expected_data
 
@@ -232,8 +232,8 @@ def test_evidence_object():
 
 def test_generate_mutation_table(mutation_snp, mutation_indel):
 	mutations = [
-		file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_indel.split('\t')),
-		file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_snp.split('\t'))
+		file_parsers.parse_gd.parse_gd_row(mutation_indel.split('\t')),
+		file_parsers.parse_gd.parse_gd_row(mutation_snp.split('\t'))
 	]
 
 	expected_columns = [
@@ -249,7 +249,7 @@ def test_generate_mutation_table(mutation_snp, mutation_indel):
 
 
 def test_convert_mutation_to_dictionary(mutation_snp):
-	mutation = file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_snp.split('\t'))
+	mutation = file_parsers.parse_gd.parse_gd_row(mutation_snp.split('\t'))
 	expected_dictionary = {
 		'description':      'predicted transporter',
 		'gene':             'araJ',
@@ -277,8 +277,8 @@ def test_parse_gd_file(mutation_snp, mutation_indel, evidence_ra):
 	]
 
 	expected_data = [
-		file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_snp.split('\t')),
-		file_parsers.parse_gd.parse_annotated_gd_file_row(mutation_indel.split('\t'))
+		file_parsers.parse_gd.parse_gd_row(mutation_snp.split('\t')),
+		file_parsers.parse_gd.parse_gd_row(mutation_indel.split('\t'))
 	]
 	expected_table = pandas.DataFrame(
 		[file_parsers.parse_gd._convert_mutation_to_dictionary(i) for i in expected_data]
