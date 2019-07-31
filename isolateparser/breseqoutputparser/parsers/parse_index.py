@@ -174,7 +174,6 @@ class VariantTableParser:
 
 	def run(self, sample_name: str, soup: BeautifulSoup) -> pandas.DataFrame:
 		snp_table_headers = self._extract_table_headers(str(soup))
-		logger.debug(snp_table_headers)
 		snp_table = self._extract_snp_table(soup)
 
 		parsed_table = self._parse_snp_table(snp_table_headers, snp_table)
