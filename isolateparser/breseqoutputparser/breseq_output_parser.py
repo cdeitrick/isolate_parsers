@@ -39,11 +39,11 @@ from pathlib import Path
 from typing import Any, Dict, NamedTuple, Optional, Tuple
 
 import pandas
+from loguru import logger
 
-from isolateparser.breseqoutputparser.file_parsers import locations, parse_gd, parse_index, parse_summary, parse_vcf
+from .parsers import GDParser, IndexParser, parse_summary_file, parse_vcf_file
 
 DF = pandas.DataFrame
-VCFColumns = parse_vcf.VCFColumns
 
 
 class _IsolateTableColumns(NamedTuple):
@@ -58,10 +58,10 @@ class _IsolateTableColumns(NamedTuple):
 	freq: str = 'freq'
 	gene: str = 'gene'
 	mutation: str = 'mutation'
-	alt: str = VCFColumns.alternate
-	ref: str = VCFColumns.reference
+	alt: str = 'alt'
+	ref: str = 'ref'
 	alternate_amino: str = 'aminoAlt'
-	reference_amino: str ='aminoRef'
+	reference_amino: str = 'aminoRef'
 	alternate_codon: str = 'codonAlt'
 	reference_codon: str = 'codonRef'
 	locus_tag: str = 'locusTag'
@@ -94,27 +94,20 @@ def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 	return fdf
 
 
-def get_file_locations(folder: Path) -> Tuple[Path, Optional[Path], Optional[Path], Optional[Path]]:
-	index_file = locations.get_index_filename(folder)
-	gd_file = locations.get_gd_filename(folder)
-	# The VCF file provides the quality and read depth.
-	vcf_file = locations.get_vcf_filename(folder)
-
-	summary_file = parse_summary.get_summary_filename(folder)
-
-	return index_file, vcf_file, gd_file, summary_file
-
-
 class BreseqOutputParser:
 	def __init__(self, use_filter: bool = False):
 		self._set_table_index = True
 		self.use_filter = use_filter
 
 		self.index_columns = []
-		# We only want a subset of the columns available from the gd file.
-		self.vcf_columns = [VCFColumns.alternate, VCFColumns.reference]
+		# We only want a subset of the columns available from the gd  and vcf files.
+		self.gd_columns = ['aminoAlt', 'aminoRef', 'codonAlt', 'codonRef', 'mutationCategory']
+		self.vcf_columns = ['alt', 'ref']
 
-	def run(self, sample_id: str, indexpath: Path, vcfpath: Optional[Path] = None, gdpath: Optional[Path] = None,
+		self.file_parser_index = IndexParser()
+		self.file_parser_gd = GDParser()
+
+	def run(self, sample_id: str, indexpath: Path, gdpath: Optional[Path] = None, vcfpath: Optional[Path] = None,
 			sample_name: Optional[str] = None) -> Tuple[
 		pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]:
 		"""
@@ -130,21 +123,22 @@ class BreseqOutputParser:
 		if not sample_name:
 			sample_name = sample_id
 
-		index_df, coverage_df, junction_df = parse_index.parse_index_file(sample_name, indexpath, set_index = self._set_table_index)
+		index_df, coverage_df, junction_df = self.file_parser_index.run(sample_name, indexpath, set_index = self._set_table_index)
+
+		if gdpath:
+			gd_df = self.file_parser_gd.run(gdpath, set_index = self._set_table_index)
+		else:
+			# TODO: Need to add the missing columns
+			# These would be 'locusTag' and 'mutationCategory'.
+			gd_df = None
 
 		if vcfpath:
-			vcf_df = parse_vcf.parse_vcf_file(vcfpath, set_index = self._set_table_index, no_filter = True)
+			vcf_df = parse_vcf_file(vcfpath, set_index = self._set_table_index, no_filter = True)
 		else:
 			# TODO: Need to add the missing columns
 			# These would be the 'alt' and 'ref' columns
 			vcf_df = None
 
-		if gdpath:
-			gd_df = parse_gd.parse_gd_file(gdpath, set_index = self._set_table_index)
-		else:
-			# TODO: Need to add the missing columns
-			# These would be 'locusTag' and 'mutationCategory'.
-			gd_df = None
 		# Merge the tables together.
 		variant_df = self.merge_tables(index_df, gd_df, vcf_df)
 
@@ -172,11 +166,16 @@ class BreseqOutputParser:
 		pandas.DataFrame
 			A dataframe that contains data from all three given tables.
 		"""
+
 		if gd is not None:
-			variant_df: pandas.DataFrame = index.merge(gd[self.gd_columns], how = 'left', left_index = True, right_index = True)
+			# We don't care about most of the columns
+			reduced_gd = gd[self.gd_columns]
+
+			variant_df: pandas.DataFrame = index.merge(reduced_gd, how = 'left', left_index = True, right_index = True)
 		else:
 			variant_df = index
-
+		logger.warning(f"Saving the df for debugging")
+		variant_df.to_csv("varianttesttable.tsv", sep = '\t')
 		if vcf is not None:
 			variant_df = variant_df.merge(vcf, how = 'left', left_index = True, right_index = True)
 
@@ -184,7 +183,7 @@ class BreseqOutputParser:
 
 	@staticmethod
 	def get_summary(folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Dict[str, Any]:
-		return parse_summary.parse_summary_file(folder, sample_id, sample_name)
+		return parse_summary_file(folder, sample_id, sample_name)
 
 	def get_alt_from_gd(self):
 		pass

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List
 import io
 import pandas
 
@@ -33,7 +33,7 @@ def _import_table_from_string(string: str, delimiter: Optional[str] = None, inde
 	return result
 
 
-def import_table(input_table: Union[str, Path], sheet_name: Optional[str] = None, index:Optional[str] = None) -> pandas.DataFrame:
+def import_table(input_table: Union[str, Path], sheet_name: Optional[str] = None, index:Optional[Union[str, List[str]]] = None) -> pandas.DataFrame:
 	if isinstance(input_table, Path):
 		data = _import_table_from_path(input_table, sheet_name, index)
 	else:

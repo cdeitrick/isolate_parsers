@@ -1,6 +1,6 @@
 """ Implements the logic to find specific files in a breseq folder."""
 from pathlib import Path
-
+from typing import Tuple, Optional
 
 def get_index_filename(path: Path) -> Path:
 	path = Path(path)
@@ -66,3 +66,26 @@ def get_vcf_filename(path: Path) -> Path:
 		raise ValueError(message)
 	return result
 
+def get_summary_filename(folder:Path)->Optional[Path]:
+	# Assume the folder is a breseq folder.
+
+	expected = folder / "data" / "sumary.json"
+	if not expected.exists():
+		try:
+			found = list(folder.glob("**/summary.json"))[0]
+		except IndexError:
+			found = None
+	else:
+		found = expected
+	return found
+
+
+def get_file_locations(folder: Path) -> Tuple[Path, Optional[Path], Optional[Path], Optional[Path]]:
+	index_file = get_index_filename(folder)
+	gd_file = get_gd_filename(folder)
+	# The VCF file provides the quality and read depth.
+	vcf_file = get_vcf_filename(folder)
+
+	summary_file = get_summary_filename(folder)
+
+	return index_file, gd_file, vcf_file, summary_file

@@ -39,4 +39,4 @@ def test_parse_breseq_isolate_with_only_index_path(breseq_clone, breseq_isolate_
 
 	# TODO: This test currently fails because the 'alt', 'ref', 'locustag', and 'mutationCategory' columns are missing due to the
 	# missing vcf and gd files. Refactor the code so that these columns are parsed form the index file instead.
-	assert list(variant_table.columns) == list(i for i in breseq_output_parser.IsolateTableColumns if i not in {'seq id', 'position'})
+	assert list(variant_table.columns) == ['sampleId', 'sampleName', 'annotation', 'description', 'evidence', 'freq', 'gene', 'mutationCategory']

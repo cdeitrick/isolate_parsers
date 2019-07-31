@@ -2,19 +2,6 @@ from pathlib import Path
 import json
 from typing import Dict, Optional
 
-def get_summary_filename(folder:Path)->Optional[Path]:
-	# Assume the folder is a breseq folder.
-
-	expected = folder / "data" / "sumary.json"
-	if not expected.exists():
-		try:
-			found = list(folder.glob("**/summary.json"))[0]
-		except IndexError:
-			found = None
-	else:
-		found = expected
-	return found
-
 def parse_summary_file(path:Path, sample_id:str, sample_name:Optional[str] = None)->Dict[str,str]:
 	if sample_name is None: sample_name = sample_id
 	if path.is_dir():

@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from isolateparser.breseqoutputparser.file_parsers import parse_gd
+from isolateparser.breseqoutputparser.parsers import parse_gd
 
 
 @pytest.fixture
 def gdparser() -> parse_gd.GDParser:
-	return parse_gd.GDParser(False)
+	return parse_gd.GDParser()
 
 
 @pytest.fixture

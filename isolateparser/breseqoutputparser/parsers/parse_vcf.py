@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
-from .locations import get_vcf_filename
 import pandas
 import vcf
+from loguru import logger
 
 
 class _VCFColumns(NamedTuple):
@@ -16,17 +16,6 @@ class _VCFColumns(NamedTuple):
 
 
 VCFColumns = _VCFColumns()
-
-
-def _filter_df(raw_df: pandas.DataFrame) -> pandas.DataFrame:
-	""" Filters out variants that occur within 1000bp of each other."""
-	forward: pandas.Series = raw_df[VCFColumns.position].diff().abs()
-	reverse: pandas.Series = raw_df[VCFColumns.position][::-1].diff()[::-1].abs()
-
-	# noinspection PyTypeChecker
-	fdf: pandas.DataFrame = raw_df[(forward > 1000) & (reverse > 1000) | (forward.isna() | reverse.isna())]
-
-	return fdf
 
 
 def _convert_record_to_dictionary(record: Any) -> Dict[str, str]:
@@ -49,6 +38,7 @@ def _convert_record_to_dictionary(record: Any) -> Dict[str, str]:
 
 def _convert_vcf_to_table(vcf_filename: Path) -> List[Dict[str, Any]]:
 	"""Converts all records in a vcf file into a list of dictionaries."""
+	logger.debug(f"Parsing {vcf_filename}")
 	table: List[Dict[str, str]] = list()
 	seen_positions = set()
 	with vcf_filename.open('r') as file1:
@@ -87,14 +77,8 @@ def parse_vcf_file(filename: Path, set_index: bool = True, no_filter: bool = Fal
 	# Columns are defined in VCFColumns
 	vcf_df: pandas.DataFrame = pandas.DataFrame(table)
 
-	# Filter out variants that occur within 1000b bo of each other.
-	if no_filter:
-		filtered_df = vcf_df
-	else:
-		filtered_df = _filter_df(vcf_df)
-
 	# Order the columns correctly
-	filtered_df = filtered_df[list(VCFColumns)]
+	filtered_df = vcf_df[list(VCFColumns)]
 
 	if set_index:
 		filtered_df.set_index(keys = [VCFColumns.sequence_id, VCFColumns.position], inplace = True)

@@ -6,6 +6,7 @@ import pandas
 from loguru import logger
 
 from isolateparser.breseqoutputparser import BreseqOutputParser, get_sample_name
+from isolateparser.breseqoutputparser.parsers import locations
 
 
 def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
@@ -61,6 +62,10 @@ def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
 	)
 	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories",
 		default = "")
+
+	parser.add_argument("--regex", help = "Used to extract sample names from the given filename. Currently Disabled", type = str)
+
+
 	if arguments:
 		_program_options = parser.parse_args(arguments)
 	else:
@@ -154,6 +159,7 @@ class IsolateSetWorkflow:
 		summary = pandas.DataFrame(self.summaries)
 		return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full, summary
 
+
 	@staticmethod
 	def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
 		""" Attempts to find all folders corresponding to a breseq run."""
@@ -172,7 +178,6 @@ class IsolateSetWorkflow:
 				breseq_folders.append(f)
 
 		return breseq_folders
-
 	@staticmethod
 	def _parse_commandline_list(io: Union[None, str, List[str]]) -> List[str]:
 		"""
@@ -246,7 +251,7 @@ class IsolateSetWorkflow:
 		try:
 			breseq_output = BreseqOutputParser(self.use_filter)
 
-			indexpath, gdpath, vcfpath, summarypath = self.get_file_locations(folder)
+			indexpath, gdpath, vcfpath, summarypath = locations.get_file_locations(folder)
 
 			snp_df, coverage_df, junction_df = breseq_output.run(
 				indexpath = indexpath,
@@ -269,19 +274,17 @@ if __name__ == "__main__":
 	from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
 	debug_options = [
-		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipeline/SC1360/",
-		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.old.tsv",
-		"--reference", "A0-01"
+		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipelines/SC1360/"
 	]
 
-	program_options = load_program_options()
+	program_options = load_program_options(debug_options)
 	isolateset_workflow = IsolateSetWorkflow(
 		whitelist = program_options.whitelist,
 		blacklist = program_options.blacklist,
 		sample_map = program_options.sample_map,
 		sample_regex = program_options.regex,
 		use_filter = program_options.use_filter,
-		snp_categories = program_options.categories,
+		snp_categories = program_options.snp_categories,
 		generate_fasta = program_options.generate_fasta
 	)
 	isolateset_workflow.run(program_options.folder, program_options.reference_label)

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 import pandas
 import pytest
 
-from isolateparser.breseqoutputparser.file_parsers import parse_vcf
+from isolateparser.breseqoutputparser.parsers import parse_vcf
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 vcf_filename_real = data_folder / "data" / "output.vcf"
@@ -46,14 +46,6 @@ class Record:
 	CHROM: str
 	POS: int
 	var_type: str
-
-
-@pytest.mark.parametrize(
-	"filename",
-	[vcf_filename_real, vcf_filename_real.parent]
-)
-def test_get_vcf_filename(filename):
-	assert parse_vcf.get_vcf_filename(filename) == vcf_filename_real
 
 
 def test_convert_record_to_dictionary():
@@ -120,20 +112,3 @@ def test_convert_vcf_to_table(vcf_filename):
 	assert table[0] == expected
 
 
-def test_filter_df_1000bp():
-	data = [
-		{parse_vcf.VCFColumns.position: 1000, 'B': 'row1', 'C': 'col2'},
-		{parse_vcf.VCFColumns.position: 2001, 'B': 'row2', 'C': 'col2'},
-		{parse_vcf.VCFColumns.position: 3000, 'B': 'row3', 'C': 'col2'},
-		{parse_vcf.VCFColumns.position: 5000, 'B': 'row4', 'C': 'col2'},
-		{parse_vcf.VCFColumns.position: 7000, 'B': 'row5', 'C': 'col2'}
-	]
-	df = pandas.DataFrame(data)
-
-	filtered_df = parse_vcf._filter_df(df)
-	assert df[parse_vcf.VCFColumns.position].tolist() == [1000, 2001, 3000, 5000, 7000]
-	assert filtered_df[parse_vcf.VCFColumns.position].tolist() == [1000, 5000, 7000]
-
-
-if __name__ == "__main__":
-	pass

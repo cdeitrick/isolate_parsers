@@ -26,5 +26,7 @@ def breseq_pipeline_output_empty(tmp_path)->Path:
 	sample_3_folder_breseq = checkdir(sample_3_folder / "breseq_output")
 	sample_3_folder_output = checkdir(sample_3_folder_breseq / "output")
 	sample_3_folder_data = checkdir(sample_3_folder_breseq / "data")
+	
+	return parent_folder
 
 

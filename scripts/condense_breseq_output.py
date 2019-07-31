@@ -48,7 +48,7 @@ def move_breseq(sample_id: str, source_folder: Path, destination_folder: Path):
 		sample_destination.mkdir()
 
 	for filename in breseq_files:
-		destination = sample_destination / filename.name
+		destination:Path = sample_destination / filename.name
 		shutil.copyfile(filename, destination)
 
 

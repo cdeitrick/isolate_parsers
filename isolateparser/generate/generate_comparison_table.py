@@ -153,7 +153,7 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 	if filter_table:
 		if 'filterOut' in breseq_table:
 			breseq_table = breseq_table[~breseq_table['filterOut']]
-	_group_by = [IsolateTableColumns.sequence_id, IsolateTableColumns.position, IsolateTableColumns.mutation_category]
+	_group_by = ['seq id', 'position', 'mutationCategory']
 	position_groups: List[Tuple[str, pandas.DataFrame]] = breseq_table.groupby(by = _group_by)
 
 	comparison_table = [

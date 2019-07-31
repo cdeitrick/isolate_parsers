@@ -3,19 +3,25 @@ from pathlib import Path
 import pandas
 import pytest
 
-from isolateparser.breseqoutputparser.file_parsers import parse_index
+from isolateparser.breseqoutputparser.parsers import parse_index
 
 data_folder = Path(__file__).parent / "data"
 index_folder = data_folder / "index_files"
 
+@pytest.fixture
+def variant_table_parser()->parse_index.VariantTableParser():
+	return parse_index.VariantTableParser()
 
+@pytest.fixture
+def index_parser()->parse_index.IndexParser():
+	return parse_index.IndexParser()
 
 @pytest.mark.parametrize(
 	"filename",
 	list(data_folder.joinpath("index_files").iterdir())
 )
-def test_parser_finishes(filename):
-	snp_table, cov_table, jun_table = parse_index.parse_index_file("", filename)
+def test_parser_finishes(index_parser, filename):
+	snp_table, cov_table, jun_table = index_parser.run("", filename)
 	assert isinstance(snp_table, pandas.DataFrame)
 	assert isinstance(cov_table, pandas.DataFrame)
 	assert isinstance(jun_table, pandas.DataFrame)
@@ -35,7 +41,7 @@ def test_to_integer(number, expected):
 	assert expected == result
 
 
-def test_extract_variant_table_headers():
+def test_extract_variant_table_headers(variant_table_parser):
 	expected_clone = ["evidence", "seq\xa0id", "position", "mutation", "annotation", "gene", "description"]
 
 	expected_population = ["evidence", "seq\xa0id", "position", "mutation", "freq", "annotation", "gene", "description"]
@@ -58,5 +64,6 @@ def test_extract_variant_table_headers():
 		<!-- Item Lines -->
 	"""
 	text = "\n".join(i.strip() for i in text.split('\n'))
-	headers = parse_index._extract_variant_table_headers(text)
+	headers = variant_table_parser._extract_table_headers(text)
 	assert headers == expected_clone
+

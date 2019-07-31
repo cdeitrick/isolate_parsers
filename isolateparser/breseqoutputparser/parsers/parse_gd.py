@@ -6,36 +6,36 @@ from loguru import logger
 
 MUTATION_FIELDS: Dict[str, Dict[str, List[str]]] = {
 	'snp': {
-		'position': ['seqId', 'position', 'new_seq'],
+		'position': ['seq_id', 'position', 'new_seq'],
 		'keyword':  []
 	},
 	'sub': {
-		'position': ['seqId', 'position', 'size', 'new_seq'],
+		'position': ['seq_id', 'position', 'size', 'new_seq'],
 		'keyword':  []
 	},
 	'del': {
-		'position': ['seqId', 'position', 'size'],
+		'position': ['seq_id', 'position', 'size'],
 		'keyword':  ['mediated', 'between', 'repeat_seq', 'repeat_length', 'repeat_ref_num',
 			'repeat_new_copies']
 	},
 	'ins': {
-		'position': ['seqId', 'position', 'new_seq'],
+		'position': ['seq_id', 'position', 'new_seq'],
 		'keyword':  ['repeat_seq', 'repeat_length', 'repeat_ref_num', 'repeat_new_copies', 'insert_position']
 	},
 	'mob': {
-		'position': ['seqId', 'position', 'repeat_name', 'strand', 'duplication_size'],
+		'position': ['seq_id', 'position', 'repeat_name', 'strand', 'duplication_size'],
 		'keyword':  ['del_start', 'del_end', 'ins_start', 'ins_end', 'mob_region']
 	},
 	'amp': {
-		'position': ['seqId', 'position', 'size', 'new_copy_number'],
+		'position': ['seq_id', 'position', 'size', 'new_copy_number'],
 		'keyword':  ['between', 'mediated', 'mob_region']
 	},
 	'con': {
-		'position': ['seqId', 'position', 'size', 'region'],
+		'position': ['seq_id', 'position', 'size', 'region'],
 		'keyword':  []
 	},
 	'inv': {
-		'position': ['seqId', 'position', 'size'],
+		'position': ['seq_id', 'position', 'size'],
 		'keyword':  []
 	}
 }
@@ -58,10 +58,19 @@ GD_FIELDS = {**MUTATION_FIELDS, **EVIDENCE_FIELDS}
 
 
 class GDParser:
-	def __init__(self, set_index: bool):
-		self.set_index = set_index
-
-	def run(self, io: Union[str, Path]) -> pandas.DataFrame:
+	#  ['aminoAlt', 'aminoRef', 'codonAlt', 'codonRef', 'locusTag', 'mutationCategory']
+	column_map = {
+		'seq_id': 'seq id',
+		'aa_new_seq': 'aminoAlt',
+		'aa_ref_seq': 'aminoRef',
+		'codon_new_seq': 'codonAlt',
+		'codon_ref_seq': 'codonRef',
+		'mutation_category': 'mutationCategory'
+	}
+	def __init__(self):
+		pass
+	def run(self, io: Union[str, Path], set_index:bool = True) -> pandas.DataFrame:
+		logger.debug(f"Parsing {io}")
 		content = self._load_content(io)
 		lines = self._convert_to_lines(content)
 
@@ -69,20 +78,16 @@ class GDParser:
 		gd_data: List[Dict[str, str]] = [self._parse_row(l) for l in lines]
 
 		df = pandas.DataFrame(gd_data)
+		df = self._rename_columns(df)
 
+		# We don't care about the evidence rows.
+		df = df[~df['rowType'].isin(['RA', 'MC', 'JC'])]
+
+		# Make sure the position column is actually an int rather than a str
+		df['position'] = df['position'].astype(int)
+		if set_index:
+			df.set_index(keys = ['seq id', 'position'], inplace = True)
 		return df
-
-	@staticmethod
-	def _load_content(io: Union[str, Path]) -> str:
-		if isinstance(io, Path):
-			content = io.read_text()
-		else:
-			try:
-				content = Path(io).read_text()
-			except OSError:
-				# `io` is too long, because it is actually the contents of the file.
-				content = io
-		return content
 
 	@staticmethod
 	def _convert_to_lines(content: str) -> List[List[str]]:
@@ -94,7 +99,9 @@ class GDParser:
 		# Tokenize the line
 		tokens = [i.split('\t') for i in lines]
 
-		return tokens
+		clean_tokens = [i for i in tokens if i[0].lower() != 'un']
+
+		return clean_tokens
 
 	@staticmethod
 	def _categorize_lines(lines: List[List[str]]) -> Tuple[List[List[str]], List[List[str]]]:
@@ -114,6 +121,18 @@ class GDParser:
 				message = f"Cannot identify whether this line is a `mutation` or `evidene`: {line}"
 				logger.warning(message)
 		return mutations, evidence
+
+	@staticmethod
+	def _load_content(io: Union[str, Path]) -> str:
+		if isinstance(io, Path):
+			content = io.read_text()
+		else:
+			try:
+				content = Path(io).read_text()
+			except OSError:
+				# `io` is too long, because it is actually the contents of the file.
+				content = io
+		return content
 
 	def _parse_row(self, line: List[str]) -> Dict[str, str]:
 		""" Converts a line in the gd file into a dictionary mapping parameters to their corresponding values."""
@@ -138,3 +157,11 @@ class GDParser:
 		if '][' in argument:
 			argument = argument.split('][')[0]  # Ignore 'location'
 		return argument
+
+	def _rename_columns(self, df:pandas.DataFrame)->pandas.DataFrame:
+		""" Renames som eo fthe columns form the gd file."""
+
+		for old_col, new_col in self.column_map.items():
+			df[new_col] = df[old_col]
+			del df[old_col]
+		return df

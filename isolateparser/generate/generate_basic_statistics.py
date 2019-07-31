@@ -74,14 +74,3 @@ def plot_variants(mutations: pandas.DataFrame, metadata: pandas.DataFrame, outpu
 	if output:
 		plt.savefig(str(output))
 
-
-if __name__ == "__main__":
-	folder = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/sibling_pair_a/")
-	metadata_filename = Path("/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/docs/merged_table.xlsx")
-	table_filename = folder / "SC1360.variants.xlsx"
-	table = pandas.read_excel(table_filename)
-	output_filename = table_filename.with_suffix(".basicstatistics.tsv")
-	metadata = parse_metadata_table(metadata_filename)
-	result = calculate_basic_statistics(table)
-	plot_variants(result, metadata, table_filename.with_suffix('.png'))
-	result.to_csv(output_filename, sep = '\t', index = False)
