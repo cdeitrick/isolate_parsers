@@ -70,7 +70,6 @@ class GDParser:
 	def __init__(self):
 		pass
 	def run(self, io: Union[str, Path], set_index:bool = True) -> pandas.DataFrame:
-		logger.debug(f"Parsing {io}")
 		content = self._load_content(io)
 		lines = self._convert_to_lines(content)
 
@@ -162,6 +161,9 @@ class GDParser:
 		""" Renames som eo fthe columns form the gd file."""
 
 		for old_col, new_col in self.column_map.items():
+			if old_col not in df.columns:
+				logger.warning(f"Cannot find '{old_col}'")
+				continue
 			df[new_col] = df[old_col]
 			del df[old_col]
 		return df

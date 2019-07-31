@@ -132,7 +132,7 @@ class IsolateSetWorkflow:
 			'junction':           junction_df.reset_index(),
 			'summary':            summary_df
 		}
-		logger.info("Saving isolate table as ", output_filename_table)
+		logger.info(f"Saving isolate table as {output_filename_table}")
 		save_isolate_table(tables, output_filename_table)
 
 		if self.generate_fasta:
