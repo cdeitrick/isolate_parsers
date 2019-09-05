@@ -38,7 +38,6 @@ def _convert_record_to_dictionary(record: Any) -> Dict[str, str]:
 
 def _convert_vcf_to_table(vcf_filename: Path) -> List[Dict[str, Any]]:
 	"""Converts all records in a vcf file into a list of dictionaries."""
-	logger.debug(f"Parsing {vcf_filename}")
 	table: List[Dict[str, str]] = list()
 	seen_positions = set()
 	with vcf_filename.open('r') as file1:

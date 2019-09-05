@@ -102,7 +102,7 @@ class BreseqOutputParser:
 		self.index_columns = []
 		# We only want a subset of the columns available from the gd  and vcf files.
 		self.gd_columns = ['aminoAlt', 'aminoRef', 'codonAlt', 'codonRef', 'mutationCategory']
-		self.vcf_columns = ['alt', 'ref']
+		self.vcf_columns = ['alt', 'ref', 'readDepth']
 
 		self.file_parser_index = IndexParser()
 		self.file_parser_gd = GDParser()
@@ -145,7 +145,7 @@ class BreseqOutputParser:
 		# Add the `sampleId` and `sampleName`
 		variant_df['sampleId'] = sample_id
 		variant_df['sampleName'] = sample_name
-		variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
+		#variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
 
 		return variant_df, coverage_df, junction_df
 
@@ -174,8 +174,6 @@ class BreseqOutputParser:
 			variant_df: pandas.DataFrame = index.merge(reduced_gd, how = 'left', left_index = True, right_index = True)
 		else:
 			variant_df = index
-		logger.warning(f"Saving the df for debugging")
-		variant_df.to_csv("varianttesttable.tsv", sep = '\t')
 		if vcf is not None:
 			variant_df = variant_df.merge(vcf, how = 'left', left_index = True, right_index = True)
 
