@@ -154,7 +154,7 @@ class VariantTableParser:
 		# [locus_tag=Bcen2424_5147] [db_xref=InterPro:IPR006157] [protein=Dihydroneopterin aldolase][protein_id=ABK11880.1] [location=complement(2194414..2194854)][gbkey=CDS]/[locus_tag=Bcen2424_5146] [db_xref=InterPro:IPR008258] [protein=Lytic transglycosylase,catalytic] [protein_id=ABK11879.1] [location=2193627..2194313][gbkey=CDS]
 		description = row['description']
 		if 'locus_tag' in description:
-			row['locusTagOriginal'] = row['locusTag']
+			row['locusTagOriginal'] = row['gene']
 			description = row['description']
 			fields = self._extract_fields_from_translated_cds_annotation(description)
 
