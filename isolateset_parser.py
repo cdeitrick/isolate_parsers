@@ -272,7 +272,10 @@ class IsolateSetWorkflow:
 
 if __name__ == "__main__":
 	from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
-
+	debug_args = [
+		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.old.txt",
+		"-i", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipelines/SC1360/"
+	]
 	program_options = load_program_options()
 	isolateset_workflow = IsolateSetWorkflow(
 		whitelist = program_options.whitelist,

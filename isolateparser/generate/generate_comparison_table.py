@@ -113,9 +113,12 @@ def apply_cds_annotations(df:pandas.DataFrame)->pandas.DataFrame:
 	locus_tag_pattern = "locus_tag=([^\]]+)"
 	gene_pattern = "protein=(.+?)\]"
 
+
 	new_locus_tags = _apply(locus_tag_pattern, df['description'].tolist())
 	new_genes = _apply(gene_pattern, df['description'].tolist())
-	df['locusTagProkka'] = df['locusTag']
+
+	df['geneOld'] = df['gene'].values
+	df['locusTagOld'] = df['locusTag'].values
 	df['locusTag'] = new_locus_tags
 	df['gene'] = new_genes
 
