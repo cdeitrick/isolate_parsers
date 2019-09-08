@@ -129,6 +129,7 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 		reference_sequence = reference_sequence,
 		alt_column = alt_col
 	)
+	logger.debug(f"{snp_table.columns}")
 	groups = snp_table.groupby(by = IsolateTableColumns.sample_name)
 
 	sample_alts = [reference_sequence] + [partial_parse_sample(name, group) for name, group in groups]
@@ -141,6 +142,7 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 
 	# Filter out variants that appear in all samples.
 	df = datatools.filter_variants_in_all_samples(df, 'reference')
+	logger.debug(f"{df.columns}")
 	# It is easier to iterate over rows rather than columns, so transpose the dataframe such that rows correspond to samples.
 	df = df.transpose()
 	return df
@@ -193,7 +195,6 @@ def write_fasta_file(df: pandas.DataFrame, filename: Path) -> Path:
 def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'base', reference_label: Optional[str] = None,
 		mutation_categories: List[str] = None) -> pandas.DataFrame:
 	"""Converts the variant table generated from the breseqset parser into a fasta file."""
-	variant_table.to_csv("variant_table.tsv", sep = "\t")
 	reference_column, alternate_column = _get_relevant_columns(by)
 
 	# Make sure `filename` is a Path
@@ -206,6 +207,8 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 	else:
 		accepted_mutation_categories = ['snp_nonsynonymous', 'snp_synonymous']
 	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
+
+	logger.debug(f"table.columns")
 
 	_validate_variant_table(table, by, reference_column, alternate_column)
 
