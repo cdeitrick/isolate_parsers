@@ -138,7 +138,9 @@ class IsolateSetWorkflow:
 		if self.generate_fasta:
 			logger.info("Generating fasta...")
 			fasta_filename_snp = output_filename_fasta.with_suffix(".snp.fasta")
+			fasta_filename_codon=output_filename_fasta.with_suffix(".codon.fasta")
 			generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
+			generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = program_options.reference_label)
 
 	def concatenate_callset_tables(self, parent_folder: Path):
 		""" Expects a folder of breseq runs for a set of isolates.
