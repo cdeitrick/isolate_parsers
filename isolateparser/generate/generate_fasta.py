@@ -129,13 +129,21 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 		reference_sequence = reference_sequence,
 		alt_column = alt_col
 	)
-	logger.debug(f"{snp_table.columns}")
 	groups = snp_table.groupby(by = IsolateTableColumns.sample_name)
 	logger.debug(snp_table[IsolateTableColumns.sample_name].unique())
 
 	sample_alts = [reference_sequence] + [partial_parse_sample(name, group) for name, group in groups]
+
 	df: pandas.DataFrame = pandas.concat(sample_alts, axis = 1)
+	if reference_label not in snp_table[IsolateTableColumns.sample_name].unique():
+		# Need to add the reference sequence.
+		logger.warning(f"Need to add '{reference_label}' to the table.")
+		_ref = reference_sequence
+		_ref.name = reference_label
+		df = pandas.concat([_ref, df], axis = 1)
+		logger.debug(f"{df.columns}")
 	# Filter out variants that are present in the reference sample
+
 	if reference_label and reference_label in df.columns:
 		df = _filter_variants_in_sample(df, reference_label, 'reference')
 	else:
@@ -208,8 +216,6 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 	else:
 		accepted_mutation_categories = ['snp_nonsynonymous', 'snp_synonymous']
 	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
-
-	logger.debug(f"{table.columns}")
 
 	_validate_variant_table(table, by, reference_column, alternate_column)
 
