@@ -136,6 +136,8 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	# Filter out variants that are present in the reference sample
 	if reference_label and reference_label in df.columns:
 		df = _filter_variants_in_sample(df, reference_label, 'reference')
+	else:
+		logger.warning(f"Could not find '{reference_label}' in the table columns: {df.columns}")
 
 	# Filter out variants that appear in all samples.
 	df = datatools.filter_variants_in_all_samples(df, 'reference')
