@@ -131,6 +131,7 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	)
 	logger.debug(f"{snp_table.columns}")
 	groups = snp_table.groupby(by = IsolateTableColumns.sample_name)
+	logger.debug(snp_table[IsolateTableColumns.sample_name].unique())
 
 	sample_alts = [reference_sequence] + [partial_parse_sample(name, group) for name, group in groups]
 	df: pandas.DataFrame = pandas.concat(sample_alts, axis = 1)
@@ -208,7 +209,7 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 		accepted_mutation_categories = ['snp_nonsynonymous', 'snp_synonymous']
 	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
 
-	logger.debug(f"table.columns")
+	logger.debug(f"{table.columns}")
 
 	_validate_variant_table(table, by, reference_column, alternate_column)
 
