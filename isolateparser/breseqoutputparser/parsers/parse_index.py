@@ -147,11 +147,17 @@ class VariantTableParser:
 		except KeyError:
 			pass
 		# `description` is the column name in the index file.
+
 		if 'javascript' in row['description'] or 'Javascript' in row['description']:
-			row['description'] = 'large deletion'
+			row['description'] = 'large_deletion'
+		if row['description'] == 'large_deletion' or row['description'] == 'large deletion':
+			row['alt'] = 'deletion'
+
+		#logger.info(row)
 
 		# Now add annotations from the `description` field if it was annotated from a translated cds file.
 		# [locus_tag=Bcen2424_5147] [db_xref=InterPro:IPR006157] [protein=Dihydroneopterin aldolase][protein_id=ABK11880.1] [location=complement(2194414..2194854)][gbkey=CDS]/[locus_tag=Bcen2424_5146] [db_xref=InterPro:IPR008258] [protein=Lytic transglycosylase,catalytic] [protein_id=ABK11879.1] [location=2193627..2194313][gbkey=CDS]
+
 		description = row['description']
 		if 'locus_tag' in description:
 			description = row['description']

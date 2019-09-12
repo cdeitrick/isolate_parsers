@@ -130,7 +130,6 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 		alt_column = alt_col
 	)
 	groups = snp_table.groupby(by = IsolateTableColumns.sample_name)
-	logger.debug(snp_table[IsolateTableColumns.sample_name].unique())
 
 	sample_alts = [reference_sequence] + [partial_parse_sample(name, group) for name, group in groups]
 
@@ -151,7 +150,6 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 
 	# Filter out variants that appear in all samples.
 	df = datatools.filter_variants_in_all_samples(df, 'reference')
-	logger.debug(f"{df.columns}")
 	# It is easier to iterate over rows rather than columns, so transpose the dataframe such that rows correspond to samples.
 	df = df.transpose()
 	return df

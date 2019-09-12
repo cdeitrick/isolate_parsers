@@ -62,9 +62,13 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 
 	for index, row in group.iterrows():
 		sample_name = row[IsolateTableColumns.sample_name]
-		alternate = row[alt_col]
-
+		if row['mutationCategory'] != 'large_deletion':
+			alternate = row[alt_col]
+		else:
+			alternate = row['mutation']
 		static_data[sample_name] = alternate
+
+
 
 	for sample_name in unique_samples:
 		if sample_name not in static_data:
@@ -166,7 +170,7 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 
 	# Add a column indicating if the reference sample contained the variant. This only applies if the reference sample is known.
 	if reference_sample and reference_sample in df.columns:
-		df['inReference'] = df[reference_sample] != df[reference_column]
+		df['inReference'] = ((df[reference_sample] != df[reference_column]) & (df[IsolateTableColumns.mutation_category] != "large_deletion"))
 	# Check if the description field came from a translated cds file.
 
 	df = apply_cds_annotations(df)
