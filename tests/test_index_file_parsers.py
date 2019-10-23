@@ -67,3 +67,15 @@ def test_extract_variant_table_headers(variant_table_parser):
 	headers = variant_table_parser._extract_table_headers(text)
 	assert headers == expected_clone
 
+@pytest.mark.parametrize(
+	"value, expected",
+	[
+		("16123", 16123),
+		(3.14159, 3),
+		("161,171", 161171),
+		("978,345:1", 978345)
+	]
+)
+def test_clean_value(variant_table_parser, value, expected):
+	result = variant_table_parser._clean_position(value)
+	assert result == expected

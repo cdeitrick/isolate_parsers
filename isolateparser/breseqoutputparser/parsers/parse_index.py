@@ -180,6 +180,22 @@ class VariantTableParser:
 		right = '[' + right
 		return left, right
 
+	@staticmethod
+	def _clean_position(value:Union[str,int])->int:
+		""" The `position` column in the index.html file is sometimes formatted differtly based on what the actual mutation is.
+			For example, an insertion may be formatted as '161,123:1`, so both the ':' and the ',' characters need to be removed.
+		"""
+		if isinstance(value, str):
+			# remove any ',' characters
+			value = value.replace(',', '')
+
+			# The value may contain a colon if it is an insertion.
+			value = value.split(':')[0]
+			result = int(value)
+		else:
+			result = int(value)
+
+		return result
 	def run(self, sample_name: str, soup: BeautifulSoup) -> pandas.DataFrame:
 		snp_table_headers = self._extract_table_headers(str(soup))
 		snp_table = self._extract_snp_table(soup)
@@ -190,15 +206,9 @@ class VariantTableParser:
 
 		snp_df.columns = _clean_fieldnames(snp_df.columns)
 		# make sure the `position` column is type int
-		def convert(x):
-			if not isinstance(x, str): return x
-			else:
-				if ':' not in x:
-					result = x
-				else:
-					result =  x.split(':')[0]
-				return result.replace(',', '')
-		snp_df['position'] = snp_df['position'].apply(convert)
+
+
+		snp_df['position'] = snp_df['position'].apply(self._clean_position)
 		snp_df['position'] = snp_df['position'].astype(int)
 
 		# Remap the column names to something a little more readable.
