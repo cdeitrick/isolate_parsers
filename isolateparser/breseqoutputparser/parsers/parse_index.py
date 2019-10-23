@@ -190,7 +190,14 @@ class VariantTableParser:
 
 		snp_df.columns = _clean_fieldnames(snp_df.columns)
 		# make sure the `position` column is type int
-		snp_df['position'] = snp_df['position'].apply(lambda s: s if ':' not in s else s.split(':')[0])
+		def convert(x):
+			if not isinstance(x, str): return s
+			else:
+				if ':' not in x:
+					return x
+				else:
+					return x.split(':')
+		snp_df['position'] = snp_df['position'].apply(convert)
 		snp_df['position'] = snp_df['position'].astype(int)
 
 		# Remap the column names to something a little more readable.
