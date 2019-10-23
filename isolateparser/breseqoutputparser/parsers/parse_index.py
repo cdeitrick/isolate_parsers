@@ -196,7 +196,7 @@ class VariantTableParser:
 				if ':' not in x:
 					return x
 				else:
-					return x.split(':')
+					return x.split(':')[0]
 		snp_df['position'] = snp_df['position'].apply(convert)
 		snp_df['position'] = snp_df['position'].astype(int)
 
