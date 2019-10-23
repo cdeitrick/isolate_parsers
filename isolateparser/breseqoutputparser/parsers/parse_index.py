@@ -191,7 +191,7 @@ class VariantTableParser:
 		snp_df.columns = _clean_fieldnames(snp_df.columns)
 		# make sure the `position` column is type int
 		def convert(x):
-			if not isinstance(x, str): return s
+			if not isinstance(x, str): return x
 			else:
 				if ':' not in x:
 					return x
