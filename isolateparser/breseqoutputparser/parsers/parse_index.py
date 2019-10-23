@@ -194,9 +194,10 @@ class VariantTableParser:
 			if not isinstance(x, str): return x
 			else:
 				if ':' not in x:
-					return x
+					result = x
 				else:
-					return x.split(':')[0]
+					result =  x.split(':')[0]
+				return result.replace(',', '')
 		snp_df['position'] = snp_df['position'].apply(convert)
 		snp_df['position'] = snp_df['position'].astype(int)
 
