@@ -207,7 +207,6 @@ class VariantTableParser:
 		snp_df.columns = _clean_fieldnames(snp_df.columns)
 		# make sure the `position` column is type int
 
-
 		snp_df['position'] = snp_df['position'].apply(self._clean_position)
 		snp_df['position'] = snp_df['position'].astype(int)
 
