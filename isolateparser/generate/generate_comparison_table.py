@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple, Union, Iterable
 from loguru import logger
 import pandas
 
-from isolateparser.breseqoutputparser import IsolateTableColumns
+from isolateparser.breseqparser import IsolateTableColumns
 
 
 def _calculate_average_value(values: List[str]) -> float:
@@ -57,34 +57,34 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	# Large deletions do not have an annotation.
 	# Replace with the text in the `mutation` field.
 	reference = first_row[ref_col]
-	static_data[ref_col] = reference
-	_number_of_alternate_samples = len(group)
 
+	static_data[ref_col] = reference
 	for index, row in group.iterrows():
 		sample_name = row[IsolateTableColumns.sample_name]
-		if row['mutationCategory'] != 'large_deletion':
-			alternate = row[alt_col]
-		else:
-			alternate = row['mutation']
-		static_data[sample_name] = alternate
+		static_data[sample_name] = row[alt_col]
 
-
+	# Add the reference value for all samples not part of this mutation group.
 
 	for sample_name in unique_samples:
 		if sample_name not in static_data:
-			static_data[sample_name] = reference
+			static_data[sample_name] = 0.0 if alt_col == 'frequency' else reference
 
 	static_data['presentInAllSamples'] = len(group) == len(unique_samples)
 	static_data['presentIn'] = len(group)
+	# When the samples were populations add a column that specifies the alternate value for this group.
+	# Use the group rather than the first row in case there are multiple alternate bases
+	if alt_col == 'frequency':
+		static_data['alt'] = "|".join(list(group[IsolateTableColumns.alt].unique()))
 	# static_data[IsolateTableColumns]
 
 	return static_data
 
 
-def _get_relevant_columns(by: str) -> Tuple[str, str]:
+def _get_relevant_columns(by: str, is_population:bool) -> Tuple[str, str]:
 	if by == 'base':
 		reference_column = IsolateTableColumns.ref
-		alternate_column = IsolateTableColumns.alt
+		# Hard coded for now because IsolateTableColumns has the column labels before they were renamed.
+		alternate_column = IsolateTableColumns.alt if not is_population else 'frequency'
 	elif by == 'amino':
 		reference_column = IsolateTableColumns.reference_amino
 		alternate_column = IsolateTableColumns.alternate_amino
@@ -128,10 +128,16 @@ def apply_cds_annotations(df:pandas.DataFrame)->pandas.DataFrame:
 
 	return df
 
+def check_if_population(table:pandas.DataFrame)->bool:
+	""" Checks whether the 'frequency' column is non-NaN, indicating that this was a population."""
+	freq = table['frequency']
 
+	# If the `frequency` column is entirely NaN, then there will only be one unique value.
+	unique = freq.unique()
 
-def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filter_table: bool = False,
-		reference_sample: str = None) -> pandas.DataFrame:
+	return len(unique) != 1
+
+def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str,reference_sample: str = None) -> pandas.DataFrame:
 	"""
 		Generates a table with sample alt sequences represented by columns.
 	Parameters
@@ -151,21 +157,19 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 	-------
 	pandas.DataFrame
 	"""
-	logger.debug(f"Generating comparison table")
-	logger.debug(f"\t by = {by}")
-	logger.debug(f"\t filter_table = {filter_table}")
-	logger.debug(f"\treference = {reference_sample}")
+	logger.info(f"Generating comparison table")
+
 	unique_samples = list(breseq_table[IsolateTableColumns.sample_name].unique())
-	reference_column, alternate_column = _get_relevant_columns(by)
-	if filter_table:
-		if 'filterOut' in breseq_table:
-			breseq_table = breseq_table[~breseq_table['filterOut']]
+	is_population = check_if_population(breseq_table)
+	reference_column, alternate_column = _get_relevant_columns(by, is_population)
+
 	_group_by = ['seq id', 'position', 'mutationCategory']
 	position_groups: List[Tuple[str, pandas.DataFrame]] = breseq_table.groupby(by = _group_by)
 
-	comparison_table = [
-		parse_mutation_group(g, unique_samples, reference_column, alternate_column) for k, g in position_groups
-	]
+	comparison_table = list()
+	for key, group in position_groups:
+		result = parse_mutation_group(group, unique_samples, reference_column, alternate_column)
+		comparison_table.append(result)
 	df = pandas.DataFrame(comparison_table)
 
 	# Add a column indicating if the reference sample contained the variant. This only applies if the reference sample is known.
@@ -173,7 +177,7 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str, filte
 		df['inReference'] = ((df[reference_sample] != df[reference_column]) & (df[IsolateTableColumns.mutation_category] != "large_deletion"))
 	# Check if the description field came from a translated cds file.
 
-	df = apply_cds_annotations(df)
+	#df = apply_cds_annotations(df)
 
 
 	return df

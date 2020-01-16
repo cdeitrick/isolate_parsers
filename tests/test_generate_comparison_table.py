@@ -33,8 +33,9 @@ def snp_group() -> pandas.DataFrame:
 	)
 	return test_snp_group
 
+
 @pytest.fixture
-def mutation_group() -> pandas.DataFrame:
+def mutation_group_clones() -> pandas.DataFrame:
 	string = """
 		alt	aminoAlt	aminoRef	annotation	codonAlt	codonRef	description	evidence	gene	locusTag	mutation	mutationCategory	position	ref	sampleId	sampleName	seq id
 		A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1581	E-01	NODE_2
@@ -45,7 +46,18 @@ def mutation_group() -> pandas.DataFrame:
 	"""
 	t = import_table(string, index = ["seq id", "position"])
 	return t
-
+@pytest.fixture
+def mutation_group_population()->pandas.DataFrame():
+	string = """
+		frequency	alt	aminoAlt	aminoRef	annotation	codonAlt	codonRef	description	evidence	gene	locusTag	mutation	mutationCategory	position	ref	sampleId	sampleName	seq id
+		13.4	A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1581	E-01	NODE_2
+		15.4	A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU1836	E-02	NODE_2
+		100	A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU4381	E-05	NODE_2
+		45.3	A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU4993	E-06	NODE_2
+		1.0	A	M	L	L701M (CTT-ATG)	ATG	CTT	amino acid adenylation protein	RA	BPFJKKCJ_01788 -		C-A	snp_nonsynonymous	641399	C	AU5341	E-07	NODE_2
+	"""
+	t = import_table(string, index = ["seq id", "position"])
+	return t
 
 @pytest.fixture
 def deletion_group() -> pandas.DataFrame:
@@ -137,15 +149,13 @@ def test_parse_mutation_group_large_deletion(deletion_group):
 	assert output == expected_output
 
 
-
-
-def test_extract_string_from_group(mutation_group):
-	result = generate_comparison_table._extract_string_from_group(mutation_group, generate_comparison_table.IsolateTableColumns.annotation)
+def test_extract_string_from_group(mutation_group_clones):
+	result = generate_comparison_table._extract_string_from_group(mutation_group_clones, generate_comparison_table.IsolateTableColumns.annotation)
 	expected = "L701M (CTT-ATG)"
 	assert result == expected
 
 
-def test_parse_mutation_group(mutation_group):
+def test_parse_mutation_group(mutation_group_clones):
 	expected = {
 		'seq id':              'NODE_2',
 		'position':            641399,
@@ -165,16 +175,45 @@ def test_parse_mutation_group(mutation_group):
 	}
 	unique_samples = ['E-01', 'E-02', 'E-05', 'E-06', 'E-07', 'E-10']
 
-	result = generate_comparison_table.parse_mutation_group(mutation_group, unique_samples = unique_samples, ref_col = 'ref', alt_col = 'alt')
+	result = generate_comparison_table.parse_mutation_group(mutation_group_clones, unique_samples = unique_samples, ref_col = 'ref', alt_col = 'alt')
 	result.pop('locusTag')  # nan cannot be compared against itself.
 	assert result == expected
 
 
-def test_get_relevant_columns():
-	assert ('ref', 'alt') == generate_comparison_table._get_relevant_columns('base')
+def test_parse_mutation_group_with_population(mutation_group_population):
+	expected = {
+		'seq id':              'NODE_2',
+		'position':            641399,
+		'annotation':          "L701M (CTT-ATG)",
+		'description':         "amino acid adenylation protein",
+		'gene':                'BPFJKKCJ_01788 -',
+		'E-01':                13.4,
+		'E-02':                15.4,
+		'E-05':                100.0,
+		'E-06':                45.3,
+		'E-07':                1.0,
+		'E-10':                0.0,
+		'presentIn':           5,
+		'presentInAllSamples': False,
+		'ref':                 'C',
+		'mutationCategory':    'snp_nonsynonymous',
+		'alt':	'A'
+	}
+	unique_samples = ['E-01', 'E-02', 'E-05', 'E-06', 'E-07', 'E-10']
 
-	assert ('aminoRef', 'aminoAlt') == generate_comparison_table._get_relevant_columns('amino')
-	assert ('codonRef', 'codonAlt') == generate_comparison_table._get_relevant_columns('codon')
+	result = generate_comparison_table.parse_mutation_group(mutation_group_population, unique_samples = unique_samples, ref_col = 'ref', alt_col = 'frequency')
+	result.pop('locusTag')  # nan cannot be compared against itself.
+	assert result == expected
+
+def test_get_relevant_columns_for_clones():
+	assert ('ref', 'alt') == generate_comparison_table._get_relevant_columns('base', is_population = False)
+
+	assert ('aminoRef', 'aminoAlt') == generate_comparison_table._get_relevant_columns('amino', is_population = False)
+	assert ('codonRef', 'codonAlt') == generate_comparison_table._get_relevant_columns('codon', is_population = False)
+
+
+def test_get_relevant_colums_for_populations():
+	assert ('ref', 'frequency') == generate_comparison_table._get_relevant_columns('base', True)
 
 
 if __name__ == "__main__":

@@ -36,18 +36,18 @@
 """
 
 from pathlib import Path
-from typing import Any, Dict, NamedTuple, Optional, Tuple
-
+from typing import Any, Dict, Optional, Tuple, NamedTuple
+import functools
+import re
 import pandas
 from loguru import logger
 
 from .parsers import GDParser, IndexParser, parse_summary_file, parse_vcf_file
 
-DF = pandas.DataFrame
 
-
-class _IsolateTableColumns(NamedTuple):
-	# Defines the column names for the isolate table. Used `Enum` because it's iterable and only one instance will exist.
+class IsolateTableColumns(NamedTuple):
+	# Defines the column names for the isolate table.
+	# Mainly used as a reminder of what the final column labels should be.
 	sample_id: str = 'sampleId'
 	sample_name: str = 'sampleName'
 	sequence_id: str = 'seq id'
@@ -66,10 +66,7 @@ class _IsolateTableColumns(NamedTuple):
 	reference_codon: str = 'codonRef'
 	locus_tag: str = 'locusTag'
 	mutation_category: str = 'mutationCategory'
-
-
-IsolateTableColumns = _IsolateTableColumns()
-
+IsolateTableColumns = IsolateTableColumns()
 
 def get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
@@ -93,8 +90,73 @@ def _filter_bp(raw_df: pandas.DataFrame) -> pandas.DataFrame:
 
 	return fdf
 
+def catagorize_mutation(annotation:str, mutation:str)->str:
+	""" Used when the mutation category is not available from the gd file."""
+	if '-' in annotation:
+		# is a SNP
+		if 'intergenic' in annotation:
+			result = "snp_intergenic"
+		else:
+			# Should be an amino acid annotation
+			# Ex. G117G (GGC→GGG)
+			aminoannotation = annotation.split(' ')[0]
+			result = "snp_synonymous" if aminoannotation[0] == aminoannotation[-1] else "snp_nonsynonymous"
+	elif annotation.startswith('(') or annotation.startswith('+'):
+		# Should be an insertion.
+		# (GGTGCCC)1
+		# (GGTGCCC)1→2
+		result = "small_indel"
+	elif annotation.startswith('D'):
+		# Δ425,094 bp
+		# Try to check the size of the deletion
+		numbers = [i for i in annotation if i.isdigit()]
+		length = int("".join(numbers))
+		if length < 100:
+			result = 'deletion'
+		else:
+			result = "large_deletion"
 
-class BreseqOutputParser:
+	else:
+		logger.debug(f"Could not categorize '{mutation}', '{annotation}'")
+		result = "unknown"
+
+	return result
+
+def get_reference_from_mutation(mutation:str, annotation:str)->str:
+	if '-' in mutation and len(mutation) == 3:
+		ref = mutation.split('-')[0]
+	elif mutation.startswith('+'):
+		# An insertion
+		ref = "."
+	elif mutation.startswith('('):
+		# Should be an insertion
+		ref = "".join([i for i in mutation if i in "ACGT"])
+		logger.warning(ref)
+	elif annotation.startswith('D'):
+		# It's a deletion
+		ref = "."
+	else:
+		ref = '.'
+
+	return ref
+
+def get_alternate_from_mutation(mutation:str)->str:
+	unknown_value = "N/A"
+	if '-' in mutation and len(mutation) == 3:
+		result = mutation.split('-')[-1]
+	elif mutation.startswith('+'):
+		result = mutation[1]
+	elif mutation.startswith('D'):
+		result = mutation
+	else:
+		result = unknown_value
+	return result
+
+
+class BreseqFolderParser:
+	"""
+		Parses the contents of a breseq run folder.
+	"""
 	def __init__(self, use_filter: bool = False):
 		self._set_table_index = True
 		self.use_filter = use_filter
@@ -124,28 +186,23 @@ class BreseqOutputParser:
 			sample_name = sample_id
 
 		index_df, coverage_df, junction_df = self.file_parser_index.run(sample_name, indexpath, set_index = self._set_table_index)
-
 		if gdpath:
 			gd_df = self.file_parser_gd.run(gdpath, set_index = self._set_table_index)
 		else:
-			# TODO: Need to add the missing columns
-			# These would be 'locusTag' and 'mutationCategory'.
+			logger.info(f"Could not locate the gd file")
 			gd_df = None
 
 		if vcfpath:
-			vcf_df = parse_vcf_file(vcfpath, set_index = self._set_table_index, no_filter = True)
+			vcf_df = parse_vcf_file(vcfpath, set_index = self._set_table_index)
 		else:
-			# TODO: Need to add the missing columns
-			# These would be the 'alt' and 'ref' columns
+			logger.info("Could not find the path to the vcf file.")
 			vcf_df = None
 
 		# Merge the tables together.
 		variant_df = self.merge_tables(index_df, gd_df, vcf_df)
-
-		# Add the `sampleId` and `sampleName`
-		variant_df['sampleId'] = sample_id
-		variant_df['sampleName'] = sample_name
-		#variant_df = variant_df[[i for i in IsolateTableColumns if i in variant_df.columns]]
+		# Add the `sampleId` and `sampleName` columns
+		variant_df[IsolateTableColumns.sample_id] = sample_id
+		variant_df[IsolateTableColumns.sample_name] = sample_name
 
 		return variant_df, coverage_df, junction_df
 
@@ -166,22 +223,34 @@ class BreseqOutputParser:
 		pandas.DataFrame
 			A dataframe that contains data from all three given tables.
 		"""
-
+		# May need these if the gd or vcf files are missing.
+		mutation_column = index[IsolateTableColumns.mutation].values
+		annotation_column = index[IsolateTableColumns.annotation].values
 		if gd is not None:
 			# We don't care about most of the columns
 			reduced_gd = gd[self.gd_columns]
-
 			variant_df: pandas.DataFrame = index.merge(reduced_gd, how = 'left', left_index = True, right_index = True)
 		else:
 			variant_df = index
+			#TODO: Need to add the missing columns.
+
+			categories = [catagorize_mutation(a, m) for a, m in zip(mutation_column, annotation_column)]
+			variant_df[IsolateTableColumns.mutation_category] = categories
+			# Not generating the codon or amino acid columns since they aren't really used.
+			logger.warning(f"Excecuting a patch to add the amino acid and codon columns to the table. This should be replaced with a more robust parser.")
+			variant_df['aminoAlt'] = variant_df['aminoRef'] = variant_df['codonAlt'] = variant_df['codonRef'] = 'unknown'
+
 		if vcf is not None:
 			variant_df = variant_df.merge(vcf, how = 'left', left_index = True, right_index = True)
-
+		else:
+			if IsolateTableColumns.ref not in variant_df.columns:
+				refs = [get_reference_from_mutation(m, a) for m, a in zip(mutation_column, annotation_column)]
+				variant_df[IsolateTableColumns.ref] = refs
+			if IsolateTableColumns.alt not in variant_df.columns:
+				variant_df[IsolateTableColumns.alt] = variant_df[IsolateTableColumns.mutation].apply(get_alternate_from_mutation)
 		return variant_df
 
 	@staticmethod
 	def get_summary(folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Dict[str, Any]:
 		return parse_summary_file(folder, sample_id, sample_name)
 
-	def get_alt_from_gd(self):
-		pass

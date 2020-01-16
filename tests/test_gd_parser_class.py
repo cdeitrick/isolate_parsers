@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from isolateparser.breseqoutputparser.parsers import parse_gd
+from isolateparser.breseqparser.parsers import parse_gd
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def test_parse_row(gdparser, annotated_gd_row):
 		"rowType":        "SNP",
 		"rowId":          "3",
 		"parentIds":      "44",
-		"seqId":          "2",
+		"seq_id":          "2",
 		"position":       "1595623",
 		"new_seq":        "A",
 		"aa_new_seq":     "I",

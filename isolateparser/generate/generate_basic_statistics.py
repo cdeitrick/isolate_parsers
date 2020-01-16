@@ -58,9 +58,7 @@ def random_color() -> str:
 
 def plot_variants(mutations: pandas.DataFrame, metadata: pandas.DataFrame, output: Path = None):
 	colormap = {i: random_color() for i in metadata['patient'].unique()}
-	print(mutations['sampleName'].tolist())
 	sample_metadata = metadata.loc[mutations['sampleName'].values]
-	print(sample_metadata.to_string())
 	import matplotlib.pyplot as plt
 	dates = sample_metadata['date']
 	dates = [pandas.to_datetime(i) for i in dates]

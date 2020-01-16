@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 import pandas
 import pytest
 
-from isolateparser.breseqoutputparser.parsers import parse_vcf
+from isolateparser.breseqparser.parsers import parse_vcf
 
 data_folder = Path(__file__).parent / 'data' / 'Clonal_Output' / 'breseq_output'
 vcf_filename_real = data_folder / "data" / "output.vcf"
@@ -78,7 +78,7 @@ def test_parse_vcf_file(vcf_filename):
 	# `seq id` and `position` are in the index.
 	expected_columns = ['alt', 'ref', 'quality', 'readDepth', 'variantType']
 
-	vcf_table = parse_vcf.parse_vcf_file(vcf_filename, no_filter = True)
+	vcf_table = parse_vcf.parse_vcf_file(vcf_filename)
 	expected_index = [('REL606', 16971), ("REL606", 161041), ("REL606", 380188), ("REL606", 430835), ("REL606", 475292)]
 	assert list(vcf_table.columns) == expected_columns
 	assert list(vcf_table.index) == list(expected_index)

@@ -8,7 +8,7 @@ import pandas
 from loguru import logger
 
 from isolateparser import datatools
-from isolateparser.breseqoutputparser import IsolateTableColumns
+from isolateparser.breseqparser import IsolateTableColumns
 
 SEQUENCE_ID_COLUMN = IsolateTableColumns.sequence_id
 POSITION_COLUMN = IsolateTableColumns.position
@@ -44,8 +44,8 @@ def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: s
 			'reference':        reference_sequence
 		}
 		reference_data.append(row)
-
-	reference_table = pandas.DataFrame(reference_data).set_index([SEQUENCE_ID_COLUMN, POSITION_COLUMN])
+	reference_table = pandas.DataFrame(reference_data)
+	reference_table = reference_table.set_index([SEQUENCE_ID_COLUMN, POSITION_COLUMN])
 	reference_table = reference_table.sort_index()
 	# Convert to pandas.Series
 	return reference_table['reference']
@@ -136,16 +136,16 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	df: pandas.DataFrame = pandas.concat(sample_alts, axis = 1)
 	if reference_label not in snp_table[IsolateTableColumns.sample_name].unique():
 		# Need to add the reference sequence.
-		logger.warning(f"Need to add '{reference_label}' to the table.")
+		if reference_label:
+			logger.warning(f"Need to add the reference column ('label = {reference_label}') to the table.")
 		_ref = reference_sequence
 		_ref.name = reference_label
 		df = pandas.concat([_ref, df], axis = 1)
-		logger.debug(f"{df.columns}")
 	# Filter out variants that are present in the reference sample
 
 	if reference_label and reference_label in df.columns:
 		df = _filter_variants_in_sample(df, reference_label, 'reference')
-	else:
+	elif reference_label:
 		logger.warning(f"Could not find '{reference_label}' in the table columns: {df.columns}")
 
 	# Filter out variants that appear in all samples.
@@ -153,23 +153,6 @@ def _convert_combined_table_to_aligned_table(snp_table: pandas.DataFrame, refere
 	# It is easier to iterate over rows rather than columns, so transpose the dataframe such that rows correspond to samples.
 	df = df.transpose()
 	return df
-
-
-def _validate_variant_table(variant_table: pandas.DataFrame, by: str, ref_col: str, alt_col: str) -> None:
-	""" Raises an error if the variant table has errors."""
-	# Since this only concerns SNPs, make sure the alt and ref sequences are single characters
-	# Use chaining to account for sequences like 'ACGT' that may be present rather than single characters.
-	unique_reference_bases = set(itertools.chain.from_iterable(variant_table[ref_col].unique()))
-	unique_alternate_bases = set(itertools.chain.from_iterable(variant_table[alt_col].unique()))
-	if by == 'base':
-		try:
-			assert unique_reference_bases <= {'A', 'C', 'T', 'G', 'N'}
-			assert unique_alternate_bases <= {'A', 'C', 'T', 'G', 'N'}
-		except AssertionError:
-			print("Found invalid characters!")
-			print("reference", unique_reference_bases)
-			print("alternate", unique_alternate_bases)
-			raise ValueError
 
 
 def _get_relevant_columns(by: str) -> Tuple[str, str]:
@@ -200,7 +183,7 @@ def write_fasta_file(df: pandas.DataFrame, filename: Path) -> Path:
 
 
 def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str = 'base', reference_label: Optional[str] = None,
-		mutation_categories: List[str] = None) -> pandas.DataFrame:
+		mutation_categories: List[str] = None) -> Optional[pandas.DataFrame]:
 	"""Converts the variant table generated from the breseqset parser into a fasta file."""
 	reference_column, alternate_column = _get_relevant_columns(by)
 
@@ -214,8 +197,9 @@ def generate_fasta_file(variant_table: pandas.DataFrame, filename: Path, by: str
 	else:
 		accepted_mutation_categories = ['snp_nonsynonymous', 'snp_synonymous']
 	table = table[table[IsolateTableColumns.mutation_category].isin(accepted_mutation_categories)]
-
-	_validate_variant_table(table, by, reference_column, alternate_column)
+	if table.empty:
+		logger.warning(f"Could not generate the fasta file since the `mutationCategory` column does not contain any of {accepted_mutation_categories}")
+		return None
 
 	reference_sequence: pandas.Series = generate_reference_sequence(table, reference_column)
 	df = _convert_combined_table_to_aligned_table(table, reference_sequence, alternate_column, reference_label)

@@ -1,12 +1,11 @@
 import argparse
 from pathlib import Path
 from typing import Container, Dict, List, Union
-
 import pandas
 from loguru import logger
 
-from isolateparser.breseqoutputparser import BreseqOutputParser, get_sample_name
-from isolateparser.breseqoutputparser.parsers import locations
+from isolateparser.breseqparser import BreseqFolderParser, get_sample_name
+from isolateparser.breseqparser.parsers import locations
 
 
 def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
@@ -117,11 +116,10 @@ class IsolateSetWorkflow:
 		output_filename_fasta = parent_folder / f"{prefix}"
 
 		variant_df, coverage_df, junction_df, summary_df = self.concatenate_callset_tables(parent_folder)
-
 		logger.info("Generating comparison table...")
-		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', self.use_filter, reference_label)
-		amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', self.use_filter, reference_label)
-		codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', self.use_filter, reference_label)
+		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', reference_label)
+		amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', reference_label)
+		codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', reference_label)
 
 		tables = {
 			'variant comparison': snp_comparison_df,
@@ -157,27 +155,44 @@ class IsolateSetWorkflow:
 		snp_dataframe_full = pandas.concat(self.variant_tables, sort = True)
 		coverage_dataframe_full = pandas.concat(self.coverage_tables, sort = True)
 		junction_dataframe_full = pandas.concat(self.junction_table, sort = True)
-
-		summary = pandas.DataFrame(self.summaries)
+		if self.summaries:
+			summary = pandas.DataFrame(self.summaries)
+		else:
+			summary = None
 		return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full, summary
 
 
 	@staticmethod
 	def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
-		""" Attempts to find all folders corresponding to a breseq run."""
+		""" Attempts to find all folders corresponding to a breseq run.
+		Situation 1
+		.parent
+		|---- sample 1
+		|----|---- breseq
+		|----|----|---- output
+
+		Situation 2
+		.parent
+		|---- sample 1
+		|----|---- output
+
+		Situation 3
+		.parent
+		|---- output
+
+		"""
+
 		breseq_folders = list()
 		for subfolder in base_folder.iterdir():
 			if subfolder.is_file(): continue
-			folder_contents = list(i.name for i in subfolder.iterdir())
-			if 'output' in folder_contents and 'data' in folder_contents:
-				# The provided folder is a folder of breseq runs.
+			result = locations.get_folder_breseq(subfolder)
+			# The index.html file is the bare minimum.
+			if result:
 				breseq_folders.append(subfolder)
 			else:
-				# Assume it is a folder of sample folders, each containing a `breseq_output` folder.
-				f = subfolder / "breseq_output"
-				if not f.exists():
-					f = subfolder / "breseq"
-				breseq_folders.append(f)
+				message = f"Cannot locate the 'index.html' file in any of the candidate folders!"
+				logger.warning(message)
+				raise FileNotFoundError(message)
 
 		return breseq_folders
 	@staticmethod
@@ -250,26 +265,30 @@ class IsolateSetWorkflow:
 
 		if in_blacklist or not in_whitelist: return None
 
+		#try:
+		breseq_output = BreseqFolderParser(self.use_filter)
+
+		indexpath, gdpath, vcfpath, summarypath = locations.get_file_locations(folder)
+
+		snp_df, coverage_df, junction_df = breseq_output.run(
+			indexpath = indexpath,
+			gdpath = gdpath,
+			vcfpath = vcfpath,
+			sample_id = isolate_id,
+			sample_name = isolate_name
+		)
+
+		self.variant_tables.append(snp_df)
+		self.coverage_tables.append(coverage_df)
+		self.junction_table.append(junction_df)
 		try:
-			breseq_output = BreseqOutputParser(self.use_filter)
-
-			indexpath, gdpath, vcfpath, summarypath = locations.get_file_locations(folder)
-
-			snp_df, coverage_df, junction_df = breseq_output.run(
-				indexpath = indexpath,
-				gdpath = gdpath,
-				vcfpath = vcfpath,
-				sample_id = isolate_id,
-				sample_name = isolate_name
-			)
 			summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
-			self.variant_tables.append(snp_df)
-			self.coverage_tables.append(coverage_df)
-			self.junction_table.append(junction_df)
 			self.summaries.append(summary)
-		except FileNotFoundError as _missing_file_error:
-			logger.warning(f"{_missing_file_error}")
-			return None
+		except FileNotFoundError:
+			pass
+		#except FileNotFoundError as _missing_file_error:
+		#	logger.warning(f"{_missing_file_error}")
+		#	return None
 
 
 if __name__ == "__main__":

@@ -40,15 +40,63 @@ class VariantTableParser:
 		'Sample':      'sample',
 		'annotation':  'annotation',
 		'description': 'description',
-		'freq %':      'frequency',
+		'freq':      'frequency',
 		'gene':        'gene',
 		'position':    'position',
-		'seq id':      'seq id'
+		'seq id':      'seq id',
+		'mutation':	   'mutation'
 	}
 
-	def __init__(self):
+	def __init__(self, is_population:bool = False):
 		self.header_string_start = r'<th>evidence</th>'
 		self.header_string_end = '<!-- Item Lines -->'
+		self.is_population = is_population
+
+	@staticmethod
+	def _validate_variant_table(table:pandas.DataFrame)->pandas.DataFrame:
+		"""
+			Makes sure that the table columns exist and have the correct type.
+		Parameters
+		----------
+		table
+		"""
+
+		types = {
+			'sampleName': object,
+			'annotation': object,
+			'description': object,
+			'frequency': float,
+			'gene': object,
+			'position': int,
+			'seq id': object,
+			'mutation': object
+		}
+
+		# Check whether there are any missing columns:
+		missing_columns = [i for i in types.keys() if i not in table.columns]
+		if missing_columns and missing_columns: # This is an optional column
+			message = f"The table is missing some columns: {missing_columns}"
+			message += f"\nThe table columns were {list(table.columns)}"
+			raise ValueError(message)
+
+		# Check whether there are any extra columns
+		#extra_columns = [i for i in table if i not in types.keys()]
+		#if extra_columns:
+		#	message = f"The variant table contained extra columns: {extra_columns}"
+		#	raise ValueError(message)
+
+		# Check whether each column is the correct type
+		for columnlabel, expectedtype in types.items():
+			columntype = table[columnlabel].dtype
+			if  columntype!= expectedtype:
+				message = f"The '{columnlabel}' column should be of type '{expectedtype}', got '{columntype}' instead"
+				logger.warning(table[columnlabel][:10])
+				raise TypeError(message)
+
+
+
+		return table
+
 
 	@staticmethod
 	def _combine_dictionary_values(left: Dict[str, str], right: Dict[str, str]) -> Dict[str, str]:
@@ -71,15 +119,27 @@ class VariantTableParser:
 			combined[key] = value
 		return combined
 
-	def _extract_fields_from_translated_cds_annotation(self, annotation: str) -> Dict[str, str]:
-		# [locus_tag=Bcen2424_5147] [db_xref=InterPro:IPR006157] [protein=Dihydroneopterin aldolase][protein_id=ABK11880.1] [location=complement(2194414..2194854)][gbkey=CDS]/[locus_tag=Bcen2424_5146] [db_xref=InterPro:IPR008258] [protein=Lytic transglycosylase,catalytic] [protein_id=ABK11879.1] [location=2193627..2194313][gbkey=CDS]
-		if ']/[' in annotation:
-			# This annotation is refering to multiple locus tags
-			left, right = self._split_annotation(annotation)
-			left_result = self._extract_fields_from_translated_cds_annotation(left)
-			right_result = self._extract_fields_from_translated_cds_annotation(right)
+	def _extract_fields_from_translated_cds_annotation(self, annotation: str) -> Optional[Dict[str, str]]:
+		"""
+			This is a patch used when the 'description' field is composed of metadata extracted from a custom reference.
+			Ex.
+				[locus_tag=Bcen2424_5147] [db_xref=InterPro:IPR006157] [protein=Dihydroneopterin aldolase][protein_id=ABK11880.1]
+				[location=complement(2194414..2194854)][gbkey=CDS]/[locus_tag=Bcen2424_5146] [db_xref=InterPro:IPR008258]
+				[protein=Lytic transglycosylase,catalytic] [protein_id=ABK11879.1] [location=2193627..2194313][gbkey=CDS]
 
-			return self._combine_dictionary_values(left_result, right_result)
+		"""
+		# Check whether the description field has this kind of annotation
+		# TODO: make this more robust
+		if '[' not in annotation or '=' not in annotation:
+			return None
+
+		if ']/[' in annotation:
+				# This annotation is referring to multiple locus tags
+				left, right = self._split_annotation(annotation)
+				left_result = self._extract_fields_from_translated_cds_annotation(left)
+				right_result = self._extract_fields_from_translated_cds_annotation(right)
+
+				return self._combine_dictionary_values(left_result, right_result)
 
 		tokenize_pattern = "\[([a-z_]+)[=](.+?)\]"
 		matches = re.findall(tokenize_pattern, annotation)
@@ -141,11 +201,11 @@ class VariantTableParser:
 			row['position'] = to_integer(row['position'])
 		except KeyError:
 			row['position'] = math.nan
-		try:
-			row['freq %'] = float(row['freq'][:-1])
+		#try:
+		#	row['freq %'] = float(row['freq'][:-1])
 		# row.pop('freq')
-		except KeyError:
-			pass
+		#except KeyError:
+		#	pass
 		# `description` is the column name in the index file.
 
 		if 'javascript' in row['description'] or 'Javascript' in row['description']:
@@ -167,7 +227,11 @@ class VariantTableParser:
 				row['locusTag'] = fields['locus_tag']
 
 			row = {**row, **fields}
-
+		# The frequencies are reportsed as string formatted as `.2%`. Convert them to float.
+		if 'freq' in row:
+			row['freq'] = float(row['freq'][:-1]) # Removes the `%` character.
+		# The `evidence` column isn't really useful at this point, so remove it.
+		if 'evidence' in row: row.pop('evidence')
 		return row
 
 	@staticmethod
@@ -196,17 +260,32 @@ class VariantTableParser:
 			result = int(value)
 
 		return result
+
+	@staticmethod
+	def add_missing_columns(snp_df: pandas.DataFrame, default_seq: str) -> pandas.DataFrame:
+		# Sometimes `seq id` is not in the snp table, so it needs to be added manually for compatibility with other scripts.
+		if 'seq id' not in snp_df.columns:
+			snp_df['seq id'] = default_seq
+
+		if 'freq' not in snp_df: snp_df['freq'] = math.nan  # Should unpack into a sequence automatically
+
+		return snp_df
+
 	def run(self, sample_name: str, soup: BeautifulSoup) -> pandas.DataFrame:
 		snp_table_headers = self._extract_table_headers(str(soup))
 		snp_table = self._extract_snp_table(soup)
 
 		parsed_table = self._parse_snp_table(snp_table_headers, snp_table)
-
 		snp_df = pandas.DataFrame(parsed_table)
-
+		# Correct any column label that has weird characters.
 		snp_df.columns = _clean_fieldnames(snp_df.columns)
-		# make sure the `position` column is type int
 
+		# Add columns that may be mising
+		logger.debug(snp_df.columns)
+
+		snp_df = self.add_missing_columns(snp_df, 'chrom1')
+
+		# make sure the `position` column is type int
 		snp_df['position'] = snp_df['position'].apply(self._clean_position)
 		snp_df['position'] = snp_df['position'].astype(int)
 
@@ -214,6 +293,9 @@ class VariantTableParser:
 		snp_df.columns = [self.column_map.get(i, i) for i in snp_df.columns]
 
 		snp_df['sampleName'] = sample_name
+
+		self._validate_variant_table(snp_df)
+
 		return snp_df
 
 
@@ -362,8 +444,6 @@ class IndexParser:
 		variant_table = self.variant_table_parser.run(sample_name, file_soup)
 		coverage_table, junction_table = self.cj_table_parser.run(sample_name, file_soup)
 
-		variant_table = self.add_missing_columns(variant_table, coverage_table, self.default_seq)
-
 		if set_index:
 			variant_table = self.set_index(variant_table)
 		return variant_table, coverage_table, junction_table
@@ -376,23 +456,12 @@ class IndexParser:
 		soup = BeautifulSoup(filename.read_bytes(), 'lxml')
 		return soup
 
-	@staticmethod
-	def add_missing_columns(snp_df: pandas.DataFrame, coverage_df: pandas.DataFrame, default_seq: str) -> pandas.DataFrame:
-		# Sometimes `seq id` is not in the snp table, so it needs to be added manually for compatibility with other scripts.
-		if 'seq id' not in snp_df.columns:
-			try:
-				_sequence_id_from_coverage_table = coverage_df.iloc[0]['seq id']
-			except (IndexError, KeyError):
-				_sequence_id_from_coverage_table = default_seq
-			snp_df['seq id'] = _sequence_id_from_coverage_table
 
-		if 'freq' not in snp_df: snp_df['freq'] = math.nan  # Should unpack into a sequence automatically
-
-		return snp_df
 
 	@staticmethod
 	def set_index(table: pandas.DataFrame) -> pandas.DataFrame:
 		# Make sure the position column is a number. Breseq sometimes uses :1 if there is more than one mutation at a position.
 		table['position'] = [float(str(i).replace(':', '.').replace(',', '')) for i in table['position']]
+		table['position'] = table['position'].astype(int)
 		table.set_index(keys = ['seq id', 'position'], inplace = True)
 		return table
