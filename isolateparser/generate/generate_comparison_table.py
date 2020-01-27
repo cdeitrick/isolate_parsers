@@ -74,7 +74,10 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	# When the samples were populations add a column that specifies the alternate value for this group.
 	# Use the group rather than the first row in case there are multiple alternate bases
 	if alt_col == 'frequency':
-		static_data['alt'] = "|".join(list(group[IsolateTableColumns.alt].unique()))
+		elements = list(group[IsolateTableColumns.alt].unique())
+		elements = [(i if isinstance(i, str) else "N/A") for i in elements]
+		logger.debug(elements)
+		static_data['alt'] = "|".join(elements)
 	# static_data[IsolateTableColumns]
 
 	return static_data
