@@ -76,7 +76,6 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	if alt_col == 'frequency':
 		elements = list(group[IsolateTableColumns.alt].unique())
 		elements = [(i if isinstance(i, str) else "N/A") for i in elements]
-		logger.debug(elements)
 		static_data['alt'] = "|".join(elements)
 	# static_data[IsolateTableColumns]
 
