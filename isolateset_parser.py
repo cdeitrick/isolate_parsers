@@ -186,7 +186,7 @@ class IsolateSetWorkflow:
 		|---- output
 
 		"""
-
+		logger.debug(base_folder)
 		breseq_folders = list()
 		for subfolder in base_folder.iterdir():
 			if subfolder.is_file(): continue
