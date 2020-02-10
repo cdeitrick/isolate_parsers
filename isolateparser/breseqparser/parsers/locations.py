@@ -7,7 +7,7 @@ from loguru import logger
 
 def candidate_paths_index(parent: Path) -> List[Path]:
 	""" Defines a set of the usual locations of the index file."""
-	name = "index.vcf"
+	name = "index.html"
 	candidates = [
 		parent / "breseq" / "output" / name,
 		parent / "breseq" / name,
