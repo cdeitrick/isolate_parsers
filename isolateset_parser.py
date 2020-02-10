@@ -115,7 +115,7 @@ class IsolateSetWorkflow:
 		self.summaries = list()
 
 	def run(self, parent_folder: Path, reference_label: str)->Path:
-		prefix = parent_folder.name
+		prefix = parent_folder.absolute().name
 		output_filename_table = parent_folder / f"{prefix}.xlsx"
 		output_filename_fasta = parent_folder / f"{prefix}"
 
