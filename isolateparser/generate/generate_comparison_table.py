@@ -50,7 +50,8 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	annotation = _extract_string_from_group(group, IsolateTableColumns.annotation)
 	description = _extract_string_from_group(group, IsolateTableColumns.description)
 	if not annotation: annotation = first_row[IsolateTableColumns.mutation]
-	static_data = first_row[static_columns]
+
+	static_data = first_row.reindex(static_columns)
 	static_data = static_data.to_dict()
 	static_data[IsolateTableColumns.annotation] = annotation
 	static_data[IsolateTableColumns.description] = description

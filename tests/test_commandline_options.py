@@ -1,7 +1,9 @@
 from pathlib import Path
-import pytest
+
 import pandas
-from isolateset_parser import IsolateSetWorkflow, load_program_options
+import pytest
+from loguru import logger
+from isolateset_parser import IsolateSetWorkflow
 
 """
 	program_options = load_program_options()
@@ -17,19 +19,19 @@ from isolateset_parser import IsolateSetWorkflow, load_program_options
 	isolateset_workflow.run(program_options.folder, program_options.reference_label)
 """
 
-@pytest.fixture
-def table()->pandas.DataFrame:
 
+@pytest.fixture
+def table() -> pandas.DataFrame:
 	data = {
-		'S1_58BA': ['G', 'GG', 'CC', '', 'A', 'A', 'G'],
-		'S2_58BA': ['G', 'GG', 'CC', '', 'A', 'A', 'G'],
-		'SC_58SM': ['G', 'GG', 'CC', '', 'G', 'C', 'GG'],
-		'annotation': [
+		'S1_58BA':             ['G', 'GG', 'CC', '', 'A', 'A', 'G'],
+		'S2_58BA':             ['G', 'GG', 'CC', '', 'A', 'A', 'G'],
+		'SC_58SM':             ['G', 'GG', 'CC', '', 'G', 'C', 'GG'],
+		'annotation':          [
 			'D425,094 bp', 'intergenic (+65/+20)', 'intergenic (+17/-136)',
 			'intergenic (+57/+21)', 'M350I (ATG-ATA)', 'T238P (ACC-CCC)',
 			'coding (322/1476 nt)'
 		],
-		'description': [
+		'description':         [
 			"large deletion",
 			"putative lipoprotein/putative hydrolase",
 			"microcin-processing peptidase 1. Unknown type peptidase. MEROPS family U62/hypothetical protein",
@@ -38,20 +40,22 @@ def table()->pandas.DataFrame:
 			"hybrid sensory histidine kinase in two-component regulatory system with UvrY",
 			"putative two-component system response regulator nitrogen regulation protein NR(I)"
 		],
-		'gene': [
+		'gene':                [
 			"parA-pQBR0478", "PFLU0045 - / - PFLU0046",
 			"PFLU0872 - / - PFLU0873",
 			"PFLU3154 - / - PFLU3155",
 			"PFLU3571 -", "PFLU3777 -",
 			"PFLU4443 -"
 		],
-		'locusTag': ["[pQBR0001]–[pQBR0478]", "PFLU0045/PFLU0046", "PFLU0872/PFLU0873", "PFLU3154/PFLU3155", "PFLU3571", "PFLU3777", "PFLU4443"],
-		'mutationCategory': ["large_deletion", "small_indel", "small_indel","small_indel","snp_nonsynonymous","snp_nonsynonymous", "small_indel"],
-		'position': [1, 45881,985333, 3447986, 3959631, 4173231, 4908233],
-		'presentIn': [3,3,3,3,2,1,1],
+		'locusTag':            ["[pQBR0001]–[pQBR0478]", "PFLU0045/PFLU0046", "PFLU0872/PFLU0873", "PFLU3154/PFLU3155", "PFLU3571", "PFLU3777",
+			"PFLU4443"],
+		'mutationCategory':    ["large_deletion", "small_indel", "small_indel", "small_indel", "snp_nonsynonymous", "snp_nonsynonymous",
+			"small_indel"],
+		'position':            [1, 45881, 985333, 3447986, 3959631, 4173231, 4908233],
+		'presentIn':           [3, 3, 3, 3, 2, 1, 1],
 		'presentInAllSamples': [True, True, True, True, False, False, False],
-		'ref': ['N/A', "G", "C", "", "G", "A", "G"],
-		'seq id': ["NC_009444", "NC_012660", "NC_012660", "NC_012660", "NC_012660", "NC_012660", "NC_012660"]
+		'ref':                 ['N/A', "G", "C", "", "G", "A", "G"],
+		'seq id':              ["NC_009444", "NC_012660", "NC_012660", "NC_012660", "NC_012660", "NC_012660", "NC_012660"]
 	}
 
 	df = pandas.DataFrame(data)
@@ -60,14 +64,16 @@ def table()->pandas.DataFrame:
 
 
 @pytest.fixture
-def run_folder()->Path:
+def run_folder() -> Path:
 	folder_data = Path(__file__).parent / "data"
 	folder = folder_data / "set_output"
 	return folder
 
-def read_table(filename:Path)->pandas.DataFrame:
+
+def read_table(filename: Path) -> pandas.DataFrame:
 	df = pandas.read_excel(filename, sheet_name = "variant comparison")
 	return df
+
 
 @pytest.fixture
 def sample_group():
@@ -81,12 +87,9 @@ def test_default_commandline_arguments(run_folder, table):
 
 	result_df = read_table(result)
 
+	# Compare using pieces of the table first to
+
 	pandas.testing.assert_frame_equal(result_df, table)
-
-
-
-
-
 
 
 if __name__ == "__main__":
