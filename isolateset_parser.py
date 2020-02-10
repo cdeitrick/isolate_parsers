@@ -6,7 +6,7 @@ from loguru import logger
 
 from isolateparser.breseqparser import BreseqFolderParser, get_sample_name
 from isolateparser.breseqparser.parsers import locations
-
+from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
 def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
 	parser = argparse.ArgumentParser()
@@ -88,11 +88,15 @@ class IsolateSetWorkflow:
 	"""
 	__version__ = "0.1.0"
 
-	def __init__(self, whitelist: Union[None, str, List[str]], blacklist: Union[None, str, List[str]], sample_map: Path = None,
+	def __init__(self, whitelist: Union[str, List[str]] = "", blacklist: Union[str, List[str]] = "", sample_map: Path = None,
 			sample_regex: str = None,
 			use_filter: bool = False, snp_categories: Container[str] = None, generate_fasta: bool = True):
+
 		self.whitelist = self._parse_commandline_list(whitelist)
-		self.blacklist = self._parse_commandline_list(blacklist)
+		if blacklist is None:
+			self.blacklist = []
+		else:
+			self.blacklist = self._parse_commandline_list(blacklist)
 		self.fasta_categories = self._parse_commandline_list(snp_categories)
 
 		self.use_filter = use_filter
@@ -110,7 +114,7 @@ class IsolateSetWorkflow:
 		self.junction_table = list()
 		self.summaries = list()
 
-	def run(self, parent_folder: Path, reference_label: str):
+	def run(self, parent_folder: Path, reference_label: str)->Path:
 		prefix = parent_folder.name
 		output_filename_table = parent_folder / f"{prefix}.xlsx"
 		output_filename_fasta = parent_folder / f"{prefix}"
@@ -118,13 +122,13 @@ class IsolateSetWorkflow:
 		variant_df, coverage_df, junction_df, summary_df = self.concatenate_callset_tables(parent_folder)
 		logger.info("Generating comparison table...")
 		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', reference_label)
-		amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', reference_label)
-		codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', reference_label)
+		#amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', reference_label)
+		#codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', reference_label)
 
 		tables = {
 			'variant comparison': snp_comparison_df,
-			'amino comparison':   amino_comparison_df,
-			'codon comparison':   codon_comparison_df,
+			#'amino comparison':   amino_comparison_df,
+			#'codon comparison':   codon_comparison_df,
 			'variant':            variant_df.reset_index(),
 			'coverage':           coverage_df.reset_index(),
 			'junction':           junction_df.reset_index(),
@@ -140,6 +144,8 @@ class IsolateSetWorkflow:
 			generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = program_options.reference_label)
 			generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = program_options.reference_label)
 
+		return output_filename_table
+
 	def concatenate_callset_tables(self, parent_folder: Path):
 		""" Expects a folder of breseq runs for a set of isolates.
 			Parameters
@@ -151,7 +157,6 @@ class IsolateSetWorkflow:
 
 		for folder in breseq_folders:
 			self.update_tables(folder)
-
 		snp_dataframe_full = pandas.concat(self.variant_tables, sort = True)
 		coverage_dataframe_full = pandas.concat(self.coverage_tables, sort = True)
 		junction_dataframe_full = pandas.concat(self.junction_table, sort = True)
@@ -196,27 +201,28 @@ class IsolateSetWorkflow:
 
 		return breseq_folders
 	@staticmethod
-	def _parse_commandline_list(io: Union[None, str, List[str]]) -> List[str]:
+	def _parse_commandline_list(data: Union[None, str, List[str]]) -> List[str]:
 		"""
 			Attempts to convert a comma-separated list of options given from the command line.
 		Parameters
 		----------
-		io: str
+		data: str
 			Either a comma-separated list of ids or a file path of a text file with each id occupying a single line.
 		Returns
 		-------
 		List[str]
 		"""
-		if isinstance(io, list): return io
-		filename = Path(io)
+		if data is None: data = []
+		if isinstance(data, list): return data
+		filename = Path(data)
 
 		# Make sure io is not ''
-		if io and filename.exists():
+		if data and filename.exists():
 			contents = filename.read_text().split('\n')
 		else:
 			# Assume it is a comma-separated list.
 			# An empty string will result in an empty list.
-			contents = io.split(',')
+			contents = data.split(',')
 		contents = [i for i in contents if i]
 		return contents
 
@@ -292,7 +298,7 @@ class IsolateSetWorkflow:
 
 
 if __name__ == "__main__":
-	from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
+	#from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 	debug_args = [
 		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.old.txt",
 		"-i", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipelines/SC1360/"

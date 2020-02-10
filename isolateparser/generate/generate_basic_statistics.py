@@ -4,7 +4,7 @@ from typing import Union
 import pandas
 
 
-def calculate_basic_statistics(comparison_table: pandas.DataFrame):
+def calculate_basic_statistics(comparison_table: pandas.DataFrame)->pandas.DataFrame:
 	"""
 		Calculates basic statistics related to the mutations found in the comparison table.
 	Parameters
@@ -34,6 +34,9 @@ def calculate_basic_statistics(comparison_table: pandas.DataFrame):
 		mutation_category_table['dN/dS'] = mutation_category_table['snp_nonsynonymous'] / mutation_category_table['snp_synonymous']
 	except KeyError:
 		mutation_category_table['dN/dS'] = 0
+
+	# Sort the columns so it behaves more consistently
+	mutation_category_table = mutation_category_table[sorted(mutation_category_table.columns)]
 	return mutation_category_table
 
 

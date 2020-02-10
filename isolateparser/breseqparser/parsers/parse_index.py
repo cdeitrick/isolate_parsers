@@ -280,9 +280,6 @@ class VariantTableParser:
 		# Correct any column label that has weird characters.
 		snp_df.columns = _clean_fieldnames(snp_df.columns)
 
-		# Add columns that may be mising
-		logger.debug(snp_df.columns)
-
 		snp_df = self.add_missing_columns(snp_df, 'chrom1')
 
 		# make sure the `position` column is type int

@@ -29,6 +29,7 @@ def test_calculate_basic_statistics(comparison_table):
 		E-24	0	2	1	0
 	"""
 	expected = dataio.import_table(expected)
+	expected = expected[sorted(expected.columns)] # Sort the columns for consistency.
 	result = generate_basic_statistics.calculate_basic_statistics(comparison_table)
-	# assert list(expected.columns) == list(result.columns)
+	assert list(sorted(expected.columns)) == list(sorted(result.columns))
 	pandas.testing.assert_frame_equal(expected, result, check_dtype = False)

@@ -43,30 +43,7 @@ import pandas
 from loguru import logger
 
 from .parsers import GDParser, IndexParser, parse_summary_file, parse_vcf_file
-
-
-class IsolateTableColumns(NamedTuple):
-	# Defines the column names for the isolate table.
-	# Mainly used as a reminder of what the final column labels should be.
-	sample_id: str = 'sampleId'
-	sample_name: str = 'sampleName'
-	sequence_id: str = 'seq id'
-	position: str = 'position'
-	annotation: str = 'annotation'
-	description: str = 'description'
-	evidence: str = 'evidence'
-	freq: str = 'freq'
-	gene: str = 'gene'
-	mutation: str = 'mutation'
-	alt: str = 'alt'
-	ref: str = 'ref'
-	alternate_amino: str = 'aminoAlt'
-	reference_amino: str = 'aminoRef'
-	alternate_codon: str = 'codonAlt'
-	reference_codon: str = 'codonRef'
-	locus_tag: str = 'locusTag'
-	mutation_category: str = 'mutationCategory'
-IsolateTableColumns = IsolateTableColumns()
+from ..tableformat import IsolateTableColumns
 
 def get_sample_name(folder: Path) -> Optional[str]:
 	""" Attempt to extract the sample name from a folder."""
@@ -203,7 +180,6 @@ class BreseqFolderParser:
 		# Add the `sampleId` and `sampleName` columns
 		variant_df[IsolateTableColumns.sample_id] = sample_id
 		variant_df[IsolateTableColumns.sample_name] = sample_name
-
 		return variant_df, coverage_df, junction_df
 
 	def merge_tables(self, index: pandas.DataFrame, gd: Optional[pandas.DataFrame], vcf: Optional[pandas.DataFrame]) -> pandas.DataFrame:
@@ -223,6 +199,7 @@ class BreseqFolderParser:
 		pandas.DataFrame
 			A dataframe that contains data from all three given tables.
 		"""
+		# TODO: Make sure there are no duplicate column labels. For example, both the vcf and index tables have an 'alt' column
 		# May need these if the gd or vcf files are missing.
 		mutation_column = index[IsolateTableColumns.mutation].values
 		annotation_column = index[IsolateTableColumns.annotation].values
@@ -241,6 +218,10 @@ class BreseqFolderParser:
 			variant_df['aminoAlt'] = variant_df['aminoRef'] = variant_df['codonAlt'] = variant_df['codonRef'] = 'unknown'
 
 		if vcf is not None:
+			# Remove the duplicate columns
+			duplicate_columns = set(variant_df.columns) & set(vcf.columns)
+			for extra_column in duplicate_columns:
+				vcf.pop(extra_column)
 			variant_df = variant_df.merge(vcf, how = 'left', left_index = True, right_index = True)
 		else:
 			if IsolateTableColumns.ref not in variant_df.columns:
