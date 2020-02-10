@@ -186,7 +186,6 @@ class IsolateSetWorkflow:
 		|---- output
 
 		"""
-		logger.debug(base_folder)
 		breseq_folders = list()
 		for subfolder in base_folder.iterdir():
 			if subfolder.is_file(): continue
@@ -195,10 +194,11 @@ class IsolateSetWorkflow:
 			if result:
 				breseq_folders.append(subfolder)
 			else:
-				message = f"Cannot locate the 'index.html' file in any of the candidate folders!"
+				#message = f"Cannot locate the 'index.html' file in any of the candidate folders!"
+				#logger.warning(message)
+				#raise FileNotFoundError(message)
+				message = f"Cannot find an index.html file in {subfolder}. Skipping..."
 				logger.warning(message)
-				raise FileNotFoundError(message)
-
 		return breseq_folders
 	@staticmethod
 	def _parse_commandline_list(data: Union[None, str, List[str]]) -> List[str]:
