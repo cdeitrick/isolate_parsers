@@ -87,7 +87,10 @@ def test_default_commandline_arguments(run_folder, table):
 
 	result_df = read_table(result)
 
-	# Compare using pieces of the table first to
+	# Compare using pieces of the table first since pandas.testing.assert_frame_equal doesn't report much.
+
+	assert sorted(result_df.columns) == sorted(table.columns)
+	assert sorted(result_df.index) == sorted(table.index)
 
 	pandas.testing.assert_frame_equal(result_df, table)
 

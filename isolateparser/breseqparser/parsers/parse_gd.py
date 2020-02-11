@@ -86,7 +86,7 @@ class GDParser:
 		df['position'] = df['position'].astype(int)
 
 		# The `seq id` field may be formatted a little differently than in the index file.
-		df['seq id'] = df['seq id'].apply(lambda s: 'chrom'+str(s))
+		#df['seq id'] = df['seq id'].apply(lambda s: 'chrom'+str(s))
 		if set_index:
 			df.set_index(keys = ['seq id', 'position'], inplace = True)
 		return df

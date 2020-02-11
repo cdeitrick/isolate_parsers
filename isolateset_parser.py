@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from typing import Container, Dict, List, Union
+from typing import *
 import pandas
 from loguru import logger
 
@@ -15,6 +15,13 @@ def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
 		help = "The breseq folder to parse.",
 		dest = "folder",
 		type = Path
+	)
+	parser.add_argument(
+		"-o", "--output",
+		help = "Where to save the output files. Should just be the prefix, the file extensions will be added automatically.",
+		dest = "output",
+		type = Path,
+		default = None
 	)
 	parser.add_argument(
 		"--no-fasta",
@@ -114,10 +121,16 @@ class IsolateSetWorkflow:
 		self.junction_table = list()
 		self.summaries = list()
 
-	def run(self, parent_folder: Path, reference_label: str)->Path:
-		prefix = parent_folder.absolute().name
-		output_filename_table = parent_folder / f"{prefix}.xlsx"
-		output_filename_fasta = parent_folder / f"{prefix}"
+	def run(self, parent_folder: Path, reference_label: str, output_prefix: Optional[Path])->Path:
+		if output_prefix:
+			output_prefix = output_prefix.absolute()
+			prefix = output_prefix.name
+			output_filename_table = output_prefix.parent / f"{prefix}.xlsx"
+			output_filename_fasta = output_prefix.parent / f"{prefix}"
+		else:
+			prefix = parent_folder.absolute().name
+			output_filename_table = parent_folder / f"{prefix}.xlsx"
+			output_filename_fasta = parent_folder / f"{prefix}"
 
 		variant_df, coverage_df, junction_df, summary_df = self.concatenate_callset_tables(parent_folder)
 		logger.info("Generating comparison table...")
@@ -189,7 +202,7 @@ class IsolateSetWorkflow:
 		breseq_folders = list()
 		for subfolder in base_folder.iterdir():
 			if subfolder.is_file(): continue
-			result = locations.get_folder_breseq(subfolder)
+			result = locations.is_folder_breseq(subfolder)
 			# The index.html file is the bare minimum.
 			if result:
 				breseq_folders.append(subfolder)
@@ -271,15 +284,14 @@ class IsolateSetWorkflow:
 
 		if in_blacklist or not in_whitelist: return None
 
-		#try:
 		breseq_output = BreseqFolderParser(self.use_filter)
 
-		indexpath, gdpath, vcfpath, summarypath = locations.get_file_locations(folder)
+		filenames_breseq = locations.get_file_locations(folder)
 
 		snp_df, coverage_df, junction_df = breseq_output.run(
-			indexpath = indexpath,
-			gdpath = gdpath,
-			vcfpath = vcfpath,
+			indexpath = filenames_breseq['index'],
+			gdpath = filenames_breseq['gd'],
+			vcfpath = filenames_breseq['vcf'],
 			sample_id = isolate_id,
 			sample_name = isolate_name
 		)
@@ -292,17 +304,10 @@ class IsolateSetWorkflow:
 			self.summaries.append(summary)
 		except FileNotFoundError:
 			pass
-		#except FileNotFoundError as _missing_file_error:
-		#	logger.warning(f"{_missing_file_error}")
-		#	return None
 
 
 if __name__ == "__main__":
-	#from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
-	debug_args = [
-		"--sample-map", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/isolate_sample_map.old.txt",
-		"-i", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipelines/SC1360/"
-	]
+
 	program_options = load_program_options()
 	isolateset_workflow = IsolateSetWorkflow(
 		whitelist = program_options.whitelist,
@@ -313,4 +318,4 @@ if __name__ == "__main__":
 		snp_categories = program_options.snp_categories,
 		generate_fasta = program_options.generate_fasta
 	)
-	isolateset_workflow.run(program_options.folder, program_options.reference_label)
+	isolateset_workflow.run(program_options.folder, program_options.reference_label, program_options.output)

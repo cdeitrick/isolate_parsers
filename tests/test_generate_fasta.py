@@ -120,7 +120,7 @@ def test_parse_sample_group():
 
 	_truth_output_index = pandas.MultiIndex(
 		levels = [['NC_012660'], [3959631, 4173231]],
-		labels = [[0, 0], [0, 1]],
+		codes = [[0, 0], [0, 1]],
 		names = ['seq id', 'position']
 	)
 	truth_output = pandas.Series(

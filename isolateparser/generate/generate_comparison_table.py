@@ -161,7 +161,6 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str,refere
 	-------
 	pandas.DataFrame
 	"""
-	logger.info(f"Generating comparison table")
 
 	unique_samples = list(breseq_table[IsolateTableColumns.sample_name].unique())
 	is_population = check_if_population(breseq_table)
@@ -175,6 +174,9 @@ def generate_snp_comparison_table(breseq_table: pandas.DataFrame, by: str,refere
 		result = parse_mutation_group(group, unique_samples, reference_column, alternate_column)
 		comparison_table.append(result)
 	df = pandas.DataFrame(comparison_table)
+	if df.empty:
+		message = f"The comparison table could not be created, and is empty. This may be due to the `mutationCategory` column being empty."
+		logger.warning(message)
 
 	# Add a column indicating if the reference sample contained the variant. This only applies if the reference sample is known.
 	if reference_sample and reference_sample in df.columns:

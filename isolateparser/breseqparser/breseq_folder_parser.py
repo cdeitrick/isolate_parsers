@@ -201,15 +201,17 @@ class BreseqFolderParser:
 		"""
 		# TODO: Make sure there are no duplicate column labels. For example, both the vcf and index tables have an 'alt' column
 		# May need these if the gd or vcf files are missing.
+		logger.debug(f"merge_tables(index = {type(index)}, gd = {type(gd)}, vcf = {type(vcf)}")
 		mutation_column = index[IsolateTableColumns.mutation].values
 		annotation_column = index[IsolateTableColumns.annotation].values
+		# For some reason the gd file appends 'chrom' to the sequence index.
+
 		if gd is not None:
 			# We don't care about most of the columns
 			reduced_gd = gd[self.gd_columns]
 			variant_df: pandas.DataFrame = index.merge(reduced_gd, how = 'left', left_index = True, right_index = True)
 		else:
 			variant_df = index
-			#TODO: Need to add the missing columns.
 
 			categories = [catagorize_mutation(a, m) for a, m in zip(mutation_column, annotation_column)]
 			variant_df[IsolateTableColumns.mutation_category] = categories
