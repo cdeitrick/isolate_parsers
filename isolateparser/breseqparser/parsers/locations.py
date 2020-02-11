@@ -63,7 +63,7 @@ def is_folder_breseq(parent: Path) -> bool:
 		Tests whether the folder is a breseq run folder.
 	"""
 	indexpath = get_filename(parent, FILENAME_INDEX)
-	return indexpath.exists()
+	return indexpath and indexpath.exists()
 
 
 def filesearch(candidates: Iterable[Path], parent: Path = None, name: str = None) -> Optional[Path]:
