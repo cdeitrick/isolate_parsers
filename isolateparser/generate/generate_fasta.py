@@ -10,9 +10,7 @@ from loguru import logger
 from isolateparser import datatools
 from isolateparser.breseqparser import IsolateTableColumns
 
-SEQUENCE_ID_COLUMN = IsolateTableColumns.sequence_id
-POSITION_COLUMN = IsolateTableColumns.position
-
+INDEX_COLUMNS = [IsolateTableColumns.sequence_id, IsolateTableColumns.position]
 
 def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: str) -> pandas.Series:
 	"""
@@ -27,7 +25,7 @@ def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: s
 
 	"""
 	unindexed_table = snp_table.reset_index()
-	groups = unindexed_table.groupby(by = [SEQUENCE_ID_COLUMN, POSITION_COLUMN])
+	groups = unindexed_table.groupby(by = INDEX_COLUMNS)
 	reference_data = list()
 
 	for (seq_id, position), group in groups:
@@ -35,17 +33,17 @@ def generate_reference_sequence(snp_table: pandas.DataFrame, reference_column: s
 		_unique_values = group[reference_column].unique()
 		if len(_unique_values) != 1:
 			logger.critical(f"Found {_unique_values} values.")
-			print(group.to_string())
 			raise ValueError
 		reference_sequence = group[reference_column].iloc[0]
 		row = {
-			SEQUENCE_ID_COLUMN: seq_id,
-			POSITION_COLUMN:    position,
+			IsolateTableColumns.sequence_id: seq_id,
+			IsolateTableColumns.position:    position,
+			#IsolateTableColumns.alt: alt,
 			'reference':        reference_sequence
 		}
 		reference_data.append(row)
 	reference_table = pandas.DataFrame(reference_data)
-	reference_table = reference_table.set_index([SEQUENCE_ID_COLUMN, POSITION_COLUMN])
+	reference_table = reference_table.set_index(INDEX_COLUMNS)
 	reference_table = reference_table.sort_index()
 	# Convert to pandas.Series
 	return reference_table['reference']
@@ -75,7 +73,7 @@ def _parse_sample_group(sample_name: str, group: pandas.DataFrame, reference_seq
 			- name  -> `sample_name`
 	"""
 	# Use `seq id` and `position` as indicies. These should form a unique tuple that can be mapped back to the reference.
-	group = group.set_index([SEQUENCE_ID_COLUMN, POSITION_COLUMN])
+	group = group.set_index(INDEX_COLUMNS[:2])
 
 	# We are only interested in the `alt` sequences.
 	sample_alt: pandas.Series = group[alt_column]
@@ -86,8 +84,8 @@ def _parse_sample_group(sample_name: str, group: pandas.DataFrame, reference_seq
 
 	# The sample group only contains positions that differ from the reference. Should align to the full reference (ref for all sequences)
 	sample_alt = sample_alt.where(sample_alt.notna(), other = reference_sequence)
-	return sample_alt
 
+	return sample_alt
 
 def _filter_variants_in_sample(variant_table: pandas.DataFrame, sample_label: str, reference_label: str) -> pandas.DataFrame:
 	"""

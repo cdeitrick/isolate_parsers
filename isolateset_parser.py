@@ -8,77 +8,6 @@ from isolateparser.breseqparser import BreseqFolderParser, get_sample_name
 from isolateparser.breseqparser.parsers import locations
 from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
 
-def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
-	parser = argparse.ArgumentParser()
-	parser.add_argument(
-		"-i", "--input",
-		help = "The breseq folder to parse.",
-		dest = "folder",
-		type = Path
-	)
-	parser.add_argument(
-		"-o", "--output",
-		help = "Where to save the output files. Should just be the prefix, the file extensions will be added automatically.",
-		dest = "output",
-		type = Path,
-		default = None
-	)
-	parser.add_argument(
-		"--no-fasta",
-		help = "Whether to generate an aligned fasta file of all snps in the breseq VCF file.",
-		action = 'store_false',
-		dest = 'generate_fasta'
-	)
-
-	parser.add_argument(
-		"-w", "--whitelist",
-		help = "Samples not in the whitelist are ignored. Either a comma-separated list of sample ids for a file with each sample id occupying a single line.",
-		dest = "whitelist",
-		action = 'store',
-		default = ""
-	)
-
-	parser.add_argument(
-		"-b", "--blacklist",
-		help = "Samples to ignore. See `--whitelist` for possible input formats.",
-		action = 'store',
-		dest = 'blacklist',
-		default = ""
-	)
-	parser.add_argument(
-		"-m", "--sample-map",
-		help = """A file mapping sample ids to sample names. Use if the subfolders in the breseqset folder are named differently from the sample names."""
-			   """ The file should have two columns: `sampleId` and `sampleName`, separated by a tab character.""",
-		action = 'store',
-		dest = 'sample_map',
-		default = ""
-	)
-	parser.add_argument(
-		"--filter-1000bp",
-		help = "Whether to filter out variants that occur within 1000bp of each other. Usually indicates a mapping error.",
-		action = "store_true",
-		dest = "use_filter"
-	)
-	parser.add_argument(
-		"--reference",
-		help = "The sample that was used as the reference, if available.",
-		action = "store",
-		default = None,
-		dest = "reference_label"
-	)
-	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories",
-		default = "")
-
-	parser.add_argument("--regex", help = "Used to extract sample names from the given filename. Currently Disabled", type = str)
-
-
-	if arguments:
-		_program_options = parser.parse_args(arguments)
-	else:
-		_program_options = parser.parse_args()
-	return _program_options
-
-
 class IsolateSetWorkflow:
 	"""
 		Parses a folder containing numerious breseq call folders. The directory structure should
@@ -121,7 +50,7 @@ class IsolateSetWorkflow:
 		self.junction_table = list()
 		self.summaries = list()
 
-	def run(self, parent_folder: Path, reference_label: str, output_prefix: Optional[Path])->Path:
+	def run(self, parent_folder: Path, reference_label: str, output_prefix: Optional[Path] = None)->Path:
 		if output_prefix:
 			output_prefix = output_prefix.absolute()
 			prefix = output_prefix.name
@@ -135,13 +64,9 @@ class IsolateSetWorkflow:
 		variant_df, coverage_df, junction_df, summary_df = self.concatenate_callset_tables(parent_folder)
 		logger.info("Generating comparison table...")
 		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', reference_label)
-		#amino_comparison_df = generate_snp_comparison_table(variant_df, 'amino', reference_label)
-		#codon_comparison_df = generate_snp_comparison_table(variant_df, 'codon', reference_label)
 
 		tables = {
 			'variant comparison': snp_comparison_df,
-			#'amino comparison':   amino_comparison_df,
-			#'codon comparison':   codon_comparison_df,
 			'variant':            variant_df.reset_index(),
 			'coverage':           coverage_df.reset_index(),
 			'junction':           junction_df.reset_index(),
@@ -152,6 +77,11 @@ class IsolateSetWorkflow:
 
 		if self.generate_fasta:
 			logger.info("Generating fasta...")
+			is_population = variant_df['frequency'].nunique() > 1
+			if is_population:
+				message = "Generating fastas is not supported for populations and may fail."
+				logger.warning(message)
+
 			fasta_filename_snp = output_filename_fasta.with_suffix(".snp.fasta")
 			fasta_filename_codon=output_filename_fasta.with_suffix(".codon.fasta")
 			generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = reference_label)
@@ -288,6 +218,12 @@ class IsolateSetWorkflow:
 
 		filenames_breseq = locations.get_file_locations(folder)
 
+		logger.info(f"Files in folder {folder}")
+		logger.info(f"\tIndex file: {filenames_breseq['index']}")
+		logger.info(f"\tVcf file: {filenames_breseq['vcf']}")
+		logger.info(f"\tGd file: {filenames_breseq['gd']}")
+		logger.info(f"\tSummary: {filenames_breseq['summary']}")
+
 		snp_df, coverage_df, junction_df = breseq_output.run(
 			indexpath = filenames_breseq['index'],
 			gdpath = filenames_breseq['gd'],
@@ -305,10 +241,81 @@ class IsolateSetWorkflow:
 		except FileNotFoundError:
 			pass
 
+def load_program_options(arguments: List[str] = None) -> argparse.Namespace:
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		"-i", "--input",
+		help = "The breseq folder to parse.",
+		dest = "folder",
+		type = Path
+	)
+	parser.add_argument(
+		"-o", "--output",
+		help = "Where to save the output files. Should just be the prefix, the file extensions will be added automatically.",
+		dest = "output",
+		type = Path,
+		default = None
+	)
+	parser.add_argument(
+		"--fasta",
+		help = "Whether to generate an aligned fasta file of all snps in the breseq VCF file.",
+		action = 'store_true',
+		dest = 'generate_fasta'
+	)
+
+	parser.add_argument(
+		"-w", "--whitelist",
+		help = "Samples not in the whitelist are ignored. Either a comma-separated list of sample ids for a file with each sample id occupying a single line.",
+		dest = "whitelist",
+		action = 'store',
+		default = ""
+	)
+
+	parser.add_argument(
+		"-b", "--blacklist",
+		help = "Samples to ignore. See `--whitelist` for possible input formats.",
+		action = 'store',
+		dest = 'blacklist',
+		default = ""
+	)
+	parser.add_argument(
+		"-m", "--sample-map",
+		help = """A file mapping sample ids to sample names. Use if the subfolders in the breseqset folder are named differently from the sample names."""
+			   """ The file should have two columns: `sampleId` and `sampleName`, separated by a tab character.""",
+		action = 'store',
+		dest = 'sample_map',
+		default = ""
+	)
+	parser.add_argument(
+		"--filter-1000bp",
+		help = "Whether to filter out variants that occur within 1000bp of each other. Usually indicates a mapping error.",
+		action = "store_true",
+		dest = "use_filter"
+	)
+	parser.add_argument(
+		"--reference",
+		help = "The sample that was used as the reference, if available.",
+		action = "store",
+		default = None,
+		dest = "reference_label"
+	)
+	parser.add_argument("--snp-categories", help = "Categories to use when concatenating SNPs into a fasta file.", dest = "snp_categories",
+		default = "")
+
+	parser.add_argument("--regex", help = "Used to extract sample names from the given filename. Currently Disabled", type = str)
+
+
+	if arguments:
+		_program_options = parser.parse_args(arguments)
+	else:
+		_program_options = parser.parse_args()
+	return _program_options
 
 if __name__ == "__main__":
-
-	program_options = load_program_options()
+	debug_args = [
+		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/isolatparserdata/cefepime2",
+	]
+	program_options = load_program_options(debug_args)
 	isolateset_workflow = IsolateSetWorkflow(
 		whitelist = program_options.whitelist,
 		blacklist = program_options.blacklist,

@@ -40,10 +40,6 @@ def get_filename(parent: Path, name: str) -> Optional[Path]:
 	candidates = get_candidate_paths(parent, name)
 	candidate = filesearch(candidates, parent, name)
 
-	if candidate is None:
-		message = f"Cannot find {name} file in folder {parent}"
-		logger.warning(message)
-
 	return candidate
 
 

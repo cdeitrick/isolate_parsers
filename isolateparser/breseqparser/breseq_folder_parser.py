@@ -166,21 +166,47 @@ class BreseqFolderParser:
 		if gdpath:
 			gd_df = self.file_parser_gd.run(gdpath, set_index = self._set_table_index)
 		else:
-			logger.info(f"Could not locate the gd file")
 			gd_df = None
 
 		if vcfpath:
 			vcf_df = parse_vcf_file(vcfpath, set_index = self._set_table_index)
 		else:
-			logger.info("Could not find the path to the vcf file.")
 			vcf_df = None
-
+		# Make sure the sequence id was identified properly.
+		if index_df.index[0][0] == 'chrom1':
+			# The sequence Id was not in the index file, but may be available in the gd or vcf files
+			if gd_df is not None:
+				available_table = gd_df
+			elif vcf_df is not None:
+				available_table = vcf_df
+			else:
+				available_table = None
+			if available_table is not None:
+				index_df = self.fix_index(index_df, available_table)
 		# Merge the tables together.
 		variant_df = self.merge_tables(index_df, gd_df, vcf_df)
 		# Add the `sampleId` and `sampleName` columns
 		variant_df[IsolateTableColumns.sample_id] = sample_id
 		variant_df[IsolateTableColumns.sample_name] = sample_name
 		return variant_df, coverage_df, junction_df
+	def fix_index(self, source:pandas.DataFrame, key:pandas.DataFrame)->pandas.DataFrame:
+		""" Fixes the index of `source` using the index from `key`"""
+
+		if len(source) == len(key):
+			# Can probably just use the indecies directly.
+			# OK, so the index was renamed without throwing an exception.
+			# Don't make a multiindex object. Reset the index, overwrite the original column values, then reindex.
+			t = source.reset_index()
+			key = key.reset_index()
+			# Use tolist() to avoid errors if pandas decides to complain about the index.
+			t[IsolateTableColumns.sequence_id] = key[IsolateTableColumns.sequence_id].tolist()
+			t[IsolateTableColumns.position] = key[IsolateTableColumns.position].tolist()
+			t = t.set_index([IsolateTableColumns.sequence_id, IsolateTableColumns.position])
+		else:
+			# No point in bothering.
+			t = source
+		return t
+
 
 	def merge_tables(self, index: pandas.DataFrame, gd: Optional[pandas.DataFrame], vcf: Optional[pandas.DataFrame]) -> pandas.DataFrame:
 		"""
@@ -201,7 +227,6 @@ class BreseqFolderParser:
 		"""
 		# TODO: Make sure there are no duplicate column labels. For example, both the vcf and index tables have an 'alt' column
 		# May need these if the gd or vcf files are missing.
-		logger.debug(f"merge_tables(index = {type(index)}, gd = {type(gd)}, vcf = {type(vcf)}")
 		mutation_column = index[IsolateTableColumns.mutation].values
 		annotation_column = index[IsolateTableColumns.annotation].values
 		# For some reason the gd file appends 'chrom' to the sequence index.
@@ -216,7 +241,6 @@ class BreseqFolderParser:
 			categories = [catagorize_mutation(a, m) for a, m in zip(mutation_column, annotation_column)]
 			variant_df[IsolateTableColumns.mutation_category] = categories
 			# Not generating the codon or amino acid columns since they aren't really used.
-			logger.warning(f"Excecuting a patch to add the amino acid and codon columns to the table. This should be replaced with a more robust parser.")
 			variant_df['aminoAlt'] = variant_df['aminoRef'] = variant_df['codonAlt'] = variant_df['codonRef'] = 'unknown'
 
 		if vcf is not None:
