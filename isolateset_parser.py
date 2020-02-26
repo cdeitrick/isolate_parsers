@@ -315,7 +315,7 @@ if __name__ == "__main__":
 	debug_args = [
 		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/isolatparserdata/cefepime2",
 	]
-	program_options = load_program_options(debug_args)
+	program_options = load_program_options()
 	isolateset_workflow = IsolateSetWorkflow(
 		whitelist = program_options.whitelist,
 		blacklist = program_options.blacklist,
