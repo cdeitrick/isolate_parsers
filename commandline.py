@@ -68,9 +68,11 @@ def create_parser(arguments: List[str] = None) -> argparse.Namespace:
 
 	parser.add_argument("--regex", help = "Used to extract sample names from the given filename. Currently Disabled", type = str)
 
+	parser.add_argument("--single", help = "Indicates that there is only one sample. Used for debugging.", action = "store_true")
 
 	if arguments:
 		_program_options = parser.parse_args(arguments)
 	else:
 		_program_options = parser.parse_args()
+
 	return _program_options

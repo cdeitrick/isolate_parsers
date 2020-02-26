@@ -137,9 +137,6 @@ class IsolateSetWorkflow:
 			if result:
 				breseq_folders.append(subfolder)
 			else:
-				#message = f"Cannot locate the 'index.html' file in any of the candidate folders!"
-				#logger.warning(message)
-				#raise FileNotFoundError(message)
 				message = f"Cannot find an index.html file in {subfolder}. Skipping..."
 				logger.warning(message)
 		return breseq_folders
@@ -240,6 +237,48 @@ class IsolateSetWorkflow:
 			self.summaries.append(summary)
 		except FileNotFoundError:
 			pass
+class IsolateParser:
+	""" A parser that is dedicated to parsing a single folder."""
+	def __init__(self, sample_map:Dict[str,str] = None):
+		self.use_filter = False
+		self.sample_map = sample_map if sample_map else {}
+
+	def run(self, folder, output_filename:Path = None):
+		isolate_id = get_sample_name(folder)
+		isolate_name = self.sample_map.get(isolate_id, isolate_id)
+		breseq_output = BreseqFolderParser(self.use_filter)
+
+		filenames_breseq = locations.get_file_locations(folder)
+
+		logger.info(f"Files in folder {folder}")
+		logger.info(f"\tIndex file: {filenames_breseq['index']}")
+		logger.info(f"\tVcf file: {filenames_breseq['vcf']}")
+		logger.info(f"\tGd file: {filenames_breseq['gd']}")
+		logger.info(f"\tSummary: {filenames_breseq['summary']}")
+
+		snp_df, coverage_df, junction_df = breseq_output.run(
+			indexpath = filenames_breseq['index'],
+			gdpath = filenames_breseq['gd'],
+			vcfpath = filenames_breseq['vcf'],
+			sample_id = isolate_id,
+			sample_name = isolate_name
+		)
+		summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
+		summary_df = pandas.Series(summary).to_frame().reset_index().transpose()
+
+		tables = {
+			'variant':            snp_df.reset_index(),
+			'coverage':           coverage_df.reset_index(),
+			'junction':           junction_df.reset_index(),
+			'summary':            summary_df
+		}
+		for key, value in tables.items():
+			logger.debug(f"{key}: {type(value)}")
+		if output_filename is None:
+			output_filename = "breseq.xlsx"
+		logger.info(f"Saving isolate table as {output_filename}")
+		save_isolate_table(tables, output_filename)
+
 
 
 if __name__ == "__main__":
@@ -247,13 +286,22 @@ if __name__ == "__main__":
 		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/isolatparserdata/cefepime2",
 	]
 	program_options = commandline.create_parser()
-	isolateset_workflow = IsolateSetWorkflow(
-		whitelist = program_options.whitelist,
-		blacklist = program_options.blacklist,
-		sample_map = program_options.sample_map,
-		sample_regex = program_options.regex,
-		use_filter = program_options.use_filter,
-		snp_categories = program_options.snp_categories,
-		generate_fasta = program_options.generate_fasta
-	)
-	isolateset_workflow.run(program_options.folder, program_options.reference_label, program_options.output)
+
+	if program_options.single:
+		isolate_workflow = IsolateParser(program_options.sample_map)
+		isolate_workflow.run(
+			folder = program_options.folder.absolute(),
+			output_filename = program_options.output
+		)
+	else:
+
+		isolateset_workflow = IsolateSetWorkflow(
+			whitelist = program_options.whitelist,
+			blacklist = program_options.blacklist,
+			sample_map = program_options.sample_map,
+			sample_regex = program_options.regex,
+			use_filter = program_options.use_filter,
+			snp_categories = program_options.snp_categories,
+			generate_fasta = program_options.generate_fasta
+		)
+		isolateset_workflow.run(program_options.folder, program_options.reference_label, program_options.output)
