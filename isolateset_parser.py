@@ -1,13 +1,12 @@
-import argparse
 from pathlib import Path
-from typing import *
-import pandas
 from loguru import logger
 
+import commandline
 from isolateparser.breseqparser import BreseqFolderParser, get_sample_name
 from isolateparser.breseqparser.parsers import locations
-from isolateparser.generate import generate_snp_comparison_table, save_isolate_table, generate_fasta_file
-import commandline
+from isolateparser.generate import generate_fasta_file, generate_snp_comparison_table, save_isolate_table
+
+
 class IsolateSetWorkflow:
 	"""
 		Parses a folder containing numerious breseq call folders. The directory structure should
@@ -27,7 +26,6 @@ class IsolateSetWorkflow:
 	def __init__(self, whitelist: Union[str, List[str]] = "", blacklist: Union[str, List[str]] = "", sample_map: Path = None,
 			sample_regex: str = None,
 			use_filter: bool = False, snp_categories: Container[str] = None, generate_fasta: bool = True):
-
 		self.whitelist = self._parse_commandline_list(whitelist)
 		if blacklist is None:
 			self.blacklist = []
@@ -50,7 +48,7 @@ class IsolateSetWorkflow:
 		self.junction_table = list()
 		self.summaries = list()
 
-	def run(self, parent_folder: Path, reference_label: str, output_prefix: Optional[Path] = None)->Path:
+	def run(self, parent_folder: Path, reference_label: str, output_prefix: Optional[Path] = None) -> Path:
 		if output_prefix:
 			output_prefix = output_prefix.absolute()
 			prefix = output_prefix.name
@@ -83,7 +81,7 @@ class IsolateSetWorkflow:
 				logger.warning(message)
 
 			fasta_filename_snp = output_filename_fasta.with_suffix(".snp.fasta")
-			fasta_filename_codon=output_filename_fasta.with_suffix(".codon.fasta")
+			fasta_filename_codon = output_filename_fasta.with_suffix(".codon.fasta")
 			generate_fasta_file(variant_df, fasta_filename_snp, by = 'base', reference_label = reference_label)
 			generate_fasta_file(variant_df, fasta_filename_codon, by = 'codon', reference_label = reference_label)
 
@@ -108,7 +106,6 @@ class IsolateSetWorkflow:
 		else:
 			summary = None
 		return snp_dataframe_full, coverage_dataframe_full, junction_dataframe_full, summary
-
 
 	@staticmethod
 	def _get_breseq_folder_paths(base_folder: Path) -> List[Path]:
@@ -140,6 +137,7 @@ class IsolateSetWorkflow:
 				message = f"Cannot find an index.html file in {subfolder}. Skipping..."
 				logger.warning(message)
 		return breseq_folders
+
 	@staticmethod
 	def _parse_commandline_list(data: Union[None, str, List[str]]) -> List[str]:
 		"""
@@ -237,13 +235,16 @@ class IsolateSetWorkflow:
 			self.summaries.append(summary)
 		except FileNotFoundError:
 			pass
+
+
 class IsolateParser:
 	""" A parser that is dedicated to parsing a single folder."""
-	def __init__(self, sample_map:Dict[str,str] = None):
+
+	def __init__(self, sample_map: Dict[str, str] = None):
 		self.use_filter = False
 		self.sample_map = sample_map if sample_map else {}
 
-	def run(self, folder, output_filename:Path = None):
+	def run(self, folder, output_filename: Path = None):
 		isolate_id = get_sample_name(folder)
 		isolate_name = self.sample_map.get(isolate_id, isolate_id)
 		breseq_output = BreseqFolderParser(self.use_filter)
@@ -263,14 +264,17 @@ class IsolateParser:
 			sample_id = isolate_id,
 			sample_name = isolate_name
 		)
+		logger.debug(f"Length of coverage: {len(coverage_df)}")
+		logger.debug(f"Length pf Junction: {len(junction_df)}")
+
 		summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
 		summary_df = pandas.Series(summary).to_frame().reset_index().transpose()
 
 		tables = {
-			'variant':            snp_df.reset_index(),
-			'coverage':           coverage_df.reset_index(),
-			'junction':           junction_df.reset_index(),
-			'summary':            summary_df
+			'variant':  snp_df.reset_index(),
+			'coverage': coverage_df.reset_index(),
+			'junction': junction_df.reset_index(),
+			'summary':  summary_df
 		}
 		for key, value in tables.items():
 			logger.debug(f"{key}: {type(value)}")
@@ -280,10 +284,9 @@ class IsolateParser:
 		save_isolate_table(tables, output_filename)
 
 
-
 if __name__ == "__main__":
 	debug_args = [
-		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/isolatparserdata/cefepime2",
+		"--input", "/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipelines/SC1360",
 	]
 	program_options = commandline.create_parser()
 
@@ -294,7 +297,6 @@ if __name__ == "__main__":
 			output_filename = program_options.output
 		)
 	else:
-
 		isolateset_workflow = IsolateSetWorkflow(
 			whitelist = program_options.whitelist,
 			blacklist = program_options.blacklist,

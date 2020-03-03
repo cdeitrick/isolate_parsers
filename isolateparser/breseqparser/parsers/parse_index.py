@@ -333,12 +333,19 @@ class ExtraTableParser:
 		-------
 			coverage_table, junction_table
 		"""
+		for line in alph_soup.split('\n'):
+			if 'missing_coverage_header_row' in line:
+				self.umc_table_start_string = line.strip()
+			elif 'new_junction_header_row' in line:
+				self.umc_table_end_string = line.strip()
+
 
 		umc_table_index_start = alph_soup.find(
 			self.umc_table_start_string)
 		umc_table_index_end = alph_soup.find(
 			self.umc_table_end_string)
-
+		logger.debug([umc_table_index_start, self.umc_table_start_string])
+		logger.debug([umc_table_index_end, self.umc_table_end_string])
 		coverage_string = alph_soup[umc_table_index_start:umc_table_index_end]
 		junction_string = alph_soup[umc_table_index_end:]
 		coverage_soup = BeautifulSoup(coverage_string, 'lxml')
@@ -349,7 +356,11 @@ class ExtraTableParser:
 		rows = coverage.find_all('tr')
 		if len(rows) == 0:
 			return []
-		column_names = [i.text for i in rows[1].find_all('th')]
+		#_filename = Path("/home/cld100/Documents/github/isolate_parsers/tests/data/example_coverage_header.txt")
+		#_filename.write_text(str(rows[0]))
+		column_names = [i.text for i in rows[0].find_all('th')]
+		column_names = ["link1", "link2", "link3", "start", "end", "size", "readsLeft", 'readsRight', "gene", "description"]
+
 		coverage_table = list()
 		for index, tag in enumerate(rows[2:]):
 			row = self._parse_coverage_table_row(tag, column_names)
@@ -362,9 +373,11 @@ class ExtraTableParser:
 	def _parse_coverage_table_row(tag: BeautifulSoup, column_names: List[str]) -> Optional[Dict[str, str]]:
 		""" Converts a single row in the coverage table into a dictionary."""
 		values = tag.find_all('td')
-
 		if len(values) > 1:
-			row = [(k, v.get_text()) for k, v in zip(column_names, values)]
+			row = dict()
+			for k, v in zip(column_names, values):
+				row[k] = v.get_text().strip()
+			#row = [(k, v.get_text()) for k, v in zip(column_names, values)]
 			row = OrderedDict(row)
 
 			row['start'] = to_integer(row['start'])
@@ -377,7 +390,7 @@ class ExtraTableParser:
 		if not len(rows): return []
 
 		# Extract the column names from the junction table.
-		column_names_a = ['0', '1'] + [unidecode(i.get_text()) for i in rows.pop(0).find_all('th')][1:]
+		column_names_a = ['0', '1'] + [unidecode(i.get_text()).strip() for i in rows.pop(0).find_all('th')][1:]
 		column_names_a[4] = '{} ({})'.format(column_names_a[4], 'single')
 		column_names_b = [i for i in column_names_a if i not in ['reads (cov)', 'score', 'skew', 'freq', '0']]
 
@@ -391,11 +404,11 @@ class ExtraTableParser:
 	@staticmethod
 	def _parse_junction_table_row_pair(first: BeautifulSoup, second: BeautifulSoup, names_first, names_second) -> Tuple[
 		Dict[str, str], Dict[str, str]]:
-		a_values = [unidecode(i.get_text()) for i in first.find_all('td')]
-		b_values = [unidecode(i.get_text()) for i in second.find_all('td')]
+		a_values = [unidecode(i.get_text()).strip() for i in first.find_all('td')]
+		b_values = [unidecode(i.get_text()).strip() for i in second.find_all('td')]
 
-		a_row = {unidecode(k): v for k, v in zip(names_first, a_values)}
-		b_row = {unidecode(k): v for k, v in zip(names_second, b_values)}
+		a_row = {unidecode(k).strip(): v for k, v in zip(names_first, a_values)}
+		b_row = {unidecode(k).strip(): v for k, v in zip(names_second, b_values)}
 
 		return a_row, b_row
 

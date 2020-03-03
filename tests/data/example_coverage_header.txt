@@ -1,0 +1,32 @@
+<tr>
+<th>
+</th>
+<th>
+</th>
+<th>
+</th>
+<th>
+     seq id
+    </th>
+<th>
+     start
+    </th>
+<th>
+     end
+    </th>
+<th>
+     size
+    </th>
+<th>
+     ←reads
+    </th>
+<th>
+     reads→
+    </th>
+<th>
+     gene
+    </th>
+<th width="100%">
+     description
+    </th>
+</tr>
