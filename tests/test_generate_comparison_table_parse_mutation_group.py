@@ -100,6 +100,7 @@ def test_parse_mutation_group_snp(snp_group):
 		"gene":                'PFLU3571 -',
 		"mutationCategory":    "snp_nonsynonymous",
 		"ref":                 'G',
+		"alt":					"A",
 		"S2_58BA":             "A",
 		"S1_58BA":             "A",
 		"SC_58SM":             "G",
@@ -152,6 +153,7 @@ def test_parse_mutation_group(mutation_group_clones):
 		'E-10':                "C",
 		'presentIn':           5,
 		'presentInAllSamples': False,
+		'alt':					'A',
 		'ref':                 'C',
 		'mutationCategory':    'snp_nonsynonymous'
 	}

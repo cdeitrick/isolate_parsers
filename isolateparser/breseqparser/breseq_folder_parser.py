@@ -233,6 +233,7 @@ class BreseqFolderParser:
 
 		if gd is not None:
 			# We don't care about most of the columns
+			#logger.warning(list(gd.columns))
 			reduced_gd = gd[self.gd_columns]
 			variant_df: pandas.DataFrame = index.merge(reduced_gd, how = 'left', left_index = True, right_index = True)
 		else:
@@ -249,6 +250,7 @@ class BreseqFolderParser:
 			for extra_column in duplicate_columns:
 				vcf.pop(extra_column)
 			variant_df = variant_df.merge(vcf, how = 'left', left_index = True, right_index = True)
+			logger.debug(list(variant_df.columns))
 		else:
 			if IsolateTableColumns.ref not in variant_df.columns:
 				refs = [get_reference_from_mutation(m, a) for m, a in zip(mutation_column, annotation_column)]
