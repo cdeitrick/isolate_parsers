@@ -27,19 +27,20 @@ def get_candidate_paths(parent: Path, name: str) -> List[Path]:
 		parent / "evidence" / name,
 		# The VCF and summary.json files
 		parent / "breseq_output" / "data" / name,
+		parent / "breseq" / "data" / name,
 		parent / "data" / name,
 		# Other
 		parent / name,
 		Path(name)
 	]
-
 	return candidates
 
 
 def get_filename(parent: Path, name: str) -> Optional[Path]:
 	candidates = get_candidate_paths(parent, name)
 	candidate = filesearch(candidates, parent, name)
-
+	if candidate:
+		candidate = candidate.absolute()
 	return candidate
 
 
@@ -50,7 +51,6 @@ def get_file_locations(folder: Path) -> Dict[str, Path]:
 		'vcf':     get_filename(folder, 'output.vcf'),
 		'summary': get_filename(folder, 'summary.json')
 	}
-
 	return result
 
 
