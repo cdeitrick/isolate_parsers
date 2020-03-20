@@ -1,11 +1,11 @@
 from pathlib import Path
 from loguru import logger
-
+from typing import *
 import commandline
 from isolateparser.breseqparser import BreseqFolderParser, get_sample_name
 from isolateparser.breseqparser.parsers import locations
 from isolateparser.generate import generate_fasta_file, generate_snp_comparison_table, save_isolate_table
-
+import pandas
 
 class IsolateSetWorkflow:
 	"""
@@ -212,12 +212,13 @@ class IsolateSetWorkflow:
 		breseq_output = BreseqFolderParser(self.use_filter)
 
 		filenames_breseq = locations.get_file_locations(folder)
-
-		logger.info(f"Files in folder {folder}")
-		logger.info(f"\tIndex file: {filenames_breseq['index']}")
-		logger.info(f"\tVcf file: {filenames_breseq['vcf']}")
-		logger.info(f"\tGd file: {filenames_breseq['gd']}")
-		logger.info(f"\tSummary: {filenames_breseq['summary']}")
+		verbose = False
+		if verbose:
+			logger.info(f"Files in folder {folder}")
+			logger.info(f"\tIndex file: {filenames_breseq['index']}")
+			logger.info(f"\tVcf file: {filenames_breseq['vcf']}")
+			logger.info(f"\tGd file: {filenames_breseq['gd']}")
+			logger.info(f"\tSummary: {filenames_breseq['summary']}")
 
 		snp_df, coverage_df, junction_df = breseq_output.run(
 			indexpath = filenames_breseq['index'],

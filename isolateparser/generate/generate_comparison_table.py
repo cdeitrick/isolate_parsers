@@ -34,7 +34,14 @@ def _extract_string_from_group(group: pandas.DataFrame, column: str) -> str:
 	annotation_string = "|".join(annotation_set)
 	return annotation_string
 
+def extract_alt_from_group(group:pandas.DataFrame)->str:
 
+	unique_alts = list(group[IsolateTableColumns.alt].unique())
+	# alt may be NaN
+	unique_alts = [i for i in unique_alts if isinstance(i, str)]
+	alts = "|".join(unique_alts)
+
+	return alts
 def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref_col: str, alt_col: str) -> Dict[str, Union[int, float, str]]:
 	# Get a list of all columns that should be identical throughout the mutational group.
 	static_columns = [
@@ -61,6 +68,8 @@ def parse_mutation_group(group: pandas.DataFrame, unique_samples: List[str], ref
 	reference = first_row[ref_col]
 
 	static_data[ref_col] = reference
+
+	static_data[alt_col] = extract_alt_from_group(group)
 	for index, row in group.iterrows():
 		sample_name = row[IsolateTableColumns.sample_name]
 		static_data[sample_name] = row[alt_col]

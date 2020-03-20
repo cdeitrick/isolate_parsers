@@ -344,8 +344,6 @@ class ExtraTableParser:
 			self.umc_table_start_string)
 		umc_table_index_end = alph_soup.find(
 			self.umc_table_end_string)
-		logger.debug([umc_table_index_start, self.umc_table_start_string])
-		logger.debug([umc_table_index_end, self.umc_table_end_string])
 		coverage_string = alph_soup[umc_table_index_start:umc_table_index_end]
 		junction_string = alph_soup[umc_table_index_end:]
 		coverage_soup = BeautifulSoup(coverage_string, 'lxml')
