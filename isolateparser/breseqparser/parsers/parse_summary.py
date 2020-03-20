@@ -2,12 +2,8 @@ from pathlib import Path
 import json
 from typing import Dict, Optional
 
-def parse_summary_file(path:Path, sample_id:str, sample_name:Optional[str] = None)->Dict[str,str]:
+def parse_summary_file(filename:Path, sample_id:str, sample_name:Optional[str] = None)->Dict[str,str]:
 	if sample_name is None: sample_name = sample_id
-	if path.is_dir():
-		filename = path / "data" / "summary.json"
-	else:
-		filename = path
 
 	data = json.loads(filename.read_text())
 

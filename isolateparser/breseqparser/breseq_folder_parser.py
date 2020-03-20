@@ -259,6 +259,6 @@ class BreseqFolderParser:
 		return variant_df
 
 	@staticmethod
-	def get_summary(folder: Path, sample_id: str, sample_name: Optional[str] = None) -> Dict[str, Any]:
-		return parse_summary_file(folder, sample_id, sample_name)
+	def get_summary(filename: Path, sample_id: str, sample_name: Optional[str] = None) -> Dict[str, Any]:
+		return parse_summary_file(filename, sample_id, sample_name)
 

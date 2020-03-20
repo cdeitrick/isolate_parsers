@@ -231,11 +231,15 @@ class IsolateSetWorkflow:
 		self.variant_tables.append(snp_df)
 		self.coverage_tables.append(coverage_df)
 		self.junction_table.append(junction_df)
-		try:
-			summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
+
+		if filenames_breseq.get('summary'):
+			summary = breseq_output.get_summary(filenames_breseq['summary'], isolate_id, isolate_name)
 			self.summaries.append(summary)
-		except FileNotFoundError:
-			pass
+		#try:
+		#	summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
+		#	self.summaries.append(summary)
+		#except FileNotFoundError:
+		#	logger.warning(f"Could not locate the summary.json file for '{folder}'.")
 
 
 class IsolateParser:
