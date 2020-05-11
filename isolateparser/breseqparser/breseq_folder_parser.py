@@ -36,13 +36,11 @@
 """
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, NamedTuple
-import functools
-import re
+from typing import *
 import pandas
 from loguru import logger
 
-from .parsers import GDParser, IndexParser, parse_summary_file, parse_vcf_file
+from .parsers import GDParser, IndexParser, parse_summary_file, parse_vcf_file, GDToTable
 from ..tableformat import IsolateTableColumns
 
 def get_sample_name(folder: Path) -> Optional[str]:
@@ -145,10 +143,11 @@ class BreseqFolderParser:
 
 		self.file_parser_index = IndexParser()
 		self.file_parser_gd = GDParser()
+		self.file_parser_gd_extra = GDToTable()
 
 	def run(self, sample_id: str, indexpath: Path, gdpath: Optional[Path] = None, vcfpath: Optional[Path] = None,
 			sample_name: Optional[str] = None) -> Tuple[
-		pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]:
+		pandas.DataFrame, pandas.DataFrame, pandas.DataFrame, pandas.DataFrame]:
 		"""
 			Runs the workflow.
 			Parameters
@@ -165,8 +164,11 @@ class BreseqFolderParser:
 		index_df, coverage_df, junction_df = self.file_parser_index.run(sample_name, indexpath, set_index = self._set_table_index)
 		if gdpath:
 			gd_df = self.file_parser_gd.run(gdpath, set_index = self._set_table_index)
+			gd_table_extra = self.file_parser_gd_extra.run(gdpath)
+
 		else:
 			gd_df = None
+			gd_table_extra = None
 
 		if vcfpath:
 			vcf_df = parse_vcf_file(vcfpath, set_index = self._set_table_index)
@@ -188,7 +190,7 @@ class BreseqFolderParser:
 		# Add the `sampleId` and `sampleName` columns
 		variant_df[IsolateTableColumns.sample_id] = sample_id
 		variant_df[IsolateTableColumns.sample_name] = sample_name
-		return variant_df, coverage_df, junction_df
+		return variant_df, coverage_df, junction_df, gd_table_extra
 	def fix_index(self, source:pandas.DataFrame, key:pandas.DataFrame)->pandas.DataFrame:
 		""" Fixes the index of `source` using the index from `key`"""
 

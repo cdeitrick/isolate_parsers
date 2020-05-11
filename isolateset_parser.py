@@ -46,6 +46,7 @@ class IsolateSetWorkflow:
 		self.variant_tables = list()
 		self.coverage_tables = list()
 		self.junction_table = list()
+		self.gd_extra_tables = list()
 		self.summaries = list()
 
 	def run(self, parent_folder: Path, reference_label: str, output_prefix: Optional[Path] = None) -> Path:
@@ -60,6 +61,7 @@ class IsolateSetWorkflow:
 			output_filename_fasta = parent_folder / f"{prefix}"
 
 		variant_df, coverage_df, junction_df, summary_df = self.concatenate_callset_tables(parent_folder)
+
 		logger.info("Generating comparison table...")
 		snp_comparison_df = generate_snp_comparison_table(variant_df, 'base', reference_label)
 
@@ -70,6 +72,12 @@ class IsolateSetWorkflow:
 			'junction':           junction_df.reset_index(),
 			'summary':            summary_df
 		}
+		# Omit `None` from the list.
+		self.gd_extra_tables = [i for i in self.gd_extra_tables if i is not None]
+		if self.gd_extra_tables:
+			gd_df = pandas.concat(self.gd_extra_tables)
+			tables['gd'] = gd_df
+
 		logger.info(f"Saving isolate table as {output_filename_table}")
 		save_isolate_table(tables, output_filename_table)
 
@@ -220,7 +228,7 @@ class IsolateSetWorkflow:
 			logger.info(f"\tGd file: {filenames_breseq['gd']}")
 			logger.info(f"\tSummary: {filenames_breseq['summary']}")
 
-		snp_df, coverage_df, junction_df = breseq_output.run(
+		snp_df, coverage_df, junction_df, gd_extra_df = breseq_output.run(
 			indexpath = filenames_breseq['index'],
 			gdpath = filenames_breseq['gd'],
 			vcfpath = filenames_breseq['vcf'],
@@ -231,6 +239,10 @@ class IsolateSetWorkflow:
 		self.variant_tables.append(snp_df)
 		self.coverage_tables.append(coverage_df)
 		self.junction_table.append(junction_df)
+		if gd_extra_df is not None:
+			gd_extra_df['sampleId'] = isolate_id
+			gd_extra_df['sampleName'] = isolate_name
+			self.gd_extra_tables.append(gd_extra_df)
 
 		if filenames_breseq.get('summary'):
 			summary = breseq_output.get_summary(filenames_breseq['summary'], isolate_id, isolate_name)

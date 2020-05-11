@@ -1,0 +1,150 @@
+from pathlib import Path
+from typing import *
+import pandas
+from loguru import logger
+
+
+class GDToTable:
+	def __init__(self):
+		self.mutation_types = ["SNP", "SUB", "DEL", "INS", "MOB", "AMP", "CON", "INV"]
+		self.evidence_types = ["RA", "MC", "JC"]
+
+	@staticmethod
+	def read_gd_file(filename: Path) -> List[str]:
+		"""
+		Reads in a gd file and returns non-commented lines.
+		"""
+		lines = filename.read_text().split('\n')
+		lines = [i for i in lines if not i.startswith('#')]
+		# remove empty lines
+		lines = [i for i in lines if i.strip()]
+		return lines
+
+	def is_mutation(self, text: str) -> bool:
+		""" Determines whether the text refers to a mutation or not."""
+		key = text[:3]
+		return key in self.mutation_types
+
+	def is_evidence(self, text: str) -> bool:
+		key = text[:2]
+		return key in self.evidence_types
+
+	@staticmethod
+	def split_fields(line: Union[str, List[str]]) -> Dict[str, str]:
+		""" Splits the xpecified gd lines into a dictionary of key-value pairs. """
+		if isinstance(line, str):
+			line = line.split("\t")
+		fields = [i.strip() for i in line]
+		fields = [i.partition('=') for i in fields]
+		# Remove the delimiter used to partition the field
+		fields = [(i[0], i[2]) for i in fields]
+
+		return dict(fields)
+
+	def parse_positional_fields(self, line: List[str]) -> Dict[str, str]:
+		""" Parses the positional values of a line in the gd file."""
+		line_type, evidence_id, parent_ids, seq_id, position = line[:5]
+		data = {
+			'category_id': line[0],
+			'evidence_id': line[1],
+			'parent_ids':  line[2],
+		}
+		if self.is_mutation(line_type):
+			data['seq_id'] = line[3]
+			data['position'] = line[4]
+
+		if line_type == 'SNP':
+			data['new_seq'] = line[5]
+		elif line_type == 'INS':
+			data['new_seq'] = line[5]
+		elif line_type == 'DEL':
+			data['size'] = line[5]
+		elif line_type == 'SUB':
+			data['size'] = line[5]
+			data['new_seq'] = line[6]
+		elif line_type == 'MOB':
+			data['repeat_name'] = line[5]
+			data['strand'] = line[6]
+			data['duplication_size'] = line[7]
+		elif line_type == 'RA':
+			data['seq_id'] = line[3]
+			data['position'] = line[4]
+			data['insert_position'] = line[5]
+			data['ref_base'] = line[6]
+			data['new_base'] = line[7]
+		elif line_type == 'MC':
+			data['seq_id'] = line[3]
+			data['start'] = line[4]
+			data['end'] = line[5]
+			data['start_range'] = line[6]
+			data['end_range'] = line[7]
+		elif line_type == 'JC':
+			data['side_1_seq_id'] = line[3]
+			data['side_1_position'] = line[4]
+			data['side_1_strand'] = line[5]
+			data['side_2_seq_id'] = line[6]
+			data['side_2_position'] = line[7]
+			data['side_2_strand'] = line[8]
+			data['overlap'] = line[9]
+		elif line_type == 'UN':
+			data['seq_id'] = line[3]
+			data['start'] = line[4]
+			data['end'] = line[5]
+		else:
+			message = f"Not a valid mutation or evidence type: '{line_type}'"
+			raise ValueError(message)
+
+		return data
+
+	def parse_line(self, line: str) -> Dict[str, str]:
+		line = line.split("\t")
+
+		positional_fields = self.parse_positional_fields(line)
+
+		keyword_fields = line[len(positional_fields):]
+
+		keyword_fields = self.split_fields(keyword_fields)
+
+		final_data = {**positional_fields, **keyword_fields}
+
+		return final_data
+
+	def run(self, filename: Path):
+		lines = self.read_gd_file(filename)
+
+		mutations = [i for i in lines if self.is_mutation(i)]
+		evidence = [i for i in lines if self.is_evidence(i)]
+
+		mutations = [self.parse_line(i) for i in mutations]
+		evidence = [self.parse_line(i) for i in evidence]
+
+		# Link evidence to mutation
+
+		table_mutations = pandas.DataFrame(mutations)
+		table_mutations.pop('evidence_id')
+		table_evidence = pandas.DataFrame(evidence)
+		table_evidence = table_evidence[[i for i in table_evidence.columns if i not in table_mutations.columns]]
+		# Some mutations have multiple evidences. Split these off for now.
+		table_mutations_single = table_mutations[~table_mutations['parent_ids'].str.contains(',')]
+
+		merged_table = table_mutations_single.merge(
+			table_evidence, left_on = 'parent_ids', right_on = 'evidence_id',how = 'left'
+		)
+		merged_table = merged_table.sort_values(by = ["mutation_category", 'seq_id', 'position'])
+		return merged_table
+
+
+def main():
+	filename = Path(
+		"/media/cld100/FA86364B863608A1/Users/cld100/Storage/projects/lipuma/pipelines/SC1360/AU1064/breseq/output/evidence/annotated.gd")
+
+	parser = GDToTable()
+
+	result = parser.run(filename)
+
+	result.info()
+	result.to_csv("/home/cld100/Documents/sandbox/testmutationtable.tsv", sep = "\t", index = False)
+
+
+if __name__ == "__main__":
+	main()
