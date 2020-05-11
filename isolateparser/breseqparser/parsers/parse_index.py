@@ -46,6 +46,7 @@ class VariantTableParser:
 		'seq id':      'seq id',
 		'mutation':	   'mutation'
 	}
+	# TODO: Make sure that when the html arrows are removed from the htlp row that the gene names are not concatenated.
 
 	def __init__(self, is_population:bool = False):
 		self.header_string_start = r'<th>evidence</th>'
@@ -201,11 +202,7 @@ class VariantTableParser:
 			row['position'] = to_integer(row['position'])
 		except KeyError:
 			row['position'] = math.nan
-		#try:
-		#	row['freq %'] = float(row['freq'][:-1])
-		# row.pop('freq')
-		#except KeyError:
-		#	pass
+
 		# `description` is the column name in the index file.
 
 		if 'javascript' in row['description'] or 'Javascript' in row['description']:
@@ -236,7 +233,7 @@ class VariantTableParser:
 
 	@staticmethod
 	def _split_annotation(annotation: str) -> Tuple[str, str]:
-		""" Splits a cds annotation that refers to a mutaiton that spans multiple locus tags."""
+		""" Splits a cds annotation that refers to a mutation that spans multiple locus tags."""
 		# Assume that ']/[' is the separator
 
 		left, right = annotation.split(']/[')
