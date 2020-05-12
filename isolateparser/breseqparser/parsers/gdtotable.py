@@ -12,6 +12,24 @@ class GDToTable:
 		self.mutation_types = ["SNP", "SUB", "DEL", "INS", "MOB", "AMP", "CON", "INV"]
 		self.evidence_types = ["RA", "MC", "JC"]
 
+		# There are a lot of columns to sort through.
+		# Group columns together to make the table a little easier to read.
+		self.field_groups = {
+			'primary':   ['category_id', 'evidence_id', 'parent_ids'],
+			'coverage':  [],
+			'omit':      ['key', 'html_gene_name', 'locus_tags_inactivated'],
+			'codon':     ['codon_new_seq', 'codon_number', 'codon_position', 'codon_ref_seq'],
+			'amino':     ['aa_new_seq', 'aa_position', 'aa_ref_seq'],
+			'gene':      [
+				'locus_tag', 'locus_tags_overlapping', 'gene_name', 'gene_position', 'gene_product', 'gene_strand',
+				'genes_overlapping',
+				'genes_inactivated',
+			],
+			'mutation':  ['mutation_category', 'new_seq', 'seq_id', 'position', 'snp_type'],
+			'insertion': ['repeat_length', 'repeat_new_copies', 'repeat_ref_copies', 'repeat_seq'],
+			'deletion':  ['size']
+		}
+
 	@staticmethod
 	def read_gd_file(filename: Path) -> List[str]:
 		"""
@@ -130,6 +148,20 @@ class GDToTable:
 
 		return final_data
 
+	def sort_columns(self, table:pandas.DataFrame)->pandas.DataFrame:
+		""" Groups columns together to make the table a little more legible."""
+		groups = list()
+		group_keys = ["primary","mutation",'deletion', "gene", "coverage", 'codon', 'amino', 'insertion']
+		for key in group_keys:
+			column_group = self.field_groups[key]
+			group = [i for i in column_group if i in table.columns]
+			groups += sorted(group)
+		# Filter out useless columns.
+		groups = [i for i in groups if i not in self.field_groups['omit']]
+		other_columns = [i for i in table.columns if i not in groups]
+		table = table[groups+other_columns]
+		return table
+
 	def run(self, filename: Path):
 		lines = self.read_gd_file(filename)
 
@@ -152,7 +184,7 @@ class GDToTable:
 			table_evidence, left_on = 'parent_ids', right_on = 'evidence_id',how = 'left'
 		)
 		merged_table = merged_table.sort_values(by = ["mutation_category", 'seq_id', 'position'])
-
+		merged_table = self.sort_columns(merged_table)
 		return merged_table
 
 
