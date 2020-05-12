@@ -75,7 +75,7 @@ class IsolateSetWorkflow:
 		# Omit `None` from the list.
 		self.gd_extra_tables = [i for i in self.gd_extra_tables if i is not None]
 		if self.gd_extra_tables:
-			gd_df = pandas.concat(self.gd_extra_tables)
+			gd_df = pandas.concat(self.gd_extra_tables, sort = False)
 			tables['gd'] = gd_df
 
 		logger.info(f"Saving isolate table as {output_filename_table}")
@@ -212,6 +212,7 @@ class IsolateSetWorkflow:
 	def update_tables(self, folder: Path):
 		isolate_id = get_sample_name(folder)
 		isolate_name = self.sample_map.get(isolate_id, isolate_id)
+		logger.info(f"Parsing '{isolate_name}' ('{isolate_id}')")
 		in_whitelist = not self.whitelist or isolate_name in self.whitelist or isolate_id in self.whitelist
 		in_blacklist = bool(self.blacklist) and (isolate_name in self.blacklist or isolate_id in self.blacklist)
 
@@ -247,14 +248,10 @@ class IsolateSetWorkflow:
 		if filenames_breseq.get('summary'):
 			summary = breseq_output.get_summary(filenames_breseq['summary'], isolate_id, isolate_name)
 			self.summaries.append(summary)
-		#try:
-		#	summary = breseq_output.get_summary(folder, isolate_id, isolate_name)
-		#	self.summaries.append(summary)
-		#except FileNotFoundError:
-		#	logger.warning(f"Could not locate the summary.json file for '{folder}'.")
 
 
 class IsolateParser:
+	# TODO: This class isn't being used for anything.
 	""" A parser that is dedicated to parsing a single folder."""
 
 	def __init__(self, sample_map: Dict[str, str] = None):

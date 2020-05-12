@@ -67,7 +67,7 @@ def read_table(filename: Path) -> pandas.DataFrame:
 def sample_group():
 	pass
 
-
+@pytest.mark.skip()
 def test_default_commandline_arguments(run_folder, table):
 	isolate_set_workflow = IsolateSetWorkflow()
 	reference_label = "S1_58BA"
