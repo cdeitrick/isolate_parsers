@@ -120,10 +120,24 @@ sample_gd_lines = [
 			'gene_name':          'JNAKOBFD_00523/JNAKOBFD_00524', 'gene_position': 'intergenic (+4/+95)',
 			'gene_product':       '[locus_tag=Bcen2424_2337]',
 			'html_gene_name':     '<i>JNAKOBFD_00523</i>&nbsp;&rarr;&nbsp;/&nbsp;&larr;&nbsp;<i>JNAKOBFD_00524</i>',
-			'locus_tag':          "–/–", 'major_base': 'G', 'major_cov': '4/3', 'major_frequency': '1.000e+00',
-			'minor_base':         'N', 'minor_cov': '0/0', 'new_cov': '4/3', 'polymorphism_frequency': '1.000e+00',
-			'polymorphism_score': 'NA', 'prediction': 'consensus', 'ref_cov': '0/0', 'snp_type': 'intergenic',
-			'total_cov':          '4/3',
+			'locus_tag':          "–/–", 'major_base': 'G', 'major_frequency': '1.000e+00',
+			'minor_base':         'N', 'polymorphism_frequency': '1.000e+00',
+			'polymorphism_score': 'NA', 'prediction': 'consensus', 'snp_type': 'intergenic',
+			#'total_cov':          '4/3',
+			'total_cov_forward': '4',
+			'total_cov_reverse': '3',
+			#'major_cov': '4/3',
+			'major_cov_forward': '4',
+			'major_cov_reverse': '3',
+			#'new_cov': '4/3',
+			'new_cov_forward': '4',
+			'new_cov_reverse': '3',
+			#'minor_cov': '0/0',
+			'minor_cov_forward': '0',
+			'minor_cov_reverse': '0',
+			#'ref_cov': '0/0'
+			'ref_cov_forward': '0',
+			'ref_cov_reverse': '0'
 		}
 	),
 	(
@@ -138,12 +152,28 @@ sample_gd_lines = [
 			'frequency':              '1', 'gene_name': 'JNAKOBFD_01153', 'gene_position': '2271',
 			'gene_product':           '[locus_tag=Bcen2424_5983]',
 			'gene_strand':            '<', 'html_gene_name': '<i>JNAKOBFD_01153</i>&nbsp;&larr;', 'major_base': 'C',
-			'major_cov':              '4/4',
-			'major_frequency':        '1.000e+00', 'minor_base': 'N', 'minor_cov': '0/0', 'new_cov': '4/4',
+
+			'major_frequency':        '1.000e+00', 'minor_base': 'N',
 			'new_seq':                'C',
 			'polymorphism_frequency': '1.000e+00', 'polymorphism_score': 'NA', 'prediction': 'consensus',
-			'ref_cov':                '0/0',
-			'ref_seq':                'G', 'snp_type': 'synonymous', 'total_cov': '4/4', 'transl_table': '1'
+			'ref_seq':                'G', 'snp_type': 'synonymous', 'transl_table': '1',
+			#'major_cov':              '4/4',
+			'major_cov_forward': '4',
+			'major_cov_reverse': '4',
+			#'ref_cov':                '0/0',
+			'ref_cov_forward': '0',
+			'ref_cov_reverse': '0',
+			#'minor_cov': '0/0',
+			'minor_cov_forward': '0',
+			'minor_cov_reverse': '0',
+			#'new_cov': '4/4',
+			'new_cov_forward': '4',
+			'new_cov_reverse': '4',
+			#'total_cov': '4/4',
+			'total_cov_forward': '4',
+			'total_cov_reverse': '4'
+
+
 		}
 	),
 	(

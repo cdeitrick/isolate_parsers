@@ -51,8 +51,8 @@ class GDToTable:
 		modified_coverage_fields = list()
 		for key, value in coverage_fields:
 			forward, reverse = value.split('/')
-			numerator_key = f'{key}_forward_reads'
-			denominator_key = f"{key}_reverse_reads"
+			numerator_key = f'{key}_forward'
+			denominator_key = f"{key}_reverse"
 
 			modified_coverage_fields.append((numerator_key, forward))
 			modified_coverage_fields.append((denominator_key, reverse))

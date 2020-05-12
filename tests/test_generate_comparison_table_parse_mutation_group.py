@@ -131,7 +131,8 @@ def test_parse_mutation_group_large_deletion(deletion_group):
 		"S1_58BA":             "G",
 		"SC_58SM":             "G",
 		'presentInAllSamples': False,
-		'presentIn':           2
+		'presentIn':           2,
+		'alt': 'G'
 	}
 
 	output = generate_comparison_table.parse_mutation_group(deletion_group, unique_samples, ref_col, alt_col)
@@ -181,7 +182,8 @@ def test_parse_mutation_group_with_population(mutation_group_population):
 		'presentInAllSamples': False,
 		'ref':                 'C',
 		'mutationCategory':    'snp_nonsynonymous',
-		'alt':                 'A'
+		'alt':                 'A',
+		'frequency': 'A'
 	}
 	unique_samples = ['E-01', 'E-02', 'E-05', 'E-06', 'E-07', 'E-10']
 
