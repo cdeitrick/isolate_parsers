@@ -127,9 +127,6 @@ class GDToTable:
 		final_data = {**positional_fields, **keyword_fields}
 		_line_type = line[0]
 		final_data['category_id'] = _line_type
-		import json
-		filename = Path(f"{_line_type}.json")
-		filename.write_text(json.dumps(final_data, indent = 4, sort_keys = True))
 
 		return final_data
 
