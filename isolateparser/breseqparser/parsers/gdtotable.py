@@ -6,6 +6,7 @@ from loguru import logger
 from pprint import pprint
 
 
+
 class GDToTable:
 	def __init__(self):
 		self.mutation_types = ["SNP", "SUB", "DEL", "INS", "MOB", "AMP", "CON", "INV"]
@@ -57,7 +58,6 @@ class GDToTable:
 			modified_coverage_fields.append((denominator_key, reverse))
 
 		fields = sorted(other_fields + modified_coverage_fields)
-
 		return dict(fields)
 
 	def parse_positional_fields(self, line: List[str]) -> Dict[str, str]:
@@ -125,6 +125,11 @@ class GDToTable:
 		keyword_fields = self.parse_keyword_fields(keyword_fields)
 
 		final_data = {**positional_fields, **keyword_fields}
+		_line_type = line[0]
+		final_data['category_id'] = _line_type
+		import json
+		filename = Path(f"{_line_type}.json")
+		filename.write_text(json.dumps(final_data, indent = 4, sort_keys = True))
 
 		return final_data
 
@@ -150,6 +155,7 @@ class GDToTable:
 			table_evidence, left_on = 'parent_ids', right_on = 'evidence_id',how = 'left'
 		)
 		merged_table = merged_table.sort_values(by = ["mutation_category", 'seq_id', 'position'])
+
 		return merged_table
 
 
