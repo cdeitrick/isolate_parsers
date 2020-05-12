@@ -1,7 +1,9 @@
 from pathlib import Path
 from typing import *
+import math
 import pandas
 from loguru import logger
+from pprint import pprint
 
 
 class GDToTable:
@@ -30,7 +32,7 @@ class GDToTable:
 		return key in self.evidence_types
 
 	@staticmethod
-	def split_fields(line: Union[str, List[str]]) -> Dict[str, str]:
+	def parse_keyword_fields(line: Union[str, List[str]]) -> Dict[str, str]:
 		""" Splits the xpecified gd lines into a dictionary of key-value pairs. """
 		if isinstance(line, str):
 			line = line.split("\t")
@@ -38,6 +40,23 @@ class GDToTable:
 		fields = [i.partition('=') for i in fields]
 		# Remove the delimiter used to partition the field
 		fields = [(i[0], i[2]) for i in fields]
+
+		# The coverage values are presented as nn/nn, which excel interprets as a date.
+		# Need to add quotes around those values so excel doesn't automatically convert them.
+
+		#fields = [(i if '/' not in i[1] else (i[0], f"'{i[1]}'")) for i in fields]
+		coverage_fields = [i for i in fields if ('cov' in i[0] and '/' in i[1])]
+		other_fields = [i for i in fields if i not in coverage_fields]
+		modified_coverage_fields = list()
+		for key, value in coverage_fields:
+			forward, reverse = value.split('/')
+			numerator_key = f'{key}_forward_reads'
+			denominator_key = f"{key}_reverse_reads"
+
+			modified_coverage_fields.append((numerator_key, forward))
+			modified_coverage_fields.append((denominator_key, reverse))
+
+		fields = sorted(other_fields + modified_coverage_fields)
 
 		return dict(fields)
 
@@ -103,7 +122,7 @@ class GDToTable:
 
 		keyword_fields = line[len(positional_fields):]
 
-		keyword_fields = self.split_fields(keyword_fields)
+		keyword_fields = self.parse_keyword_fields(keyword_fields)
 
 		final_data = {**positional_fields, **keyword_fields}
 

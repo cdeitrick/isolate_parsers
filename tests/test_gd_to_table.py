@@ -123,7 +123,7 @@ sample_gd_lines = [
 			'locus_tag':          "–/–", 'major_base': 'G', 'major_cov': '4/3', 'major_frequency': '1.000e+00',
 			'minor_base':         'N', 'minor_cov': '0/0', 'new_cov': '4/3', 'polymorphism_frequency': '1.000e+00',
 			'polymorphism_score': 'NA', 'prediction': 'consensus', 'ref_cov': '0/0', 'snp_type': 'intergenic',
-			'total_cov':          '4/3'
+			'total_cov':          '4/3',
 		}
 	),
 	(
@@ -167,7 +167,7 @@ def test_split_fields(parser, line, expected):
 	number_of_positional_arguments = len([i for i in line if '=' not in i])
 	line = line[number_of_positional_arguments:]
 
-	result = parser.split_fields(line)
+	result = parser.parse_keyword_fields(line)
 	# Need to remove the empty fields since this method is supposed to be given a truncated line anyway.
 	result = {k: v for k, v in result.items() if v}
 	_to_remove = ['category_id', 'evidence_id', 'parent_ids', 'seq_id', 'position', 'new_seq', 'size']
