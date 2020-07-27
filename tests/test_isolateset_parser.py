@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from isolateset_parser import IsolateSetWorkflow
+from isolateparser.workflow import IsolateSetWorkflow
 import pytest
 data_folder = Path(__file__).with_name('data')
 

@@ -8,7 +8,7 @@ import pandas
 from loguru import logger
 
 from isolateparser import datatools
-from isolateparser.breseqparser import IsolateTableColumns
+from isolateparser.resultparser import IsolateTableColumns
 
 INDEX_COLUMNS = [IsolateTableColumns.sequence_id, IsolateTableColumns.position]
 

@@ -4,7 +4,7 @@ from typing import *
 
 import pytest
 
-from isolateparser.breseqparser.parsers import locations
+from isolateparser.resultparser.parsers import locations
 
 folder_source = Path(__file__).parent / "data"
 

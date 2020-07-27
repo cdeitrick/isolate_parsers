@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple, Union, Iterable
 from loguru import logger
 import pandas
 
-from isolateparser.breseqparser import IsolateTableColumns
+from isolateparser.resultparser import IsolateTableColumns
 
 
 def _calculate_average_value(values: List[str]) -> float:

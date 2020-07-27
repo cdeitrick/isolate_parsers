@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from loguru import logger
 
-from isolateparser import breseqparser
+from isolateparser import resultparser
 
 data_folder = Path(__file__).parent / 'data'
 
@@ -16,15 +16,15 @@ def breseq_clone() -> Path:
 
 
 @pytest.fixture
-def breseq_isolate_parser() -> breseqparser.BreseqFolderParser:
-	return breseqparser.BreseqFolderParser(use_filter = False)
+def breseq_isolate_parser() -> resultparser.BreseqFolderParser:
+	return resultparser.BreseqFolderParser(use_filter = False)
 
 
 def test_get_sample_name():
-	result = breseqparser.get_sample_name(Path("Clonal_Output"))
+	result = resultparser.get_sample_name(Path("Clonal_Output"))
 	assert result == 'Clonal_Output'
 
-	result = breseqparser.get_sample_name(Path("Clonal_Output") / "breseq output")
+	result = resultparser.get_sample_name(Path("Clonal_Output") / "breseq output")
 	assert result == 'Clonal_Output'
 
 
@@ -33,7 +33,7 @@ def test_parse_breseq_isolate_with_only_index_path(breseq_clone, breseq_isolate_
 	# TODO: test different combinations of index,vcf,gd paths.
 	variant_table, coverage_table, junction_table, gd_table = breseq_isolate_parser.run('testIsolate', breseq_clone / "output" / "index.html")
 	logger.info(list(variant_table.columns))
-	logger.info(list(breseqparser.IsolateTableColumns))
+	logger.info(list(resultparser.IsolateTableColumns))
 
 	# Since the workflow was only provided the index file, it is missing the additional columns added from the vcf and gd files.
 
@@ -56,7 +56,7 @@ def test_parse_breseq_isolate_with_only_index_path(breseq_clone, breseq_isolate_
 )
 def test_get_reference_from_mutation(value, annotation, expected):
 
-	result = breseqparser.breseq_folder_parser.get_reference_from_mutation(value, annotation)
+	result = resultparser.breseq_folder_parser.get_reference_from_mutation(value, annotation)
 
 	assert result == expected
 
@@ -73,6 +73,6 @@ def test_get_reference_from_mutation(value, annotation, expected):
 )
 def test_get_alternate_from_mutation(value, expected):
 
-	result = breseqparser.breseq_folder_parser.get_alternate_from_mutation(value)
+	result = resultparser.breseq_folder_parser.get_alternate_from_mutation(value)
 
 	assert result == expected

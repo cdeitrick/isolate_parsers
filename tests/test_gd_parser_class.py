@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from isolateparser.breseqparser.parsers import parse_gd
+from isolateparser.resultparser.parsers import parse_gd
 
 
 @pytest.fixture

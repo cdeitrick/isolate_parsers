@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import *
-from isolateparser.breseqparser.parsers import gdtotable
+from isolateparser.resultparser.parsers import gdtotable
 import pytest
 import itertools
 from loguru import logger

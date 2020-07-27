@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas
 import pytest
 from loguru import logger
-from isolateset_parser import IsolateSetWorkflow
+from isolateparser.workflow import IsolateSetWorkflow
 import math
 
 @pytest.fixture

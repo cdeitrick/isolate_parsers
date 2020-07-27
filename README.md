@@ -1,15 +1,34 @@
-# isolate_parsers
+# Breseqparser
+
+These scripts consolidate and summarize a set of multiple samples with variants called using [breseq](https://barricklab.org/twiki/bin/view/Lab/ToolsBacterialGenomeResequencing).
+
+## Installation
+The scripts can be installed using pip:
+```
+pip install isolateparser
+```
+
 
 ## Usage
+
+
 ```
-python isolateset_parser.py [-h] [-i FOLDER] [--no-fasta] [-w WHITELIST]
-                            [-b BLACKLIST] [-m SAMPLE_MAP] [--filter-1000bp]
+
+usage: breseqparser [-h] [-i FOLDER] [-o OUTPUT] [--fasta] [-w WHITELIST]
+                    [-b BLACKLIST] [-m SAMPLE_MAP] [--filter-1000bp]
+                    [--reference REFERENCE_LABEL]
+                    [--snp-categories SNP_CATEGORIES] [--regex REGEX]
+                    [--single]
 
 optional arguments:
   -h, --help            show this help message and exit
   -i FOLDER, --input FOLDER
                         The breseq folder to parse.
-  --no-fasta            Whether to generate an aligned fasta file of all snps
+  -o OUTPUT, --output OUTPUT
+                        Where to save the output files. Should just be the
+                        prefix, the file extensions will be added
+                        automatically.
+  --fasta               Whether to generate an aligned fasta file of all snps
                         in the breseq VCF file.
   -w WHITELIST, --whitelist WHITELIST
                         Samples not in the whitelist are ignored. Either a
@@ -27,6 +46,17 @@ optional arguments:
   --filter-1000bp       Whether to filter out variants that occur within
                         1000bp of each other. Usually indicates a mapping
                         error.
+  --reference REFERENCE_LABEL
+                        The sample that was used as the reference, if
+                        available.
+  --snp-categories SNP_CATEGORIES
+                        Categories to use when concatenating SNPs into a fasta
+                        file.
+  --regex REGEX         Used to extract sample names from the given filename.
+                        Currently Disabled
+  --single              Indicates that there is only one sample. Used for
+                        debugging.
+
 ```
 
 ## Input
