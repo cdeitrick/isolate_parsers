@@ -6,10 +6,9 @@ from loguru import logger
 from pprint import pprint
 
 
-
 class GDToTable:
 	def __init__(self):
-		self.mutation_types = ["SNP", "SUB", "DEL", "INS", "MOB", "AMP", "CON", "INV"]
+		self.mutation_types = ["SNP", "SUB", "DEL", "INS", "MOB", "AMP", "CON", "INV", "AMP"]
 		self.evidence_types = ["RA", "MC", "JC"]
 
 		# There are a lot of columns to sort through.
@@ -63,7 +62,7 @@ class GDToTable:
 		# The coverage values are presented as nn/nn, which excel interprets as a date.
 		# Need to add quotes around those values so excel doesn't automatically convert them.
 
-		#fields = [(i if '/' not in i[1] else (i[0], f"'{i[1]}'")) for i in fields]
+		# fields = [(i if '/' not in i[1] else (i[0], f"'{i[1]}'")) for i in fields]
 		coverage_fields = [i for i in fields if ('cov' in i[0] and '/' in i[1])]
 		other_fields = [i for i in fields if i not in coverage_fields]
 		modified_coverage_fields = list()
@@ -79,6 +78,51 @@ class GDToTable:
 		return dict(fields)
 
 	def parse_positional_fields(self, line: List[str]) -> Dict[str, str]:
+		""" Parses the positional values of a line in the gd file."""
+		line_type, evidence_id, parent_ids, seq_id, position = line[:5]
+		data = {
+			'category_id': line[0],
+			'evidence_id': line[1],
+			'parent_ids':  line[2],
+		}
+		# Mutations have more positional arguments than evidence fields, so `line` will have to be
+		# modified accordingly.
+		is_mutation = self.is_mutation(line_type)
+		if is_mutation:
+			data['seq_id'] = line[3]
+			data['position'] = line[4]
+
+		# Now update `data` the category-specific keyword arguments
+		if line_type in {'SNP', 'INS'}:
+			update = _apply_keywords_to_position(['new_seq'], [line[5]])
+		elif line_type == 'DEL':
+			update = _apply_keywords_to_position(['size'], [line[5]])
+		elif line_type == 'AMP':
+			update = _apply_keywords_to_position(['new_copy_number'], [line[5]])
+		elif line_type == 'SUB':
+			update = _apply_keywords_to_position(['size', 'new_seq'], [line[5], line[6]])
+		elif line_type == 'MOB':
+			update = _apply_keywords_to_position(['repeat_name', 'strand', 'duplication_size'], line[5:8])
+		elif line_type == 'RA':
+			keywords = ['seq_id', 'position', 'insert_position', 'ref_base', 'new_base']
+			update = _apply_keywords_to_position(keywords, line[3:8])
+		elif line_type == 'MC':
+			update = _apply_keywords_to_position(['seq_id', 'start', 'end', 'start_range', 'end_range'], line[3:8])
+		elif line_type == 'JC':
+			keywords = [
+				'side_1_seq_id', 'side_1_position', 'side_1_strand', 'side_2_seq_id',
+				'side_2_position', 'side_2_strand', 'overlap'
+			]
+			update = _apply_keywords_to_position(keywords, line[3:10])
+		elif line_type == 'UN':
+			update = _apply_keywords_to_position(['seq_id', 'start', 'end'], line[3:6])
+		else:
+			message = f"Not a valid mutation or evidence type: '{line_type}'"
+			raise ValueError(message)
+		data.update(update)
+		return data
+
+	def parse_positional_fields2(self, line: List[str]) -> Dict[str, str]:
 		""" Parses the positional values of a line in the gd file."""
 		line_type, evidence_id, parent_ids, seq_id, position = line[:5]
 		data = {
@@ -123,6 +167,8 @@ class GDToTable:
 			data['side_2_position'] = line[7]
 			data['side_2_strand'] = line[8]
 			data['overlap'] = line[9]
+		elif line_type == 'AMP':
+			data['new_copy_number'] = line[3]
 		elif line_type == 'UN':
 			data['seq_id'] = line[3]
 			data['start'] = line[4]
@@ -148,10 +194,10 @@ class GDToTable:
 
 		return final_data
 
-	def sort_columns(self, table:pandas.DataFrame)->pandas.DataFrame:
+	def sort_columns(self, table: pandas.DataFrame) -> pandas.DataFrame:
 		""" Groups columns together to make the table a little more legible."""
 		groups = list()
-		group_keys = ["primary","mutation",'deletion', "gene", "coverage", 'codon', 'amino', 'insertion']
+		group_keys = ["primary", "mutation", 'deletion', "gene", "coverage", 'codon', 'amino', 'insertion']
 		for key in group_keys:
 			column_group = self.field_groups[key]
 			group = [i for i in column_group if i in table.columns]
@@ -159,7 +205,7 @@ class GDToTable:
 		# Filter out useless columns.
 		groups = [i for i in groups if i not in self.field_groups['omit']]
 		other_columns = [i for i in table.columns if i not in groups]
-		table = table[groups+other_columns]
+		table = table[groups + other_columns]
 		return table
 
 	def run(self, filename: Path):
@@ -181,11 +227,16 @@ class GDToTable:
 		table_mutations_single = table_mutations[~table_mutations['parent_ids'].str.contains(',')]
 
 		merged_table = table_mutations_single.merge(
-			table_evidence, left_on = 'parent_ids', right_on = 'evidence_id',how = 'left'
+			table_evidence, left_on = 'parent_ids', right_on = 'evidence_id', how = 'left'
 		)
 		merged_table = merged_table.sort_values(by = ["mutation_category", 'seq_id', 'position'])
 		merged_table = self.sort_columns(merged_table)
 		return merged_table
+
+
+def _apply_keywords_to_position(fields: List[str], values: List[Any]) -> Dict[str, Any]:
+	row = {k: v for k, v in zip(fields, values)}
+	return row
 
 
 def main():
